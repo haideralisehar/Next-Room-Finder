@@ -95,7 +95,7 @@
 }
 
 /* Login button */
-.login-btn {
+.login-btn-1 {
   background: transparent;
   color: white;
   border: 1px solid white;
@@ -105,7 +105,7 @@
   font-size: 15px;
 }
 
-.login-btn:hover {
+.login-btn-1:hover {
   background-color: white;
   color: #00384d;
 }
@@ -173,7 +173,7 @@
 
   .mobile-nav ul li a,
   .dropbtn,
-  .login-btn {
+  .login-btn-1 {
     display: block;
     width: 100%;
     text-align: left;

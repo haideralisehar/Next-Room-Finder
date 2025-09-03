@@ -72,7 +72,7 @@
   transition: 0.3s;
 }
 
-.login-btn:hover {
+.login-btns:hover {
   background: #1d4ed8;
 }
 
@@ -92,6 +92,10 @@
 
 /* Responsive */
 @media (max-width: 780px) {
+  .login-container {
+    padding: 20px 10px 10px 10px;
+    height: auto;
+  }
   .login-box {
     padding: 20px;
   }

@@ -37,7 +37,7 @@ const Header = () => {
                 <a href="/">PKR</a>
               </div>
             </li>
-           <li><button  className="login-btn"><Link href="/authentication/login">Login</Link></button></li>
+           <button  className="login-btn-1"><Link href="/authentication/login">Login</Link></button>
           </ul>
         </nav>
 
@@ -81,7 +81,7 @@ const Header = () => {
           <li><Link href="/About">About Us</Link></li>
           
           
-          <li><button  className="login-btn"><Link href="/authentication/login">About Us</Link></button></li>
+          <button  className="login-btn-1"><Link href="/authentication/login">About Us</Link></button>
         </ul>
       </nav>
     </header>
