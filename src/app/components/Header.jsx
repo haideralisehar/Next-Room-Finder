@@ -1,6 +1,7 @@
 "use client";
 import React, { useState } from "react";
 import "../styling/Head.css";
+import Link from "next/link";
 import { BsDisplay } from "react-icons/bs";
 
 const Header = () => {
@@ -25,8 +26,8 @@ const Header = () => {
           
           <ul>
             <li><a href="/">Home</a></li>
-            <li><a href="/search">Search</a></li>
-            <li><a href="/about">About Us</a></li>
+            <li><a href="/search">Search </a></li>
+            <li><Link href="/About">About Us</Link></li>
             <li><a href="/ar">العربية</a></li>
             <li className="dropdown">
               <button className="dropbtn">USD ▾</button>
@@ -64,7 +65,7 @@ const Header = () => {
         <ul>
           <li><a href="/">Home</a></li>
           <li><a href="/search">Search</a></li>
-          <li><a href="/about">About Us</a></li>
+          <li><Link href="/About">About Us</Link></li>
           
           
           <li><button className="login-btn">Login</button></li>

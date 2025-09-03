@@ -1,4 +1,5 @@
 import React from "react";
+import Link from "next/link";
 import "../styling/Footer.css";
 import { FaInstagram, FaWhatsapp } from "react-icons/fa";
 import { MdEmail } from "react-icons/md";
@@ -33,10 +34,11 @@ const Footer = () => {
           <div className="line"></div>
           <ul>
             <li>
-              <a href="/about-us">About Us</a>
+              <Link href="/About">About Us</Link>
             </li>
             <li>
-              <a href="/terms">Terms And Conditions</a>
+              <Link href="/terms-conditions">Terms And Conditions</Link>
+             
             </li>
             <li>
               <a href="/privacy">Privacy Policy</a>

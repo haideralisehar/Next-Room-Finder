@@ -111,9 +111,14 @@
   color: yellow;
 }
 
+.payment-icons{
+  display: flex;
+}
+
 .payment-icons img {
   width: 40px;
   margin-left: 10px;
+  
 }
 
 /* ✅ Responsive for mobile */
