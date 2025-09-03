@@ -137,6 +137,7 @@
 
   .hamburger {
     display: block;
+    margin-left: 3px;
   }
 
   /* Mobile Nav with transition */
@@ -183,15 +184,10 @@
     box-shadow: none;
     border-radius: 0;
   }
-
-  
-}
-
-/* Default hide mobile actions */
-.mobile-actions {
+  .mobile-actions {
   display: none;
   align-items: center;
-  gap: 6px;
+  gap: 10px;
   color: white;
   
 }
@@ -213,6 +209,12 @@
   border-bottom-right-radius: 10px;
 }
 
+
+  
+}
+
+/* Default hide mobile actions */
+
 /* Show only in mobile */
 @media (max-width: 780px) {
   .mobile-actions {
@@ -222,7 +224,7 @@
 
 
 /* Hide mobile nav on desktop */
-@media (min-width: 781px) {
+@media (min-width: 780px) {
   .mobile-nav {
     display: none !important;
   }

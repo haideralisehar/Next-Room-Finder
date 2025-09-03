@@ -38,7 +38,7 @@
   flex: 1;
 }
 
-button {
+.sent-btn {
   background: #d4d4d4;
   color: rgb(40, 40, 40);
   padding: 12px;
@@ -47,11 +47,11 @@ button {
   cursor: pointer;
 }
 
-button:hover {
+.sent-btn:hover {
   background: #c3c3c3;
 }
 
-.status {
+/* .status {
   margin-top: 10px;
   font-weight: bold;
-}
+} */

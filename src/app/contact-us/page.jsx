@@ -119,7 +119,7 @@ const ContactUs = () => {
 
         {/* <ReCAPTCHA sitekey="YOUR_RECAPTCHA_SITE_KEY" onChange={handleCaptcha} /> */}
 
-        <button type="submit">Send</button>
+        <button className="sent-btn" type="submit">Send</button>
       </form>
       {status && <p className="status">{status}</p>}
     </div>
