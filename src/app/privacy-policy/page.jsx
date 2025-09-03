@@ -105,7 +105,7 @@ export default function PrivacyPolicy() {
           not hesitate to contact us. CityIn Booking -{" "}
           <a
             style={{ color: "#165fd5ff" }}
-            href="mailto:sales@cityin.net?subject=Business%20Inquiry&body=Hello%20Team,"
+            href="https://mail.google.com/mail/?view=cm&fs=1&to=sales@cityin.net"
             target="_blank"
           >
             sales@cityin.net
