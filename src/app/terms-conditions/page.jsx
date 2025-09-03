@@ -21,12 +21,13 @@ export default function TermsAndConditions() {
             textAlign: "center",
             fontSize: "17px",
             padding: "0px 0px 10px 0px",
+            fontWeight:"bold"
           }}
         >
           Terms And Conditions
         </p>
         <hr style={{ color: "grey" }} />
-        <h1 style={{ padding: "20px 0px 10px 0px", fontWeight: "bold" }}>
+        <h1 style={{ padding: "20px 0px 10px 0px", fontWeight: "bold",  }}>
           Online Booking Process
         </h1>
         <p style={{ padding: "0px 0px 10px 0px" }}>
