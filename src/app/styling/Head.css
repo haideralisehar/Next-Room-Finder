@@ -118,7 +118,7 @@
   background: none;
   border: none;
   cursor: pointer;
-  margin-left: 5px;
+  margin-left: 1px;
 }
 .jszzy{
   display: none;
@@ -191,7 +191,7 @@
 .mobile-actions {
   display: none;
   align-items: center;
-  gap: 10px;
+  gap: 6px;
   color: white;
   
 }

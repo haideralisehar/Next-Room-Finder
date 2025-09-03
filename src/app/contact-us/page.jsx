@@ -123,8 +123,9 @@ const ContactUs = () => {
       </form>
       {status && <p className="status">{status}</p>}
     </div>
-    <Footer/>
+    
     </div>
+    <Footer/>
     </>
   );
 };
