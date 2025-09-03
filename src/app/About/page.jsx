@@ -32,15 +32,30 @@ export default function About() {
         >
           Our Services
         </h3>
-        <div className="lst-txt" style={{ padding: "10px 0px 10px 0px", fontSize: "14px", color: "#4e4e4eff", overflow:"hidden" }}>
-        <li>
-          Tailored Packages : Customized packages based on individual
-          preferences.
-        </li>
-        <li>Hotel Bookings: International Hotels at competitive prices.</li>
-        <li>Flight Reservations : Book your flights with wide options.</li>
-        <li>Travel Insurance : Secure your Itinerary with peace of mind.</li>
-      </div>
+       <div
+  className="lst-txt"
+  style={{
+    padding: "10px 0px",
+    fontSize: "14px",
+    color: "#4e4e4eff",
+  }}
+>
+  <ul style={{ listStyleType: "disc", paddingLeft: "20px" }}>
+    <li style={{ marginBottom: "8px", lineHeight: "1.6" }}>
+      Tailored Packages : Customized packages based on individual preferences.
+    </li>
+    <li style={{ marginBottom: "8px", lineHeight: "1.6" }}>
+      Hotel Bookings: International Hotels at competitive prices.
+    </li>
+    <li style={{ marginBottom: "8px", lineHeight: "1.6" }}>
+      Flight Reservations : Book your flights with wide options.
+    </li>
+    <li style={{ marginBottom: "8px", lineHeight: "1.6" }}>
+      Travel Insurance : Secure your Itinerary with peace of mind.
+    </li>
+  </ul>
+</div>
+
       </div>
 
       <Footer />
