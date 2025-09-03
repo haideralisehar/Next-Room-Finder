@@ -1,0 +1,57 @@
+.contact-container {
+  max-width: 600px;
+  margin: 10px auto;
+  padding: 20px;
+  background: white;
+  border-radius: 12px;
+  border: 1px solid rgb(214, 214, 214);
+  font-family: "Jost";
+  
+}
+.contact-container h2{
+  padding: 0px 0px 10px 0px;
+  font-weight: bold;
+  font-size: 20px;
+}
+
+.contact-form {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.contact-form input,
+.contact-form select,
+.contact-form textarea {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+}
+
+.row {
+  display: flex;
+  gap: 10px;
+}
+
+.row div {
+  flex: 1;
+}
+
+button {
+  background: #d4d4d4;
+  color: rgb(40, 40, 40);
+  padding: 12px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+button:hover {
+  background: #c3c3c3;
+}
+
+.status {
+  margin-top: 10px;
+  font-weight: bold;
+}

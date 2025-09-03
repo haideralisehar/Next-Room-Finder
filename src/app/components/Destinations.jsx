@@ -1,5 +1,6 @@
 import React from "react";
 import "../styling/Destinations.css";
+import Link from "next/link";
 
 const Destinations = () => {
   return (
@@ -18,7 +19,7 @@ const Destinations = () => {
            Individual consultations are available via WhatsApp with a call center that operates 24 hours a day, 7 days a week to help customers find an easy and comfortable accommodation experience and plan air travel for work or family vacations with a secure payment service
         </p>
 
-        <button className="abt-more-btn">Read More</button>
+        <Link href="/About"><button className="abt-more-btn">Read More</button></Link>
 
     
     </div>

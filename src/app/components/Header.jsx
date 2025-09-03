@@ -1,4 +1,4 @@
-"use client";
+"use client"
 import React, { useState } from "react";
 import "../styling/Head.css";
 import Link from "next/link";
@@ -26,7 +26,7 @@ const Header = () => {
           
           <ul>
             <li><a href="/">Home</a></li>
-            <li><a href="/search">Search </a></li>
+            <li><a href="/search">Search</a></li>
             <li><Link href="/About">About Us</Link></li>
             <li><a href="/ar">العربية</a></li>
             <li className="dropdown">
@@ -42,6 +42,18 @@ const Header = () => {
         </nav>
 
         {/* Hamburger (mobile only) */}
+
+        <div className="mobile-actions">
+    <a href="/ar" className="mobile-lang">العربية</a>
+    <div className="dropdown mobile-currency">
+      <button className="dropbtn">USD ▾</button>
+      <div className="dropdown-content">
+        <a href="/">USD</a>
+        <a href="/">EUR</a>
+        <a href="/">PKR</a>
+      </div>
+    </div>
+    
         
         <button
           className={`hamburger ${menuOpen ? "open" : ""}`}
@@ -51,6 +63,7 @@ const Header = () => {
         >
           ☰
         </button>
+        </div>
          </div>
          
         
