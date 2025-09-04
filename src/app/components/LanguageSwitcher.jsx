@@ -28,7 +28,7 @@ export default function LanguageSwitcher() {
       translate="no"
       onClick={toggleLanguage}
       style={{
-        padding: "10px 16px",
+        padding: "11px 18px 8px 12px",
         color: "black",
         border: "none",
         borderRadius: "6px",
