@@ -103,12 +103,13 @@
   border-radius: 5px;
   cursor: pointer;
   font-size: 15px;
+  float: right;
 }
 
-.login-btn-1:hover {
+/* .login-btn-1:hover {
   background-color: white;
   color: #00384d;
-}
+} */
 
 /* Hamburger button */
 .hamburger {
