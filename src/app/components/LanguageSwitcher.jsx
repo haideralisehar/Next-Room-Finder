@@ -28,14 +28,14 @@ export default function LanguageSwitcher() {
       translate="no"
       onClick={toggleLanguage}
       style={{
-        padding: "11px 18px 8px 12px",
+        padding: "11px 180px 8px 12px",
         color: "black",
         border: "none",
         borderRadius: "6px",
         cursor: "pointer",
       }}
     >
-      <p style={{color:"white", cursor:"pointer"}}>{lang === "en" ? "العربية" : "Eng"}</p>
+      <p style={{color:"white", cursor:"pointer", paddingRight:"5px"}}>{lang === "en" ? "العربية" : "Eng"}</p>
     </button>
   );
 }
