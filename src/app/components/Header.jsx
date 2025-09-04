@@ -1,7 +1,8 @@
-"use client"
+"use client";
 import React, { useState } from "react";
 import "../styling/Head.css";
 import Link from "next/link";
+import Dropdown from "./Dropdown";
 import { BsDisplay } from "react-icons/bs";
 
 const Header = () => {
@@ -23,65 +24,64 @@ const Header = () => {
 
         {/* Desktop Nav */}
         <nav className="nav desktop-nav">
-          
           <ul>
-            <li><a href="/">Home</a></li>
-            <li><a href="/search">Search</a></li>
-            <li><Link href="/About">About Us</Link></li>
-            <li><a href="/ar">العربية</a></li>
-            <li className="dropdown">
-              <button className="dropbtn">USD ▾</button>
-              <div className="dropdown-content">
-                <a href="/">USD</a>
-                <a href="/">EUR</a>
-                <a href="/">PKR</a>
-              </div>
+            <li>
+              <a href="/">Home</a>
             </li>
-           <button  className="login-btn-1"><Link href="/authentication/login">Login</Link></button>
+            <li>
+              <a href="/search">Search</a>
+            </li>
+            <li>
+              <Link href="/About">About Us</Link>
+            </li>
+            <li>
+              <a href="/ar">العربية</a>
+            </li>
+            <Dropdown />
+            <button className="login-btn-1">
+              <Link href="/authentication/login">Login</Link>
+            </button>
           </ul>
         </nav>
 
         {/* Hamburger (mobile only) */}
 
         <div className="mobile-actions">
-    <a href="/ar" className="mobile-lang">العربية</a>
-    <div className="dropdown mobile-currency">
-      <button className="dropbtn">USD ▾</button>
-      <div className="dropdown-content">
-        <a href="/">USD</a>
-        <a href="/">EUR</a>
-        <a href="/">PKR</a>
-      </div>
-    </div>
-    
-        
-        <button
-          className={`hamburger ${menuOpen ? "open" : ""}`}
-          onClick={toggleMenu}
-          aria-controls="mobileMenu"
-          aria-expanded={menuOpen}
-        >
-          ☰
-        </button>
+          <a href="/ar" className="mobile-lang">
+            العربية
+          </a>
+          <Dropdown />
+
+          <button
+            className={`hamburger ${menuOpen ? "open" : ""}`}
+            onClick={toggleMenu}
+            aria-controls="mobileMenu"
+            aria-expanded={menuOpen}
+          >
+            ☰
+          </button>
         </div>
-         </div>
-         
-        
-     
+      </div>
 
       {/* Mobile Nav (always mounted) */}
       <nav
         id="mobileMenu"
         className={`nav mobile-nav ${menuOpen ? "open" : ""}`}
       >
-        
         <ul>
-          <li><a href="/">Home</a></li>
-          <li><a href="/search">Search</a></li>
-          <li><Link href="/About">About Us</Link></li>
-          
-          
-          <Link href="/authentication/login"><button  className="login-btn-1">Login</button></Link>
+          <li>
+            <a href="/">Home</a>
+          </li>
+          <li>
+            <a href="/search">Search</a>
+          </li>
+          <li>
+            <Link href="/About">About Us</Link>
+          </li>
+
+          <Link href="/authentication/login">
+            <button className="login-btn-1">Login</button>
+          </Link>
         </ul>
       </nav>
     </header>

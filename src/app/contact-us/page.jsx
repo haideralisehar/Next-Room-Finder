@@ -48,6 +48,7 @@ const ContactUs = () => {
     <>
     <Header/>
     
+    
     <div style={{padding:"10px"}}>
 
     <div className="contact-container">
@@ -108,6 +109,8 @@ const ContactUs = () => {
           <option value="Sales">Sales</option>
           <option value="General Inquiry">General Inquiry</option>
         </select>
+
+        
 
         <label>Message</label>
         <textarea

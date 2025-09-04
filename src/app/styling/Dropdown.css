@@ -1,0 +1,48 @@
+.dropdown-alt {
+  position: relative;
+  display: inline-block;
+  font-family: Arial, sans-serif;
+}
+
+.dropdown-btn {
+  
+  background-color: transparent;
+  color: rgb(255, 255, 255);
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+
+
+.arrow {
+  font-size: 12px;
+}
+
+.dropdown-menu {
+  position: absolute;
+  top: 110%;
+  font-size: 13px;
+  left: 0;
+  background-color: white; /* menu background */
+  border: 1px solid #ccc;
+  box-shadow: 0px 4px 8px rgba(0,0,0,0.1);
+  z-index: 20;
+}
+
+.dropdown-option {
+  padding: 10px;
+  cursor: pointer;
+  color: black;
+ 
+  transition: background 0.2s;
+}
+
+.dropdown-option:hover {
+  background-color: #f0f0f0; /* hover effect */
+  
+}
