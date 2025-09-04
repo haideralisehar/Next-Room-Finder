@@ -4,6 +4,7 @@ import "../styling/Head.css";
 import Link from "next/link";
 import Dropdown from "./Dropdown";
 import { BsDisplay } from "react-icons/bs";
+import LanguageSwitcher from "./LanguageSwitcher";
 
 const Header = () => {
   const [menuOpen, setMenuOpen] = useState(false);
@@ -35,7 +36,7 @@ const Header = () => {
               <Link href="/About">About Us</Link>
             </li>
             <li>
-              <a href="/ar">العربية</a>
+              <LanguageSwitcher/>
             </li>
             <Dropdown />
             <button className="login-btn-1">
@@ -47,9 +48,10 @@ const Header = () => {
         {/* Hamburger (mobile only) */}
 
         <div className="mobile-actions">
-          <a href="/ar" className="mobile-lang">
+          {/* <a href="/ar" className="mobile-lang">
             العربية
-          </a>
+          </a> */}
+          <LanguageSwitcher/>
           <Dropdown />
 
           <button

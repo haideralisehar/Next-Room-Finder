@@ -27,7 +27,7 @@ const DropdownAlt = () => {
   }, []);
 
   return (
-    <div className="dropdown-alt" ref={dropdownRef}>
+    <div translate="no"  className="dropdown-alt" ref={dropdownRef}>
       <button className="dropdown-btn" onClick={toggleDropdown}>
         {selected} <span className="arrow">&#9662;</span>
       </button>

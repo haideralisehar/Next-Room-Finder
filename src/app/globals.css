@@ -1,13 +1,37 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+/* ✅ Hide Google Translate top banner */
+
+body {
+  top: 0px;
+  
+}
+/* Extra protection to prevent Google from translating */
+.notranslate {
+  all: unset !important;
+}
+/* Hide Google Translate top banner */
+.goog-te-banner-frame.skiptranslate {
+  display: none !important;
+} 
+
+body {
+  top: 0px !important;
 }
 
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+
+/* ✅ Hide Google toolbar (pop-up at bottom) */
+.goog-te-balloon-frame {
+  display: none;
+}
+
+/* ✅ Hide Google logo link */
+.google_translate_element {
+  display: none;
+}
+
+/* ✅ Adjust widget styling */
+.goog-te-gadget {
+  font-size: 0 !important;
 }
