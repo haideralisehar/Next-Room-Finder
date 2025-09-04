@@ -10,28 +10,10 @@ body {
 .notranslate {
   all: unset !important;
 }
-/* Hide Google Translate top banner */
-.goog-te-banner-frame.skiptranslate {
-  display: none !important;
-} 
+.skiptranslate {
+    display: none !important;
+}
 
 body {
-  top: 0px !important;
-}
-
-
-
-/* ✅ Hide Google toolbar (pop-up at bottom) */
-.goog-te-balloon-frame {
-  display: none;
-}
-
-/* ✅ Hide Google logo link */
-.google_translate_element {
-  display: none;
-}
-
-/* ✅ Adjust widget styling */
-.goog-te-gadget {
-  font-size: 0 !important;
+    top: 0px !important;
 }
