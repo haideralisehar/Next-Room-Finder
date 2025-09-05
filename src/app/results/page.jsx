@@ -2,7 +2,7 @@
 import React from "react";
 import { useSearchParams } from "next/navigation";
 import HotelSearchBar, { hotelsData } from "../components/RoomSearch";
-import "../results/ResultsPage.css"
+import "../results/ResultsPage.css";
 
 export default function ResultsContent() {
   const searchParams = useSearchParams();
@@ -10,9 +10,16 @@ export default function ResultsContent() {
   const destination = searchParams.get("destination") || "";
   const from = searchParams.get("from");
   const to = searchParams.get("to");
-  const rooms = JSON.parse(searchParams.get("rooms") || "[]");
 
-  // ✅ Filter hotels
+  // ✅ Safe parse of rooms
+  let rooms = [];
+  try {
+    const roomsParam = searchParams.get("rooms");
+    rooms = roomsParam ? JSON.parse(decodeURIComponent(roomsParam)) : [];
+  } catch (e) {
+    console.error("Invalid rooms data:", e);
+  }
+
   const results = hotelsData[destination] || [];
 
   return (
