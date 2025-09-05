@@ -1,12 +1,10 @@
 "use client";
 import React from "react";
 import { useSearchParams } from "next/navigation";
-import HotelSearchBar, { hotelsData } from "../components/RoomSearch"; // ✅ import data + search bar
-import "./ResultsPage.css";
-import Header from "../components/Header";
-import Footer from "../components/Footer";
+import HotelSearchBar, { hotelsData } from "../components/RoomSearch";
+import "../results/ResultsPage.css"
 
-export default function ResultsPage() {
+export default function ResultsContent() {
   const searchParams = useSearchParams();
 
   const destination = searchParams.get("destination") || "";
@@ -14,30 +12,27 @@ export default function ResultsPage() {
   const to = searchParams.get("to");
   const rooms = JSON.parse(searchParams.get("rooms") || "[]");
 
-  // ✅ Filter hotels directly from hotelsData
+  // ✅ Filter hotels
   const results = hotelsData[destination] || [];
 
   return (
-    <>
-    <Header/>
-    
     <div className="results-container">
-      {/* ✅ Search Bar stays on top, values pre-filled */}
+      {/* Search bar with pre-filled values */}
       <HotelSearchBar
         initialDestination={destination}
         initialCheckIn={from}
         initialCheckOut={to}
         initialRooms={rooms}
       />
-      <br />
 
+      <br />
       <h2>
         {results.length > 0
           ? `Hotels in ${destination}`
           : `No hotels found in ${destination}`}
       </h2>
 
-      {/* ✅ Search Summary */}
+      {/* Search Summary */}
       <div className="search-summary">
         <p>
           Check-in: <strong>{from?.slice(0, 10) || "N/A"}</strong> | 
@@ -45,9 +40,10 @@ export default function ResultsPage() {
         </p>
         <p>Rooms: <strong>{rooms.length}</strong></p>
       </div>
+
       <br />
 
-      {/* ✅ Hotel List (vertical cards) */}
+      {/* Hotel List */}
       <div className="hotel-list">
         {results.map((hotel) => (
           <div key={hotel.id} className="hotel-card">
@@ -62,8 +58,5 @@ export default function ResultsPage() {
         ))}
       </div>
     </div>
-
-    <Footer/>
-    </>
   );
 }

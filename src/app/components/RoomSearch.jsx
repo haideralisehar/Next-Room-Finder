@@ -119,19 +119,18 @@ export default function HotelSearchBar({
   };
 
   const handleSearch = () => {
-    if (!destination) {
-      alert("Please enter a destination!");
-      return;
-    }
+  if (!destination) {
+    alert("Please enter a destination!");
+    return;
+  }
 
-    const results = hotelsData[destination] || [];
+  router.push(
+    `/results?destination=${destination}&from=${checkInDate?.toISOString()}&to=${checkOutDate?.toISOString()}&rooms=${encodeURIComponent(
+      JSON.stringify(rooms)
+    )}`
+  );
+};
 
-    router.push(
-      `/results?destination=${destination}&from=${checkInDate?.toISOString()}&to=${checkOutDate?.toISOString()}&rooms=${encodeURIComponent(
-        JSON.stringify(rooms)
-      )}&results=${encodeURIComponent(JSON.stringify(results))}`
-    );
-  };
 
   return (
     <div>
