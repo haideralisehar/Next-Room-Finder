@@ -1,5 +1,6 @@
 "use client";
 
+import { Suspense } from 'react'
 import React from "react";
 import { useSearchParams } from "next/navigation";
 import HotelSearchBar, { hotelsData } from "../components/RoomSearch";
@@ -24,6 +25,7 @@ export default function ResultsContent() {
   const results = hotelsData[destination] || [];
 
   return (
+    <Suspense>
     <div className="results-container">
       <HotelSearchBar
         initialDestination={destination}
@@ -60,5 +62,6 @@ export default function ResultsContent() {
         ))}
       </div>
     </div>
+    </Suspense>
   );
 }
