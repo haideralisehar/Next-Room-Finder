@@ -1,6 +1,5 @@
-// HotelSearchBar.jsx
 "use client";
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import {
   FaMapMarkerAlt,
   FaCalendarAlt,
@@ -27,13 +26,6 @@ export const hotelsData = {
     },
     {
       id: 2,
-      name: "Marriott Islamabad",
-      location: "Agha Khan Road, Islamabad",
-      price: 90,
-      image: "https://images.pexels.com/photos/260922/pexels-photo-260922.jpeg",
-    },
-    {
-      id: 3,
       name: "Marriott Islamabad",
       location: "Agha Khan Road, Islamabad",
       price: 90,
@@ -68,12 +60,21 @@ export default function HotelSearchBar({
 }) {
   const router = useRouter();
 
-  // ✅ Initialize state with props
   const [destination, setDestination] = useState(initialDestination);
-  const [checkInDate, setCheckInDate] = useState(initialCheckIn ? new Date(initialCheckIn) : null);
-  const [checkOutDate, setCheckOutDate] = useState(initialCheckOut ? new Date(initialCheckOut) : null);
-  const [rooms, setRooms] = useState(initialRooms);
 
+  // ✅ Default dates: check-in today, check-out tomorrow
+  const today = new Date();
+  const tomorrow = new Date();
+  tomorrow.setDate(today.getDate() + 1);
+
+  const [checkInDate, setCheckInDate] = useState(
+    initialCheckIn ? new Date(initialCheckIn) : today
+  );
+  const [checkOutDate, setCheckOutDate] = useState(
+    initialCheckOut ? new Date(initialCheckOut) : tomorrow
+  );
+
+  const [rooms, setRooms] = useState(initialRooms);
   const [showPopup, setShowPopup] = useState(false);
 
   const handlePopupToggle = () => setShowPopup(!showPopup);
@@ -106,13 +107,14 @@ export default function HotelSearchBar({
     });
   };
 
-  const addRoom = () => setRooms([...rooms, { adults: 2, children: 0, childrenAges: [] }]);
+  const addRoom = () =>
+    setRooms([...rooms, { adults: 2, children: 0, childrenAges: [] }]);
   const deleteRoom = (roomIndex) => setRooms(rooms.filter((_, i) => i !== roomIndex));
 
   const getSummary = () => {
-    let totalRooms = rooms.length;
-    let totalAdults = rooms.reduce((sum, r) => sum + r.adults, 0);
-    let totalChildren = rooms.reduce((sum, r) => sum + r.children, 0);
+    const totalRooms = rooms.length;
+    const totalAdults = rooms.reduce((sum, r) => sum + r.adults, 0);
+    const totalChildren = rooms.reduce((sum, r) => sum + r.children, 0);
     return `${totalRooms} Room${totalRooms > 1 ? "s" : ""}, ${totalAdults} Adults${
       totalChildren > 0 ? `, ${totalChildren} Children` : ""
     }`;
@@ -124,11 +126,18 @@ export default function HotelSearchBar({
     return;
   }
 
-  router.push(
-    `/results?destination=${destination}&from=${checkInDate?.toISOString()}&to=${checkOutDate?.toISOString()}&rooms=${encodeURIComponent(
-      JSON.stringify(rooms)
-    )}`
-  );
+  const searchUrl = `/results?destination=${destination}&from=${checkInDate?.toISOString()}&to=${checkOutDate?.toISOString()}&rooms=${encodeURIComponent(
+    JSON.stringify(rooms)
+  )}`;
+
+  // Decide whether to push or replace
+  if (window.location.pathname === "/") {
+    // From homepage → push so user can go back
+    router.push(searchUrl);
+  } else {
+    // From results page → replace to avoid multiple entries
+    router.replace(searchUrl);
+  }
 };
 
 
@@ -195,7 +204,10 @@ export default function HotelSearchBar({
               <div key={roomIndex} className="room-section">
                 <h3>Room {roomIndex + 1}</h3>
                 {roomIndex > 0 && (
-                  <button className="delete-room-btn" onClick={() => deleteRoom(roomIndex)}>
+                  <button
+                    className="delete-room-btn"
+                    onClick={() => deleteRoom(roomIndex)}
+                  >
                     <FaTrash /> Remove
                   </button>
                 )}
@@ -203,17 +215,25 @@ export default function HotelSearchBar({
                 {/* Adults */}
                 <div className="counter">
                   <label>Adults</label>
-                  <button onClick={() => updateCount(roomIndex, "adults", "decrement")}><FaMinus /></button>
+                  <button onClick={() => updateCount(roomIndex, "adults", "decrement")}>
+                    <FaMinus />
+                  </button>
                   <span>{room.adults}</span>
-                  <button onClick={() => updateCount(roomIndex, "adults", "increment")}><FaPlus /></button>
+                  <button onClick={() => updateCount(roomIndex, "adults", "increment")}>
+                    <FaPlus />
+                  </button>
                 </div>
 
                 {/* Children */}
                 <div className="counter">
                   <label>Children</label>
-                  <button onClick={() => updateCount(roomIndex, "children", "decrement")}><FaMinus /></button>
+                  <button onClick={() => updateCount(roomIndex, "children", "decrement")}>
+                    <FaMinus />
+                  </button>
                   <span>{room.children}</span>
-                  <button onClick={() => updateCount(roomIndex, "children", "increment")}><FaPlus /></button>
+                  <button onClick={() => updateCount(roomIndex, "children", "increment")}>
+                    <FaPlus />
+                  </button>
                 </div>
 
                 {/* Children Ages */}
@@ -224,11 +244,15 @@ export default function HotelSearchBar({
                         <label>Child {childIndex + 1} Age:</label>
                         <select
                           value={age || ""}
-                          onChange={(e) => handleChildAgeChange(roomIndex, childIndex, e.target.value)}
+                          onChange={(e) =>
+                            handleChildAgeChange(roomIndex, childIndex, e.target.value)
+                          }
                         >
                           <option value="">Select Age</option>
                           {Array.from({ length: 16 }, (_, i) => i + 1).map((num) => (
-                            <option key={num} value={num}>{num}</option>
+                            <option key={num} value={num}>
+                              {num}
+                            </option>
                           ))}
                         </select>
                       </div>
@@ -237,8 +261,12 @@ export default function HotelSearchBar({
                 )}
               </div>
             ))}
-            <button className="add-room-btn" onClick={addRoom}>+ Add Room</button>
-            <button className="close-btn" onClick={() => setShowPopup(false)}>Done</button>
+            <button className="add-room-btn" onClick={addRoom}>
+              + Add Room
+            </button>
+            <button className="close-btn" onClick={() => setShowPopup(false)}>
+              Done
+            </button>
           </div>
         </div>
       )}
