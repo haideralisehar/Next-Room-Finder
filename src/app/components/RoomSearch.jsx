@@ -125,8 +125,9 @@ export default function HotelSearchBar({
     alert("Please enter a destination!");
     return;
   }
-
-  const searchUrl = `/results?destination=${destination}&from=${checkInDate?.toISOString()}&to=${checkOutDate?.toISOString()}&rooms=${encodeURIComponent(
+   // Normalize: capitalize first letter, lowercase the rest
+  const normalizedDest = destination.charAt(0).toUpperCase() + destination.slice(1).toLowerCase();
+  const searchUrl = `/results?destination=${normalizedDest}&from=${checkInDate?.toISOString()}&to=${checkOutDate?.toISOString()}&rooms=${encodeURIComponent(
     JSON.stringify(rooms)
   )}`;
 
