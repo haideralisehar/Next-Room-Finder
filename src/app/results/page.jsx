@@ -1,5 +1,8 @@
 import ResultsContent from "./ResultsContent";
+import { Suspense } from "react";
 
 export default function ResultsPage() {
-  return <ResultsContent />; // This is now a Client Component
+  <Suspense fallback={<p>Loading...</p>}>
+      <ResultsContent />
+    </Suspense>
 }
