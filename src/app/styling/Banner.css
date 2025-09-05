@@ -258,6 +258,34 @@
 .delete-room-btn:hover {
   background: #b02a37;
 }
+.available-hotels {
+  width: 90%;
+  max-width: 900px;
+  margin: 20px auto;
+  background: #fff;
+  padding: 20px;
+  border-radius: 12px;
+  box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+}
+
+.available-hotels h2 {
+  margin-bottom: 10px;
+  font-size: 20px;
+}
+
+.available-hotels ul {
+  list-style: none;
+  padding: 0;
+}
+
+.available-hotels li {
+  padding: 8px 0;
+  border-bottom: 1px solid #eee;
+}
+
+.available-hotels li:last-child {
+  border-bottom: none;
+}
 
 
 

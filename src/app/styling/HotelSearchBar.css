@@ -1,0 +1,259 @@
+/* ---------------- Search Bar ---------------- */
+.search-bar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 15px;
+  padding: 20px;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  flex-wrap: wrap;
+}
+
+.search-box {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: #f9f9f9;
+  padding: 12px 15px;
+  border-radius: 8px;
+  border: 1px solid #ddd;
+  flex: 1;
+  min-width: 200px;
+  position: relative;
+}
+
+.search-box input {
+  border: none;
+  outline: none;
+  background: transparent;
+  font-size: 14px;
+  width: 100%;
+}
+
+.search-box .icon {
+  color: #666;
+  font-size: 16px;
+}
+
+/* Date inputs inside search bar */
+.date-box {
+  display: flex;
+  gap: 10px;
+}
+
+/* Search Button */
+.search-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: #0071c2;
+  color: #fff;
+  padding: 12px 20px;
+  border-radius: 8px;
+  border: none;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background 0.2s ease-in-out;
+}
+
+.search-btn:hover {
+  background: #005fa3;
+}
+
+/* ---------------- Popup Overlay ---------------- */
+.popup-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.55);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 2000;
+}
+
+.popup {
+  background: #fff;
+  padding: 25px;
+  border-radius: 12px;
+  width: 95%;
+  max-width: 550px;
+  max-height: 85vh;
+  overflow-y: auto;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.25);
+}
+
+.pop-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.pop-top .title p {
+  font-size: 18px;
+  font-weight: 600;
+}
+
+/* ---------------- Room Sections ---------------- */
+.room-section {
+  margin-bottom: 20px;
+  padding: 15px;
+  border: 1px solid #eee;
+  border-radius: 10px;
+  background: #fafafa;
+}
+
+.room-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.room-header h3 {
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.delete-room-btn {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  background: #ff4d4d;
+  color: #fff;
+  padding: 6px 10px;
+  border-radius: 6px;
+  border: none;
+  cursor: pointer;
+  font-size: 12px;
+}
+
+.delete-room-btn:hover {
+  background: #e63939;
+}
+
+/* ---------------- Counters ---------------- */
+.counter {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin: 12px 0;
+}
+
+.counter label {
+  flex: 1;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.counter span {
+  font-size: 14px;
+  font-weight: 600;
+  padding: 0 10px;
+}
+
+.counter button {
+  background: #f0f0f0;
+  border: none;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  font-size: 14px;
+  cursor: pointer;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.counter button:hover {
+  background: #ddd;
+}
+
+/* ---------------- Children Ages ---------------- */
+.children-ages {
+  margin-top: 12px;
+  display: grid;
+  gap: 10px;
+}
+
+.child-age {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.child-age label {
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.child-age select {
+  padding: 6px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  font-size: 13px;
+  
+}
+.child-age option{
+    float: right;
+}
+
+/* ---------------- Popup Buttons ---------------- */
+.add-room-btn,
+.close-btn {
+  display: block;
+  width: 100%;
+  margin-top: 12px;
+  padding: 12px;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.add-room-btn {
+  background: #0071c2;
+  color: #fff;
+  font-weight: 500;
+}
+
+.add-room-btn:hover {
+  background: #005fa3;
+}
+
+.close-btn {
+  background: #f5f5f5;
+  color: #333;
+  font-weight: 500;
+}
+
+.close-btn:hover {
+  background: #ddd;
+}
+
+/* ---------------- Responsive ---------------- */
+@media (max-width: 768px) {
+  .search-bar {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .search-box {
+    width: 100%;
+  }
+
+  .search-btn {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .popup {
+    width: 90%;
+    max-width: 95%;
+  }
+}
