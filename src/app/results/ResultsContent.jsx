@@ -1,15 +1,16 @@
-"use client";
+"use client"; // ⚠️ Must be at the top
+
 import React from "react";
 import { useSearchParams } from "next/navigation";
-import HotelSearchBar, { hotelsData } from "./RoomSearch";
+import HotelSearchBar, { hotelsData } from "../components/RoomSearch";
 import "../results/ResultsPage.css";
 
 export default function ResultsContent() {
   const searchParams = useSearchParams();
 
   const destination = searchParams.get("destination") || "";
-  const from = searchParams.get("from");
-  const to = searchParams.get("to");
+  const from = searchParams.get("from") || "";
+  const to = searchParams.get("to") || "";
 
   let rooms = [];
   try {
@@ -20,8 +21,7 @@ export default function ResultsContent() {
     console.error("Invalid rooms data:", e);
   }
 
-  // Filter hotels
-  const results = hotelsData[destination] || [];
+  const results = hotelsData?.[destination] || [];
 
   return (
     <div className="results-container">
@@ -32,7 +32,6 @@ export default function ResultsContent() {
         initialRooms={rooms}
       />
 
-      <br />
       <h2>
         {results.length > 0
           ? `Hotels in ${destination}`
@@ -44,10 +43,8 @@ export default function ResultsContent() {
           Check-in: <strong>{from?.slice(0, 10) || "N/A"}</strong> | 
           Check-out: <strong>{to?.slice(0, 10) || "N/A"}</strong>
         </p>
-        <p>Rooms: <strong>{rooms.length}</strong></p>
+        <p>Rooms: <strong>{rooms.length || 1}</strong></p>
       </div>
-
-      <br />
 
       <div className="hotel-list">
         {results.map((hotel) => (
