@@ -1,9 +1,9 @@
-"use client"; // ⚠️ Must be at the top
+"use client";
 
 import React from "react";
 import { useSearchParams } from "next/navigation";
 import HotelSearchBar, { hotelsData } from "../components/RoomSearch";
-import "../results/ResultsPage.css";
+import "./ResultsPage.css";
 
 export default function ResultsContent() {
   const searchParams = useSearchParams();
@@ -21,7 +21,7 @@ export default function ResultsContent() {
     console.error("Invalid rooms data:", e);
   }
 
-  const results = hotelsData?.[destination] || [];
+  const results = hotelsData[destination] || [];
 
   return (
     <div className="results-container">
@@ -43,7 +43,7 @@ export default function ResultsContent() {
           Check-in: <strong>{from?.slice(0, 10) || "N/A"}</strong> | 
           Check-out: <strong>{to?.slice(0, 10) || "N/A"}</strong>
         </p>
-        <p>Rooms: <strong>{rooms.length || 1}</strong></p>
+        <p>Rooms: <strong>{rooms.length}</strong></p>
       </div>
 
       <div className="hotel-list">
