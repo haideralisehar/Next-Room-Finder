@@ -1,8 +1,10 @@
-import ResultsContent from "./ResultsContent";
+import ResultsContent from "../results/ResultsContent";
 import { Suspense } from "react";
 
 export default function ResultsPage() {
-  <Suspense fallback={<p>Loading...</p>}>
-      <ResultsContent />
+  return(
+    <Suspense>
+    <ResultsContent/>
     </Suspense>
+  )
 }
