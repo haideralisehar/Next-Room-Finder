@@ -23,13 +23,25 @@ export const hotelsData = {
       location: "Khaliq Uz Zaman Road, Islamabad",
       price: 120,
       image: "https://images.pexels.com/photos/260922/pexels-photo-260922.jpeg",
+      rating: 5,
     },
     {
       id: 2,
       name: "Marriott Islamabad",
       location: "Agha Khan Road, Islamabad",
       price: 90,
-      image: "https://images.pexels.com/photos/260922/pexels-photo-260922.jpeg",
+      image:
+        "https://images.unsplash.com/photo-1496417263034-38ec4f0b665a?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTN8fGhvdGVsfGVufDB8MHwwfHx8MA%3D%3D",
+      rating: 4,
+    },
+    {
+      id: 3,
+      name: "Marriott Islamabad",
+      location: "Agha Khan Road, Islamabad",
+      price: 30,
+      image:
+        "https://images.unsplash.com/photo-1611892440504-42a792e24d32?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTd8fGhvdGVsfGVufDB8MHwwfHx8MA%3D%3D",
+      rating: 2,
     },
   ],
   Lahore: [
@@ -39,6 +51,7 @@ export const hotelsData = {
       location: "Shahrah-e-Quaid-e-Azam, Lahore",
       price: 150,
       image: "https://images.pexels.com/photos/260922/pexels-photo-260922.jpeg",
+      rating: 2,
     },
     {
       id: 2,
@@ -46,6 +59,7 @@ export const hotelsData = {
       location: "Mall Road, Lahore",
       price: 110,
       image: "https://images.pexels.com/photos/271624/pexels-photo-271624.jpeg",
+      rating: 3,
     },
   ],
 };
@@ -77,6 +91,18 @@ export default function HotelSearchBar({
   const [rooms, setRooms] = useState(initialRooms);
   const [showPopup, setShowPopup] = useState(false);
 
+  // ✅ Calculate number of nights
+  const nights =
+    checkInDate && checkOutDate
+      ? Math.max(
+          1,
+          Math.ceil(
+            (checkOutDate.getTime() - checkInDate.getTime()) /
+              (1000 * 60 * 60 * 24)
+          )
+        )
+      : 1;
+
   const handlePopupToggle = () => setShowPopup(!showPopup);
 
   const updateCount = (roomIndex, type, operation) => {
@@ -85,13 +111,17 @@ export default function HotelSearchBar({
         if (i !== roomIndex) return room;
         const updatedRoom = { ...room };
         if (operation === "increment") updatedRoom[type] += 1;
-        if (operation === "decrement" && updatedRoom[type] > 0) updatedRoom[type] -= 1;
+        if (operation === "decrement" && updatedRoom[type] > 0)
+          updatedRoom[type] -= 1;
 
         if (type === "children") {
           if (updatedRoom[type] > updatedRoom.childrenAges.length) {
             updatedRoom.childrenAges = [...updatedRoom.childrenAges, null];
           } else {
-            updatedRoom.childrenAges = updatedRoom.childrenAges.slice(0, updatedRoom[type]);
+            updatedRoom.childrenAges = updatedRoom.childrenAges.slice(
+              0,
+              updatedRoom[type]
+            );
           }
         }
         return updatedRoom;
@@ -109,7 +139,27 @@ export default function HotelSearchBar({
 
   const addRoom = () =>
     setRooms([...rooms, { adults: 2, children: 0, childrenAges: [] }]);
-  const deleteRoom = (roomIndex) => setRooms(rooms.filter((_, i) => i !== roomIndex));
+  const deleteRoom = (roomIndex) =>
+    setRooms(rooms.filter((_, i) => i !== roomIndex));
+
+  const CloseDone =()=>{
+    // Normalize: capitalize first letter, lowercase the rest
+    const normalizedDest =
+      destination.charAt(0).toUpperCase() +
+      destination.slice(1).toLowerCase();
+    const searchUrl = `/results?destination=${normalizedDest}&from=${checkInDate?.toISOString()}&to=${checkOutDate?.toISOString()}&rooms=${encodeURIComponent(
+      JSON.stringify(rooms)
+    )}&nights=${nights}`;
+  
+    setShowPopup(false);
+    // Decide whether to push or replace
+    if (window.location.pathname === "/") {
+      router.push(searchUrl);
+    } else {
+      router.replace(searchUrl);
+    }
+
+  }
 
   const getSummary = () => {
     const totalRooms = rooms.length;
@@ -121,26 +171,25 @@ export default function HotelSearchBar({
   };
 
   const handleSearch = () => {
-  if (!destination) {
-    alert("Please enter a destination!");
-    return;
-  }
-   // Normalize: capitalize first letter, lowercase the rest
-  const normalizedDest = destination.charAt(0).toUpperCase() + destination.slice(1).toLowerCase();
-  const searchUrl = `/results?destination=${normalizedDest}&from=${checkInDate?.toISOString()}&to=${checkOutDate?.toISOString()}&rooms=${encodeURIComponent(
-    JSON.stringify(rooms)
-  )}`;
+    if (!destination) {
+      alert("Please enter a destination!");
+      return;
+    }
+    // Normalize: capitalize first letter, lowercase the rest
+    const normalizedDest =
+      destination.charAt(0).toUpperCase() +
+      destination.slice(1).toLowerCase();
+    const searchUrl = `/results?destination=${normalizedDest}&from=${checkInDate?.toISOString()}&to=${checkOutDate?.toISOString()}&rooms=${encodeURIComponent(
+      JSON.stringify(rooms)
+    )}&nights=${nights}`;
 
-  // Decide whether to push or replace
-  if (window.location.pathname === "/") {
-    // From homepage → push so user can go back
-    router.push(searchUrl);
-  } else {
-    // From results page → replace to avoid multiple entries
-    router.replace(searchUrl);
-  }
-};
-
+    // Decide whether to push or replace
+    if (window.location.pathname === "/") {
+      router.push(searchUrl);
+    } else {
+      router.replace(searchUrl);
+    }
+  };
 
   return (
     <div>
@@ -185,10 +234,20 @@ export default function HotelSearchBar({
           />
         </div>
 
+        {/* ✅ Show Nights */}
+        <div className="search-box">
+          <p>{nights} Night{nights > 1 ? "s" : ""}</p>
+        </div>
+
         {/* Guests */}
         <div className="search-box" onClick={handlePopupToggle}>
           <FaUsers className="icon" />
-          <input type="text" placeholder="1 Room, 2 Adults" value={getSummary()} readOnly />
+          <input
+            type="text"
+            placeholder="1 Room, 2 Adults"
+            value={getSummary()}
+            readOnly
+          />
         </div>
 
         {/* Search Button */}
@@ -216,11 +275,15 @@ export default function HotelSearchBar({
                 {/* Adults */}
                 <div className="counter">
                   <label>Adults</label>
-                  <button onClick={() => updateCount(roomIndex, "adults", "decrement")}>
+                  <button
+                    onClick={() => updateCount(roomIndex, "adults", "decrement")}
+                  >
                     <FaMinus />
                   </button>
                   <span>{room.adults}</span>
-                  <button onClick={() => updateCount(roomIndex, "adults", "increment")}>
+                  <button
+                    onClick={() => updateCount(roomIndex, "adults", "increment")}
+                  >
                     <FaPlus />
                   </button>
                 </div>
@@ -228,11 +291,19 @@ export default function HotelSearchBar({
                 {/* Children */}
                 <div className="counter">
                   <label>Children</label>
-                  <button onClick={() => updateCount(roomIndex, "children", "decrement")}>
+                  <button
+                    onClick={() =>
+                      updateCount(roomIndex, "children", "decrement")
+                    }
+                  >
                     <FaMinus />
                   </button>
                   <span>{room.children}</span>
-                  <button onClick={() => updateCount(roomIndex, "children", "increment")}>
+                  <button
+                    onClick={() =>
+                      updateCount(roomIndex, "children", "increment")
+                    }
+                  >
                     <FaPlus />
                   </button>
                 </div>
@@ -246,15 +317,21 @@ export default function HotelSearchBar({
                         <select
                           value={age || ""}
                           onChange={(e) =>
-                            handleChildAgeChange(roomIndex, childIndex, e.target.value)
+                            handleChildAgeChange(
+                              roomIndex,
+                              childIndex,
+                              e.target.value
+                            )
                           }
                         >
                           <option value="">Select Age</option>
-                          {Array.from({ length: 16 }, (_, i) => i + 1).map((num) => (
-                            <option key={num} value={num}>
-                              {num}
-                            </option>
-                          ))}
+                          {Array.from({ length: 16 }, (_, i) => i + 1).map(
+                            (num) => (
+                              <option key={num} value={num}>
+                                {num}
+                              </option>
+                            )
+                          )}
                         </select>
                       </div>
                     ))}
@@ -265,7 +342,7 @@ export default function HotelSearchBar({
             <button className="add-room-btn" onClick={addRoom}>
               + Add Room
             </button>
-            <button className="close-btn" onClick={() => setShowPopup(false)}>
+            <button className="close-btn" onClick={CloseDone}>
               Done
             </button>
           </div>

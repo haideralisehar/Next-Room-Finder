@@ -6,7 +6,7 @@ export default function RootLayout({ children }) {
   return (
     <html lang="en">
       <head>
-        <title>My Next.js App</title>
+        <title>City In Booking</title>
         <meta name="description" content="This is my awesome Next.js application" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
       </head>
