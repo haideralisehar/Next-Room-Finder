@@ -34,3 +34,11 @@
     outline: none;
     background-color: #ef4050;
 }
+@media (max-width: 780px) {
+  .desti-main {
+  padding: 10px 30px 40px 30px;
+  
+}
+
+
+}

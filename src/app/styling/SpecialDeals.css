@@ -1,14 +1,15 @@
 /* Parent container */
 .special-deals {
-  padding: 10px 40px 40px 40px;
+  padding: 10px 30px 40px 30px;
   background: #f9f9f9;
 }
 
 /* Heading */
-.deals-heading {
+.special-deals .deals-heading {
   font-size: 26px;
   font-weight: 600;
   margin-bottom: 30px;
+  padding-top: 20px;
   color: rgb(58, 58, 58);
 }
 
@@ -57,6 +58,7 @@
 .deal-overlay p {
   font-size: 18px;
   margin-bottom: 20px;
+
 }
 
 .deal-btn {
@@ -76,10 +78,15 @@
 }
 
 
-@media (max-width: 768px) {
+@media (max-width: 780px) {
   .deal-overlay h3 {
   font-size: 24px;
   font-weight: bold;
   margin-bottom: 10px;
 }
+.special-deals {
+  padding: 10px 30px 40px 30px;
+  background: #f9f9f900;
+}
+
 }

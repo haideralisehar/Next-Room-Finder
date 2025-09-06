@@ -1,7 +1,7 @@
 "use client";
 import React, { useState } from "react";
 import "../styling/Banner.css";
-import HotelSearchBar from "@/app/components/RoomSearch"
+import HotelSearchBar from "../components/RoomSearch"
 
 
 
@@ -15,9 +15,9 @@ const Banner = () => {
           <p>Choose from over 2+ million hotels worldwide!</p>
         </div>
 
-        <HotelSearchBar/>
+       
 
-        
+         <HotelSearchBar/>
           </div>
         
       

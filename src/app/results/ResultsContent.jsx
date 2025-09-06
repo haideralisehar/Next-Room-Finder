@@ -5,8 +5,11 @@ import React from "react";
 import { useSearchParams } from "next/navigation";
 import HotelSearchBar, { hotelsData } from "../components/RoomSearch";
 import "./ResultsPage.css";
+import Header from "../components/Header";
+import Footer from "../components/Footer";
 
-export default function ResultsContent() {
+export default function 
+ResultsContent() {
   const searchParams = useSearchParams();
 
   const destination = searchParams.get("destination") || "";
@@ -25,20 +28,27 @@ export default function ResultsContent() {
   const results = hotelsData[destination] || [];
 
   return (
+    <>
+    <Header/>
     
     <div className="results-container">
+      <div className="fixed-search">
       <HotelSearchBar
         initialDestination={destination}
         initialCheckIn={from}
         initialCheckOut={to}
         initialRooms={rooms}
       />
+      </div>
+  <div className="result-txt" style={{padding:"20px"}}>
 
-      <h2>
+  
+      <h2 translate="yes">
         {results.length > 0
           ? `Hotels in ${destination}`
           : `No hotels found in ${destination}`}
       </h2>
+      
 
       <div className="search-summary">
         <p>
@@ -46,6 +56,7 @@ export default function ResultsContent() {
           Check-out: <strong>{to?.slice(0, 10) || "N/A"}</strong>
         </p>
         <p>Rooms: <strong>{rooms.length}</strong></p>
+      </div>
       </div>
 
       <div className="hotel-list">
@@ -61,17 +72,11 @@ export default function ResultsContent() {
           </div>
         ))}
       </div>
+      
     </div>
+    <Footer/>
+    </>
     
   );
 }
 
-// import React from 'react'
-
-// export default function ResultsContent() {
-//   return (
-//     <div>
-//       <p>Hellow</p>
-//     </div>
-//   )
-// }

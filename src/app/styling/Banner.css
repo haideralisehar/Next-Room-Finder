@@ -2,11 +2,11 @@
     width: 100%;
     height: auto;
     background-color: rgb(244, 242, 242);
-    color: white;
     background-image: url('https://cityin.net/uploads/travel-images/settings-files/afa21d355a621591cc4da501bb113a9f.png');
     background-position: center;
     background-repeat: no-repeat;
     background-size: cover;
+    
 }
 
 /* Banner background */
@@ -16,7 +16,7 @@
 .banner-overlay {
   background: rgba(7, 7, 8, 0.319);
   border-radius: 8px;
-  padding-bottom: 10px;
+  padding: 10px 20px 10px 20px;
 }
 
 /* Heading + text */
@@ -25,267 +25,16 @@
   margin-bottom: 0px;
   font-weight: bold;
   padding: 50px 0px 0px 60px;
+  color: white;
 }
 
 .banner-content p {
   font-size: 18px;
   margin-bottom: 80px;
   padding: 0px 0px 0px 60px;
-}
-
-/* Search Bar */
-.search-container {
-  display: flex;
-  align-items: center;
-  background: rgb(255, 255, 255);
-  box-shadow: 0 2px 6px rgba(0,0,0,0.2);
-  overflow: hidden;
-  max-width: 99%;
- margin: 0px 10px 0px 10px;
-}
-
-.search-box {
-  display: flex;
-  align-items: center;
-  padding: 12px 15px;
-  border-right: 1px solid #ddd;
-  flex: 1;
-  gap: 10px;
-  
-}
-
-.search-box:last-of-type {
-  border-right: none;
-}
-
-.icon {
-  margin-right: 10px;
-  color: gray;
-  font-size: 16px;
-}
-
-.search-box input {
-  border: none;
-  outline: none;
-  font-size: 15px;
-  width: 100%;
-  color: #000000;
-  background-color: white; /* <-- makes input background white */
-}
-
-
-.search-btn {
-  background-color: #0066ff;
   color: white;
-  border: none;
-  padding: 18px 20px;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  font-size: 15px;
-  /* border-radius: 0 8px 8px 0; */
-  transition: background 0.3s;
 }
 
-.search-btn:hover {
-  background-color: #004ecb;
-}
-
-.btn-icon {
-  margin-right: 8px;
-  font-size: 16px;
-}
-
-/* Date input styling */
-.date-box {
-  flex: 1.5; /* make date box a bit wider */
-}
-
-.date-inputs {
-  display: flex;
-  align-items: center;
-  width: 100%;
-}
-
-.date-inputs input {
-  border: none;
-  outline: none;
-  font-size: 14px;
-  padding: 6px;
-  color: black;
-  background: white; /* ✅ ensures white background */
-  flex: 1;
-}
-
-.date-label {
-  font-size: 12px;
-  color: gray;
-  margin-right: 5px;
-}
-
-.date-separator {
-  margin: 0 6px;
-  color: #555;
-  font-weight: bold;
-}
-
-/* Popup overlay */
-.popup-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0, 0, 0, 0.6);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 3000;
-}
-
-/* Popup box */
-.popup {
-  background: #fff;
-  padding: 20px;
-  border-radius: 10px;
-  width: 400px;
-  max-height: 80vh;
-  overflow-y: auto;
-  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
-}
-.popup .pop-top{
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-
-}
-.title{
-  color: black;
-  padding-bottom: 10px;
- font-size: 18px;
-
-}
-
-/* Room section */
-.room-section {
-  border-bottom: 1px solid #ddd;
-  padding: 15px 0;
-}
-
-.room-section h3 {
-  margin-bottom: 10px;
-  color: black;
-}
-
-/* Counters */
-.counter {
-  display: flex;
-  align-items: center;
-  margin: 8px 0;
-}
-
-.counter label {
-  flex: 1;
-  color: black;
-}
-
-.counter button {
-  background: #f0f0f0;
-  color: black;
-  border: none;
-  padding: 5px 10px;
-  margin: 0 5px;
-  cursor: pointer;
-  border-radius: 5px;
-}
-
-.counter span {
-  min-width: 20px;
-  text-align: center;
-  color: black;
-}
-
-/* Children Ages */
-.children-ages {
-  margin-top: 10px;
-}
-
-.child-age {
-  margin: 5px 0;
-  display: flex;
-  justify-content: space-between;
-}
-
-/* Buttons */
-.add-room-btn,
-.close-btn {
-  display: block;
-  margin: 15px auto 0;
-  padding: 10px 20px;
-  border: none;
-  background: #0071c2;
-  color: white;
-  border-radius: 6px;
-  cursor: pointer;
-}
-
-.add-room-btn {
-  background: #28a745;
-}
-
-.close-btn {
-  background: #0071c2;
-}
-.room-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.delete-room-btn {
-  background: #dc3545;
-  color: white;
-  border: none;
-  padding: 5px 10px;
-  border-radius: 5px;
-  cursor: pointer;
-  font-size: 14px;
-  display: flex;
-  align-items: center;
-  gap: 5px;
-}
-
-.delete-room-btn:hover {
-  background: #b02a37;
-}
-.available-hotels {
-  width: 90%;
-  max-width: 900px;
-  margin: 20px auto;
-  background: #fff;
-  padding: 20px;
-  border-radius: 12px;
-  box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-}
-
-.available-hotels h2 {
-  margin-bottom: 10px;
-  font-size: 20px;
-}
-
-.available-hotels ul {
-  list-style: none;
-  padding: 0;
-}
-
-.available-hotels li {
-  padding: 8px 0;
-  border-bottom: 1px solid #eee;
-}
-
-.available-hotels li:last-child {
-  border-bottom: none;
-}
 
 
 
@@ -302,24 +51,5 @@
  padding: 0px;
 }
 
-  .search-container {
-    flex-direction: column;
-    border-radius: 10px;
-  }
 
-  .search-box {
-    border-right: none;
-    border-bottom: 1px solid #ddd;
-    width: 100%;
-  }
-
-  .search-box:last-of-type {
-    border-bottom: none;
-  }
-
-  .search-btn {
-    border-radius: 0 0 10px 10px;
-    width: 100%;
-    justify-content: center;
-  }
 }
