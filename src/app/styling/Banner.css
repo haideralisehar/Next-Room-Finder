@@ -16,7 +16,7 @@
 .banner-overlay {
   background: rgba(7, 7, 8, 0.319);
   border-radius: 8px;
-  padding: 10px 20px 10px 20px;
+  padding: 10px 5px;
 }
 
 /* Heading + text */
@@ -30,7 +30,7 @@
 
 .banner-content p {
   font-size: 18px;
-  margin-bottom: 80px;
+  margin-bottom: 60px;
   padding: 0px 0px 0px 60px;
   color: white;
 }
