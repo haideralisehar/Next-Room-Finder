@@ -253,7 +253,7 @@ export default function BookingPage() {
 
   <div className={styles.totalBoxe}>
     <div className={styles.totalBox} >
-      <h5>Total Calculations</h5>
+      <h5>Total Cal.</h5>
     <p>USD {hotel.price} / night x {hotel.count} room(s) x {hotel.nights} Night(s)</p>
     </div>
     <div className={styles.totalBoxee}>
