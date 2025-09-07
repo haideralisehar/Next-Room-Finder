@@ -7,6 +7,8 @@ import Footer from "../components/Footer";
 import "../results/ResultsPage.css";
 import Link from "next/link";
 import Filters from "../components/filter"; // ✅ Import Filters component
+import { IoLocationOutline } from "react-icons/io5";
+import { FaTimes } from "react-icons/fa";
 
 export default function ResultsContent() {
   const searchParams = useSearchParams();
@@ -28,6 +30,9 @@ export default function ResultsContent() {
 
   // ✅ Sorting state
   const [sortOption, setSortOption] = useState("");
+
+  // ✅ Popup state for filters
+  const [showFilterPopup, setShowFilterPopup] = useState(false);
 
   useEffect(() => {
     setTimeout(() => {
@@ -57,15 +62,12 @@ export default function ResultsContent() {
   // ✅ Filtering + Sorting logic
   const filteredResults = useMemo(() => {
     let data = results.filter((hotel) => {
-      // Title search
       if (
         filters.title &&
         !hotel.name.toLowerCase().includes(filters.title.toLowerCase())
       ) {
         return false;
       }
-
-      // Rating filter
       if (filters.rating) {
         const rating = parseFloat(hotel.rating);
         if (filters.rating === "4+" && rating < 4) return false;
@@ -73,17 +75,13 @@ export default function ResultsContent() {
         if (filters.rating === "2+" && rating < 2) return false;
         if (filters.rating === "1+" && rating < 1) return false;
       }
-
-      // Price filter
       const [minPrice, maxPrice] = filters.priceRange;
       if (hotel.price < minPrice || hotel.price > maxPrice) {
         return false;
       }
-
       return true;
     });
 
-    // ✅ Apply Sorting
     if (sortOption) {
       data = [...data].sort((a, b) => {
         switch (sortOption) {
@@ -104,7 +102,6 @@ export default function ResultsContent() {
         }
       });
     }
-
     return data;
   }, [results, filters, sortOption]);
 
@@ -143,13 +140,9 @@ export default function ResultsContent() {
       {/* --- Top bar with results count + sort --- */}
       <div className="nf-pro">
         <p>
-          
-            {filteredResults.length} properties in {destination}
-            {/* {filteredResults.length} destinations */}
-         
+          {/* {filteredResults.length} properties in {destination} */}
         </p>
-
-        {/* ✅ Sort Dropdown (aligned right) */}
+<div style={{display:"flex", gap:"6px"}}>
         <select
           className="sort-dropdown"
           value={sortOption}
@@ -163,58 +156,111 @@ export default function ResultsContent() {
           <option value="stars-low">Stars: Low to High</option>
           <option value="stars-high">Stars: High to Low</option>
         </select>
+
+        {/* ✅ Filter Button to open popup */}
+        <button
+          className="search-btns"
+          onClick={() => setShowFilterPopup(true)}
+        >
+          Filter
+        </button>
+        </div>
       </div>
 
       <div className="results-container">
-        {/* --- Filters Sidebar --- */}
-        <Filters
+         <Filters
           filters={filters}
           setFilters={setFilters}
           clearFilters={clearFilters}
         />
-
         {/* --- Hotel Results --- */}
         <main className="hotel-results">
           <div className="hotel-list">
             {filteredResults.map((hotel) => (
-              <div key={hotel.id} className="hotel-card">
-                <img src={hotel.image} alt={hotel.name} className="hotel-img" />
-                <div className="hotel-info">
-                  <h3>{hotel.name}</h3>
-                  <p>{hotel.location}</p>
-                  <p>Rating: {hotel.rating}</p>
-                  <p>Stars: {hotel.stars}</p> {/* ✅ Show stars */}
-                  <p>
-                    Rooms: <strong>{rooms.length}</strong>
-                  </p>
-                  <p className="price">${hotel.price} / night</p>
-                  <Link
-                    href={{
-                      pathname: "/hotel-view",
-                      query: {
-                        id: hotel.id,
-                        name: hotel.name,
-                        location: hotel.location,
-                        price: hotel.price,
-                        image: hotel.image,
-                        from: from,
-                        to: to,
-                        rooms: JSON.stringify(rooms),
-                        count: rooms.length,
-                        nights: nights,
-                      },
-                    }}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    <button className="book-btn">Book Now</button>
-                  </Link>
+              <Link
+                key={hotel.id}
+                href={{
+                  pathname: "/hotel-view",
+                  query: {
+                    id: hotel.id,
+                    name: hotel.name,
+                    location: hotel.location,
+                    price: hotel.price,
+                    image: hotel.image,
+                    from: from,
+                    to: to,
+                    rooms: JSON.stringify(rooms),
+                    count: rooms.length,
+                    nights: nights,
+                  },
+                }}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                <div className="hotel-card">
+                  <div className="hotel-img-wrapper">
+                    <img
+                      src={hotel.image}
+                      alt={hotel.name}
+                      className="hotel-img"
+                    />
+                    <div className="favorite-icon">❤</div>
+                  </div>
+
+                  <div className="hotel-details">
+                    <div className="hotel-header">
+                      <div className="stars">⭐⭐⭐⭐⭐</div>
+                      <h3>{hotel.name}</h3>
+                    </div>
+
+                    <div className="m-xtx-set" style={{ display: "flex" }}>
+                      <IoLocationOutline />
+                      <p className="location">{hotel.location}</p>
+                    </div>
+
+                    <p className="breakfast">🥗 Breakfast included</p>
+
+                    <div className="hotel-footer">
+                      <div className="rating">
+                        <span className="rating-badge">{hotel.rating}</span>
+                        <span>{hotel.rating >= 8 ? "Very Good" : "Good"}</span>
+                      </div>
+
+                      <div className="price-info">
+                        <p className="price">{hotel.price} USD</p>
+                        <p className="price-sub">
+                          1 room(s) <br /> {nights} night(s) incl. taxes
+                        </p>
+                      </div>
+                    </div>
+                  </div>
                 </div>
-              </div>
+              </Link>
             ))}
           </div>
         </main>
       </div>
+
+      {/* ✅ Filter Popup */}
+      {showFilterPopup && (
+        <div className="popup-overlay">
+          <div className="popup filter-popup">
+            <button
+              className="close-btn"
+              onClick={() => setShowFilterPopup(false)}
+            >
+              <FaTimes /> Close
+            </button>
+            <h2>Filter Hotels</h2>
+            <Filters
+              filters={filters}
+              setFilters={setFilters}
+              clearFilters={clearFilters}
+            />
+          </div>
+        </div>
+      )}
+
       <Footer />
     </>
   );

@@ -48,7 +48,7 @@
 }
 
 /* Search Button */
-.search-btn {
+.search-btn, .search-btns {
   display: flex;
   align-items: center;
   gap: 8px;
@@ -60,6 +60,11 @@
   font-size: 14px;
   cursor: pointer;
   transition: background 0.2s ease-in-out;
+}
+
+.search-btns{
+  display: none;
+
 }
 
 .search-btn:hover {
@@ -240,6 +245,8 @@
   background: #ddd;
 }
 
+
+
 /* ---------------- Responsive ---------------- */
 @media (max-width: 780px) {
   .search-bar {
@@ -262,4 +269,11 @@
     width: 90%;
     max-width: 95%;
   }
+}
+
+@media (max-width: 860px) {
+    .search-btns{
+        display: block;
+        
+    }
 }
