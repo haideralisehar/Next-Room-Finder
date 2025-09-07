@@ -226,7 +226,7 @@ export default function BookingPage() {
         <FaRegStar className={styles.star} />
       </div>
 
-      <h4>{hotel.name}</h4>
+      <h4 style={{display:"flex", justifyContent:"flex-start"}}>{hotel.name}</h4>
       <div className="loc-ico" style={{display:"flex", gap:"5px"}}>
         <IoLocationOutline   />
         <p style={{marginTop:"-2px"}}>{hotel.location}</p>

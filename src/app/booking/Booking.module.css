@@ -268,7 +268,6 @@
   }
   .hotelCard {
     flex-direction: column;
-    align-items: center;
     text-align: center;
   }
   .hotelImg {
@@ -276,8 +275,9 @@
     height: 150px;
   }
   .container{
-    margin: 20px 0px;
+    margin: 10px 0px;
   }
+  
 }
 
 
