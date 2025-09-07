@@ -1,7 +1,7 @@
 import React from "react";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
-import "../About/about.css"
+import "../About/about.css";
 
 export default function About() {
   return (
@@ -10,11 +10,15 @@ export default function About() {
       <div className="main-cont">
         <h3
           className="abt-txt"
-          style={{ padding: "0px 0px 10px 0px", fontSize: "20px", fontWeight:"bold" }}
+          style={{
+            padding: "0px 0px 10px 0px",
+            fontSize: "20px",
+            fontWeight: "bold",
+          }}
         >
           About Us
         </h3>
-        <p style={{ fontSize: "15px", color: "#4e4e4eff" }}>
+        <p style={{ fontSize: "16px", color: " rgb(18, 18, 18)" }}>
           CityIn Booking platform is your smart gateway for local and
           international hotel reservations. The platform comes to bring peace of
           mind and travel closer to everyone, and makes reaching your next
@@ -29,34 +33,38 @@ export default function About() {
         </p>
         <h3
           className="abt-txt"
-          style={{ padding: "10px 0px 10px 0px", fontSize: "20px", fontWeight:"bold" }}
+          style={{
+            padding: "10px 0px 10px 0px",
+            fontSize: "20px",
+            fontWeight: "bold",
+          }}
         >
           Our Services
         </h3>
-       <div
-  className="lst-txt"
-  style={{
-    padding: "10px 0px",
-    fontSize: "15px",
-    color: "#4e4e4eff",
-  }}
->
-  <ul style={{ listStyleType: "disc", paddingLeft: "20px" }}>
-    <li style={{ marginBottom: "8px", lineHeight: "1.6" }}>
-      Tailored Packages : Customized packages based on individual preferences.
-    </li>
-    <li style={{ marginBottom: "8px", lineHeight: "1.6" }}>
-      Hotel Bookings: International Hotels at competitive prices.
-    </li>
-    <li style={{ marginBottom: "8px", lineHeight: "1.6" }}>
-      Flight Reservations : Book your flights with wide options.
-    </li>
-    <li style={{ marginBottom: "8px", lineHeight: "1.6" }}>
-      Travel Insurance : Secure your Itinerary with peace of mind.
-    </li>
-  </ul>
-</div>
-
+        <div
+          className="lst-txt"
+          style={{
+            padding: "10px 0px",
+            fontSize: "16px",
+            color: "rgb(18, 18, 18)",
+          }}
+        >
+          <ul style={{ listStyleType: "disc", paddingLeft: "20px" }}>
+            <li style={{ marginBottom: "8px", lineHeight: "1.6" }}>
+              Tailored Packages : Customized packages based on individual
+              preferences.
+            </li>
+            <li style={{ marginBottom: "8px", lineHeight: "1.6" }}>
+              Hotel Bookings: International Hotels at competitive prices.
+            </li>
+            <li style={{ marginBottom: "8px", lineHeight: "1.6" }}>
+              Flight Reservations : Book your flights with wide options.
+            </li>
+            <li style={{ marginBottom: "8px", lineHeight: "1.6" }}>
+              Travel Insurance : Secure your Itinerary with peace of mind.
+            </li>
+          </ul>
+        </div>
       </div>
 
       <Footer />

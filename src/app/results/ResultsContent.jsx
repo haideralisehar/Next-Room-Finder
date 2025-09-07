@@ -6,8 +6,7 @@ import Header from "../components/Header";
 import Footer from "../components/Footer";
 import "../results/ResultsPage.css";
 import Link from "next/link";
-import Slider from "rc-slider";
-import "rc-slider/assets/index.css";
+import Filters from "../components/filter"; // ✅ Import Filters component
 
 export default function ResultsContent() {
   const searchParams = useSearchParams();
@@ -113,89 +112,23 @@ export default function ResultsContent() {
         initialCheckOut={to}
         initialRooms={rooms}
       />
+      <div className="nf-pro">
+        <p>
+          <strong>
+            {results.length} properties in {destination}
+          </strong>
+        </p>
+      </div>
       <div className="results-container">
-        {/* --- Filters Sidebar --- */}
-        <aside className="filters">
-          <h3>Filters</h3>
-          <button className="clear-btn" onClick={clearFilters}>
-            Clear Filters
-          </button>
-
-          {/* Title Search */}
-          <div className="filter-group">
-            <label htmlFor="hotelName">Hotel Name</label>
-            <input
-              style={{
-                border: "1px solid silver",
-                fontSize: "13px",
-                padding: "6px",
-                borderRadius: "4px",
-              }}
-              id="hotelName"
-              type="text"
-              placeholder="Search by name..."
-              value={filters.title}
-              onChange={(e) =>
-                setFilters({ ...filters, title: e.target.value })
-              }
-            />
-          </div>
-
-          {/* Rating Filter */}
-          <div className="filter-group">
-            <p>Guest Rating</p>
-            {["4+", "3+", "2+", "1+"].map((rate) => (
-              <label key={rate}>
-                <input
-                  type="radio"
-                  name="rating"
-                  value={rate}
-                  checked={filters.rating === rate}
-                  onChange={(e) =>
-                    setFilters({ ...filters, rating: e.target.value })
-                  }
-                />
-                {rate}
-              </label>
-            ))}
-          </div>
-
-          {/* Price Range Filter */}
-          <div className="filter-group">
-            <p>Price Range ($)</p>
-            <Slider
-              range
-              min={0}
-              max={1000}
-              defaultValue={filters.priceRange}
-              value={filters.priceRange}
-              onChange={(value) =>
-                setFilters({ ...filters, priceRange: value })
-              }
-            />
-            <p>
-              ${filters.priceRange[0]} – ${filters.priceRange[1]}
-            </p>
-          </div>
-        </aside>
+        {/* --- Filters Sidebar (extracted to component) --- */}
+        <Filters
+          filters={filters}
+          setFilters={setFilters}
+          clearFilters={clearFilters}
+        />
 
         {/* --- Hotel Results --- */}
         <main className="hotel-results">
-          <div className="result-txt">
-            <h2>
-              {filteredResults.length > 0
-                ? `Hotels in ${destination}`
-                : `No hotels found in ${destination}`}
-            </h2>
-            <p>
-              Check-in: <strong>{from?.slice(0, 10) || "N/A"}</strong> | Check-out:{" "}
-              <strong>{to?.slice(0, 10) || "N/A"}</strong>
-            </p>
-            <p>
-              Rooms: <strong>{rooms.length}</strong>
-            </p>
-          </div>
-
           <div className="hotel-list">
             {filteredResults.map((hotel) => (
               <div key={hotel.id} className="hotel-card">
@@ -204,13 +137,13 @@ export default function ResultsContent() {
                   <h3>{hotel.name}</h3>
                   <p>{hotel.location}</p>
                   <p>Rating: {hotel.rating}</p>
-                  {/* <p>rooms: {rooms.length}</p> */}
-                  {/* <p>nights: {nights}</p> */}
+                  <p>
+                    Rooms: <strong>{rooms.length}</strong>
+                  </p>
                   <p className="price">${hotel.price} / night</p>
                   <Link
                     href={{
-                      // pathname: "/booking",
-                      pathname:"/hotel-view",
+                      pathname: "/hotel-view",
                       query: {
                         id: hotel.id,
                         name: hotel.name,
@@ -221,9 +154,11 @@ export default function ResultsContent() {
                         to: to,
                         rooms: JSON.stringify(rooms),
                         count: rooms.length,
-                        nights: nights
+                        nights: nights,
                       },
                     }}
+                    target="_blank"
+                    rel="noopener noreferrer"
                   >
                     <button className="book-btn">Book Now</button>
                   </Link>

@@ -144,20 +144,20 @@ export default function HotelSearchBar({
 
   const CloseDone =()=>{
     // Normalize: capitalize first letter, lowercase the rest
-    const normalizedDest =
-      destination.charAt(0).toUpperCase() +
-      destination.slice(1).toLowerCase();
-    const searchUrl = `/results?destination=${normalizedDest}&from=${checkInDate?.toISOString()}&to=${checkOutDate?.toISOString()}&rooms=${encodeURIComponent(
-      JSON.stringify(rooms)
-    )}&nights=${nights}`;
+    // const normalizedDest =
+    //   destination.charAt(0).toUpperCase() +
+    //   destination.slice(1).toLowerCase();
+    // const searchUrl = `/results?destination=${normalizedDest}&from=${checkInDate?.toISOString()}&to=${checkOutDate?.toISOString()}&rooms=${encodeURIComponent(
+    //   JSON.stringify(rooms)
+    // )}&nights=${nights}`;
   
     setShowPopup(false);
     // Decide whether to push or replace
-    if (window.location.pathname === "/") {
-      router.push(searchUrl);
-    } else {
-      router.replace(searchUrl);
-    }
+    // if (window.location.pathname === "/") {
+    //   router.push(searchUrl);
+    // } else {
+    //   router.replace(searchUrl);
+    // }
 
   }
 
@@ -235,9 +235,9 @@ export default function HotelSearchBar({
         </div>
 
         {/* ✅ Show Nights */}
-        <div className="search-box">
+        {/* <div className="search-box">
           <p>{nights} Night{nights > 1 ? "s" : ""}</p>
-        </div>
+        </div> */}
 
         {/* Guests */}
         <div className="search-box" onClick={handlePopupToggle}>

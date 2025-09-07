@@ -1,17 +1,19 @@
 .desti-main {
-  padding: 10px 40px 40px 40px;
+  padding: 20px 100px 40px 100px;
   background: #f9f9f9;
   
 }
 .destination-heading{
-    font-size: 26px;
+  font-size: 26px;
   font-weight: 600;
   margin-bottom: 30px;
   color: rgb(58, 58, 58);
 }
-.abt-heading{
+.desti-main .abt-heading{
     text-align: center;
     padding-bottom: 20px;
+    font-size: 16px;
+    font-weight: bold;
 
 }
 .para-txt{
@@ -25,7 +27,7 @@
 }
 .abt-more-btn{
     margin-top: 13px;
-    
+    color: white;
     padding: 10px 30px;
     font-size: 16px;
     border-radius: 3px;
@@ -34,6 +36,7 @@
     border: none;
     outline: none;
     background-color: #ef4050;
+    cursor: pointer;
 }
 @media (max-width: 780px) {
   .desti-main {

@@ -17,7 +17,7 @@
 .banner-overlay {
   background: rgba(7, 7, 8, 0.319);
   border-radius: 8px;
-  padding: 10px 5px;
+  
 }
 
 /* Heading + text */
@@ -25,15 +25,20 @@
   font-size: 36px;
   margin-bottom: 0px;
   font-weight: bold;
-  padding: 50px 0px 0px 60px;
+  padding: 50px 0px 0px 0px;
   color: white;
 }
 
 .banner-content p {
   font-size: 18px;
   margin-bottom: 60px;
-  padding: 0px 0px 0px 60px;
+  padding: 0px 0px 0px 0px;
   color: white;
+}
+
+.banner-content .web-set{
+  width: 100%;
+  padding: 0px 100px;
 }
 
 
@@ -41,7 +46,7 @@
 
 
 /* Responsive */
-@media (max-width: 768px) {
+@media (max-width: 780px) {
   .banner-content h1 {
   text-align: center;
   padding: 40px 0px 0px 0px;
@@ -50,6 +55,10 @@
 .banner-content p {
  text-align: center;
  padding: 0px;
+}
+.banner-content .web-set{
+  width: 100%;
+  padding: 0px 30px;
 }
 
 

@@ -1,6 +1,6 @@
 /* Parent container */
 .special-deals {
-  padding: 10px 30px 40px 30px;
+  padding: 20px 100px;
   background: #f9f9f9;
   
 }
@@ -9,9 +9,9 @@
 .special-deals .deals-heading {
   font-size: 26px;
   font-weight: 600;
-  margin-bottom: 30px;
-  padding-top: 20px;
+  padding: 10px 0px;
   color: rgb(58, 58, 58);
+
 }
 
 /* Deal card */
@@ -21,6 +21,8 @@
   overflow: hidden;
   width: 100%;
   margin: auto;
+  background-color: red;
+  margin-top: 10px;
   
 }
 

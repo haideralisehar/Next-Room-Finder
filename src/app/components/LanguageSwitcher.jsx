@@ -35,7 +35,7 @@ export default function LanguageSwitcher() {
         cursor: "pointer",
       }}
     >
-      <p style={{color:"white", cursor:"pointer", paddingRight:"5px"}}>{lang === "en" ? "العربية" : "Eng"}</p>
+      <p style={{color:"white", cursor:"pointer", paddingRight:"0px"}}>{lang === "en" ? "العربية" : "Eng"}</p>
     </button>
   );
 }

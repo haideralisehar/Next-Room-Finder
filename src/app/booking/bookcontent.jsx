@@ -51,7 +51,7 @@ export default function BookingPage() {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    console.log("Form Submitted:", formData);
+    
     // API call here
   };
 
@@ -254,7 +254,7 @@ export default function BookingPage() {
   <div className={styles.totalBoxe}>
     <div className={styles.totalBox} >
       <h5>Total Cal.</h5>
-    <p>USD {hotel.price} / night x {hotel.count} room(s) x {hotel.nights} Night(s)</p>
+    <p>USD {hotel.price} / Night x {hotel.count} Room(s) x {hotel.nights} Night(s)</p>
     </div>
     <div className={styles.totalBoxee}>
       Total
