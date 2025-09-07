@@ -1,7 +1,7 @@
 /* Header container */
 .header {
   background-color: #00384d;
-  padding: 20px 60px;
+  padding: 20px 100px;
   color: white;
   border-bottom: 1px solid rgb(127, 127, 127);
   position: sticky;

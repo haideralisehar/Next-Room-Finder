@@ -1,0 +1,12 @@
+.main-cont{
+    background-color: rgb(255, 255, 255);
+    max-width: 98%;
+    padding: 15px;
+    margin: 20px 100px;
+}
+
+@media (max-width: 780px) {
+    .main-cont{
+        margin: 20px 30px;
+    }
+}

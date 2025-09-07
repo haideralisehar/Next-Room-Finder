@@ -1,19 +1,20 @@
 import React from "react";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
+import "../About/about.css"
 
 export default function About() {
   return (
     <div>
       <Header />
-      <div className="main-cont" style={{ padding: "40px 40px 10px 40px" }}>
+      <div className="main-cont">
         <h3
           className="abt-txt"
-          style={{ padding: "0px 0px 10px 0px", fontSize: "20px" }}
+          style={{ padding: "0px 0px 10px 0px", fontSize: "20px", fontWeight:"bold" }}
         >
           About Us
         </h3>
-        <p style={{ fontSize: "14px", color: "#4e4e4eff" }}>
+        <p style={{ fontSize: "15px", color: "#4e4e4eff" }}>
           CityIn Booking platform is your smart gateway for local and
           international hotel reservations. The platform comes to bring peace of
           mind and travel closer to everyone, and makes reaching your next
@@ -28,7 +29,7 @@ export default function About() {
         </p>
         <h3
           className="abt-txt"
-          style={{ padding: "10px 0px 10px 0px", fontSize: "20px" }}
+          style={{ padding: "10px 0px 10px 0px", fontSize: "20px", fontWeight:"bold" }}
         >
           Our Services
         </h3>
@@ -36,7 +37,7 @@ export default function About() {
   className="lst-txt"
   style={{
     padding: "10px 0px",
-    fontSize: "14px",
+    fontSize: "15px",
     color: "#4e4e4eff",
   }}
 >

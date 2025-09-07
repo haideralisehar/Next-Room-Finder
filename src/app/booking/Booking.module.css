@@ -2,13 +2,14 @@
   display: flex;
   flex-wrap: wrap;
   gap: 2rem;
-  padding: 20px;
+  padding: 10px;
   font-weight: 400;
+  margin: 20px 100px;
 }
 
 .form {
   flex: 1;
-  min-width: 320px;
+  min-width: 290px;
   background: #fff;
   padding: 20px;
   border-radius: 12px;
@@ -25,14 +26,16 @@
 .inputGroup label {
   
   margin-bottom: 6px;
+  font-size: 15px;
 }
 
 .inputGroup input,
 .inputGroup select,
 .inputGroup textarea {
-  padding: 10px;
+  padding: 6px 10px;
   border: 1px solid #ddd;
   border-radius: 6px;
+  font-size: 15px;
  
 }
 
@@ -259,7 +262,7 @@
 
 
 /* Responsive */
-@media (max-width: 768px) {
+@media (max-width: 780px) {
   .summary {
     width: 100%;
   }
@@ -272,11 +275,14 @@
     width: 100%;
     height: 150px;
   }
+  .container{
+    margin: 20px 30px;
+  }
 }
 
 
 /* Responsive */
-@media (max-width: 768px) {
+@media (max-width: 980px) {
   .container {
     flex-direction: column;
   }

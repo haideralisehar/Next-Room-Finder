@@ -5,11 +5,11 @@
   background: white;
   border-radius: 12px;
   border: 1px solid rgb(214, 214, 214);
- 
-  
+  color: rgb(21, 21, 21);
 }
-.contact-container h2{
-  padding: 0px 0px 10px 0px;
+
+.contact-container h2 {
+  padding: 0 0 10px 0;
   font-weight: bold;
   font-size: 20px;
 }
@@ -17,16 +17,30 @@
 .contact-form {
   display: flex;
   flex-direction: column;
-  gap: 15px;
+  gap: 15px; /* spacing between groups */
+  font-size: 14px;
+
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 5px; /* small gap between label & input */
+}
+
+.form-group label{
+  font-size: 15px;
 }
 
 .contact-form input,
 .contact-form select,
 .contact-form textarea {
   width: 100%;
-  padding: 10px;
+  padding: 6px 10px;
   border: 1px solid #ccc;
   border-radius: 6px;
+  font-size: 15px;
+  color: rgb(46, 46, 46);
 }
 
 .row {
@@ -34,24 +48,60 @@
   gap: 10px;
 }
 
-.row div {
+.row .form-group {
   flex: 1;
 }
 
 .sent-btn {
   background: #d4d4d4;
-  color: rgb(40, 40, 40);
+  color: rgb(6, 6, 6);
   padding: 12px;
   border: none;
   border-radius: 6px;
   cursor: pointer;
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .sent-btn:hover {
   background: #c3c3c3;
 }
 
-/* .status {
+.sent-btn:disabled {
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+.status {
   margin-top: 10px;
   font-weight: bold;
-} */
+}
+
+/* 🔵 Loading Dots Animation */
+.loading-dots {
+  display: flex;
+  gap: 4px;
+  padding: 6px 0px 12px 0px;
+}
+
+.loading-dots span {
+  animation: blink 1.4s infinite both;
+  font-size: 20px;
+  line-height: 0;
+}
+
+.loading-dots span:nth-child(2) {
+  animation-delay: 0.2s;
+}
+
+.loading-dots span:nth-child(3) {
+  animation-delay: 0.4s;
+}
+
+@keyframes blink {
+  0% { opacity: 0.2; }
+  20% { opacity: 1; }
+  100% { opacity: 0.2; }
+}

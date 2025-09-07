@@ -1,0 +1,20 @@
+.term-txt p{
+    color: #4e4e4eff;
+    font-size: 15px;
+}
+
+.term-txt{
+    max-width: 98%;
+    margin: 20px 100px;
+    padding: 15px;
+    border: 1px solid silver;
+
+    
+}
+
+@media (max-width: 780px) {
+    .term-txt{
+        margin: 20px 30px;
+        
+    }
+}

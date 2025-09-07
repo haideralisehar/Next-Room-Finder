@@ -242,10 +242,10 @@ export default function BookingPage() {
   <div className={styles.totalBoxs}>
     <div className="check-ico" style={{display:"flex", gap:"5px"}}>
         <IoCalendarOutline />
-        <p style={{marginTop:"-2px"}}>Check-in & Check-out</p>
+        <p style={{marginTop:"-2px", fontSize:"15px", color:"black"}}>Check-in & Check-out</p>
     </div>
 
-    <p style={{padding:"7px 0px 5px 1px", color:"#1e1e1eff"}}>{hotel.from ? hotel.from.slice(0, 10): "N/A"} - {hotel.to ? hotel.to.slice(0, 10): "N/A"} ({hotel.nights > 1 ? `${hotel.nights} Nights` : `${hotel.nights} Night`})
+    <p style={{padding:"7px 0px 5px 1px", color:"#2c2c2cff"}}>{hotel.from ? hotel.from.slice(0, 10): "N/A"} - {hotel.to ? hotel.to.slice(0, 10): "N/A"} ({hotel.nights > 1 ? `${hotel.nights} Nights` : `${hotel.nights} Night`})
 </p>
     
     
