@@ -154,6 +154,22 @@
 .rc-slider {
   margin: 10px 0;
 }
+.nf-pro {
+  display: flex;
+  justify-content: space-between; /* ✅ left text + right dropdown */
+  align-items: center;
+  margin: 15px 0;
+}
+
+.sort-dropdown {
+  padding: 6px 10px;
+  border: 1px solid silver;
+  border-radius: 4px;
+  font-size: 14px;
+  background: white;
+  cursor: pointer;
+}
+
 
 
 /* --- Responsive Design --- */
@@ -162,6 +178,16 @@
     flex-direction: column;
     padding: 20px 30px;
   }
+  .nf-pro{
+  width: 100%;
+  /* background-color: red; */
+  padding: 20px 30px 0px 30px;
+}
+
+.nf-pro p{
+  font-size: 16px;
+  font-weight: normal;
+}
 
   .filters {
     width: 100%;

@@ -23,8 +23,11 @@ export default function ResultsContent() {
   const [filters, setFilters] = useState({
     title: "",
     rating: "",
-    priceRange: [0, 500], // default price range
+    priceRange: [0, 500],
   });
+
+  // ✅ Sorting state
+  const [sortOption, setSortOption] = useState("");
 
   useEffect(() => {
     setTimeout(() => {
@@ -51,9 +54,9 @@ export default function ResultsContent() {
     }, 300);
   }, [searchParams]);
 
-  // ✅ Filtering logic
+  // ✅ Filtering + Sorting logic
   const filteredResults = useMemo(() => {
-    return results.filter((hotel) => {
+    let data = results.filter((hotel) => {
       // Title search
       if (
         filters.title &&
@@ -79,7 +82,31 @@ export default function ResultsContent() {
 
       return true;
     });
-  }, [results, filters]);
+
+    // ✅ Apply Sorting
+    if (sortOption) {
+      data = [...data].sort((a, b) => {
+        switch (sortOption) {
+          case "price-low":
+            return a.price - b.price;
+          case "price-high":
+            return b.price - a.price;
+          case "rating-low":
+            return parseFloat(a.rating) - parseFloat(b.rating);
+          case "rating-high":
+            return parseFloat(b.rating) - parseFloat(a.rating);
+          case "stars-low":
+            return a.stars - b.stars;
+          case "stars-high":
+            return b.stars - a.stars;
+          default:
+            return 0;
+        }
+      });
+    }
+
+    return data;
+  }, [results, filters, sortOption]);
 
   // ✅ Clear filters
   const clearFilters = () => {
@@ -112,15 +139,34 @@ export default function ResultsContent() {
         initialCheckOut={to}
         initialRooms={rooms}
       />
+
+      {/* --- Top bar with results count + sort --- */}
       <div className="nf-pro">
         <p>
-          <strong>
-            {results.length} properties in {destination}
-          </strong>
+          
+            {filteredResults.length} properties in {destination}
+            {/* {filteredResults.length} destinations */}
+         
         </p>
+
+        {/* ✅ Sort Dropdown (aligned right) */}
+        <select
+          className="sort-dropdown"
+          value={sortOption}
+          onChange={(e) => setSortOption(e.target.value)}
+        >
+          <option value="">Sort By</option>
+          <option value="price-low">Price: Low to High</option>
+          <option value="price-high">Price: High to Low</option>
+          <option value="rating-low">Rating: Low to High</option>
+          <option value="rating-high">Rating: High to Low</option>
+          <option value="stars-low">Stars: Low to High</option>
+          <option value="stars-high">Stars: High to Low</option>
+        </select>
       </div>
+
       <div className="results-container">
-        {/* --- Filters Sidebar (extracted to component) --- */}
+        {/* --- Filters Sidebar --- */}
         <Filters
           filters={filters}
           setFilters={setFilters}
@@ -137,6 +183,7 @@ export default function ResultsContent() {
                   <h3>{hotel.name}</h3>
                   <p>{hotel.location}</p>
                   <p>Rating: {hotel.rating}</p>
+                  <p>Stars: {hotel.stars}</p> {/* ✅ Show stars */}
                   <p>
                     Rooms: <strong>{rooms.length}</strong>
                   </p>
