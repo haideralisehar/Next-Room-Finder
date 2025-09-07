@@ -8,13 +8,11 @@ import {
   FaPlus,
   FaMinus,
   FaTrash,
-  FaTimes,
 } from "react-icons/fa";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import "../styling/HotelSearchBar.css";
 import { useRouter } from "next/navigation";
-import Filters from "../components/filter"; // ✅ Import Filters component
 
 // ✅ Static Hotel Data
 export const hotelsData = {
@@ -33,8 +31,35 @@ export const hotelsData = {
       location: "Agha Khan Road, Islamabad",
       price: 90,
       image:
-        "https://images.unsplash.com/photo-1496417263034-38ec4f0b665a?w=600",
+        "https://images.unsplash.com/photo-1496417263034-38ec4f0b665a?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTN8fGhvdGVsfGVufDB8MHwwfHx8MA%3D%3D",
       rating: 4,
+    },
+    {
+      id: 3,
+      name: "Marriott Islamabad",
+      location: "Agha Khan Road, Islamabad",
+      price: 30,
+      image:
+        "https://images.unsplash.com/photo-1611892440504-42a792e24d32?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTd8fGhvdGVsfGVufDB8MHwwfHx8MA%3D%3D",
+      rating: 2,
+    },
+  ],
+  Lahore: [
+    {
+      id: 1,
+      name: "Pearl Continental Lahore",
+      location: "Shahrah-e-Quaid-e-Azam, Lahore",
+      price: 150,
+      image: "https://images.pexels.com/photos/260922/pexels-photo-260922.jpeg",
+      rating: 2,
+    },
+    {
+      id: 2,
+      name: "Avari Lahore",
+      location: "Mall Road, Lahore",
+      price: 110,
+      image: "https://images.pexels.com/photos/271624/pexels-photo-271624.jpeg",
+      rating: 3,
     },
   ],
 };
@@ -48,8 +73,10 @@ export default function HotelSearchBar({
   initialRooms = [{ adults: 2, children: 0, childrenAges: [] }],
 }) {
   const router = useRouter();
+
   const [destination, setDestination] = useState(initialDestination);
 
+  // ✅ Default dates: check-in today, check-out tomorrow
   const today = new Date();
   const tomorrow = new Date();
   tomorrow.setDate(today.getDate() + 1);
@@ -62,10 +89,9 @@ export default function HotelSearchBar({
   );
 
   const [rooms, setRooms] = useState(initialRooms);
-  const [showPopup, setShowPopup] = useState(false); // Room popup
-  const [showFilterPopup, setShowFilterPopup] = useState(false); // Filter popup ✅
+  const [showPopup, setShowPopup] = useState(false);
 
-  // ✅ Nights calculation
+  // ✅ Calculate number of nights
   const nights =
     checkInDate && checkOutDate
       ? Math.max(
@@ -79,7 +105,61 @@ export default function HotelSearchBar({
 
   const handlePopupToggle = () => setShowPopup(!showPopup);
 
-  const handleFilterPopupToggle = () => setShowFilterPopup(!showFilterPopup); // ✅
+  const updateCount = (roomIndex, type, operation) => {
+    setRooms((prevRooms) =>
+      prevRooms.map((room, i) => {
+        if (i !== roomIndex) return room;
+        const updatedRoom = { ...room };
+        if (operation === "increment") updatedRoom[type] += 1;
+        if (operation === "decrement" && updatedRoom[type] > 0)
+          updatedRoom[type] -= 1;
+
+        if (type === "children") {
+          if (updatedRoom[type] > updatedRoom.childrenAges.length) {
+            updatedRoom.childrenAges = [...updatedRoom.childrenAges, null];
+          } else {
+            updatedRoom.childrenAges = updatedRoom.childrenAges.slice(
+              0,
+              updatedRoom[type]
+            );
+          }
+        }
+        return updatedRoom;
+      })
+    );
+  };
+
+  const handleChildAgeChange = (roomIndex, childIndex, age) => {
+    setRooms((prevRooms) => {
+      const updatedRooms = [...prevRooms];
+      updatedRooms[roomIndex].childrenAges[childIndex] = age;
+      return updatedRooms;
+    });
+  };
+
+  const addRoom = () =>
+    setRooms([...rooms, { adults: 2, children: 0, childrenAges: [] }]);
+  const deleteRoom = (roomIndex) =>
+    setRooms(rooms.filter((_, i) => i !== roomIndex));
+
+  const CloseDone =()=>{
+    // Normalize: capitalize first letter, lowercase the rest
+    // const normalizedDest =
+    //   destination.charAt(0).toUpperCase() +
+    //   destination.slice(1).toLowerCase();
+    // const searchUrl = `/results?destination=${normalizedDest}&from=${checkInDate?.toISOString()}&to=${checkOutDate?.toISOString()}&rooms=${encodeURIComponent(
+    //   JSON.stringify(rooms)
+    // )}&nights=${nights}`;
+  
+    setShowPopup(false);
+    // Decide whether to push or replace
+    // if (window.location.pathname === "/") {
+    //   router.push(searchUrl);
+    // } else {
+    //   router.replace(searchUrl);
+    // }
+
+  }
 
   const getSummary = () => {
     const totalRooms = rooms.length;
@@ -95,14 +175,15 @@ export default function HotelSearchBar({
       alert("Please enter a destination!");
       return;
     }
+    // Normalize: capitalize first letter, lowercase the rest
     const normalizedDest =
       destination.charAt(0).toUpperCase() +
       destination.slice(1).toLowerCase();
-
     const searchUrl = `/results?destination=${normalizedDest}&from=${checkInDate?.toISOString()}&to=${checkOutDate?.toISOString()}&rooms=${encodeURIComponent(
       JSON.stringify(rooms)
     )}&nights=${nights}`;
 
+    // Decide whether to push or replace
     if (window.location.pathname === "/") {
       router.push(searchUrl);
     } else {
@@ -153,33 +234,117 @@ export default function HotelSearchBar({
           />
         </div>
 
+        {/* ✅ Show Nights */}
+        {/* <div className="search-box">
+          <p>{nights} Night{nights > 1 ? "s" : ""}</p>
+        </div> */}
+
         {/* Guests */}
         <div className="search-box" onClick={handlePopupToggle}>
           <FaUsers className="icon" />
-          <input type="text" value={getSummary()} readOnly />
+          <input
+            type="text"
+            placeholder="1 Room, 2 Adults"
+            value={getSummary()}
+            readOnly
+          />
         </div>
 
-        {/* Buttons */}
+        {/* Search Button */}
         <button className="search-btn" onClick={handleSearch}>
           <FaSearch /> Search Hotels
         </button>
-
-        
       </div>
 
-      {/* 🔹 Filter Popup ✅ */}
-      {showFilterPopup && (
+      {/* 🔹 Multi-room Popup */}
+      {showPopup && (
         <div className="popup-overlay">
-          <div className="popup filter-popup">
-            <button
-              className="close-btn"
-              onClick={handleFilterPopupToggle}
-              style={{ float: "right", marginBottom: "10px" }}
-            >
-              <FaTimes /> Close
+          <div className="popup">
+            {rooms.map((room, roomIndex) => (
+              <div key={roomIndex} className="room-section">
+                <h3>Room {roomIndex + 1}</h3>
+                {roomIndex > 0 && (
+                  <button
+                    className="delete-room-btn"
+                    onClick={() => deleteRoom(roomIndex)}
+                  >
+                    <FaTrash /> Remove
+                  </button>
+                )}
+
+                {/* Adults */}
+                <div className="counter">
+                  <label>Adults</label>
+                  <button
+                    onClick={() => updateCount(roomIndex, "adults", "decrement")}
+                  >
+                    <FaMinus />
+                  </button>
+                  <span>{room.adults}</span>
+                  <button
+                    onClick={() => updateCount(roomIndex, "adults", "increment")}
+                  >
+                    <FaPlus />
+                  </button>
+                </div>
+
+                {/* Children */}
+                <div className="counter">
+                  <label>Children</label>
+                  <button
+                    onClick={() =>
+                      updateCount(roomIndex, "children", "decrement")
+                    }
+                  >
+                    <FaMinus />
+                  </button>
+                  <span>{room.children}</span>
+                  <button
+                    onClick={() =>
+                      updateCount(roomIndex, "children", "increment")
+                    }
+                  >
+                    <FaPlus />
+                  </button>
+                </div>
+
+                {/* Children Ages */}
+                {room.children > 0 && (
+                  <div className="children-ages">
+                    {room.childrenAges.map((age, childIndex) => (
+                      <div key={childIndex} className="child-age">
+                        <label>Child {childIndex + 1} Age:</label>
+                        <select
+                          value={age || ""}
+                          onChange={(e) =>
+                            handleChildAgeChange(
+                              roomIndex,
+                              childIndex,
+                              e.target.value
+                            )
+                          }
+                        >
+                          <option value="">Select Age</option>
+                          {Array.from({ length: 16 }, (_, i) => i + 1).map(
+                            (num) => (
+                              <option key={num} value={num}>
+                                {num}
+                              </option>
+                            )
+                          )}
+                        </select>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            ))}
+            <button className="add-room-btn" onClick={addRoom}>
+              + Add Room
             </button>
-            <h2>Filter Hotels</h2>
-            <Filters /> {/* ✅ Imported component */}
+            <button className="close-btn" onClick={CloseDone}>
+              Done
+            </button>
           </div>
         </div>
       )}
