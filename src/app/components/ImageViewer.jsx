@@ -1,5 +1,6 @@
 import React, { useState, useRef } from "react";
 import "../styling/ImageViewer.css";
+import { FaArrowLeft, FaArrowRight, FaSearchPlus, FaSearchMinus, FaExpand, FaCompress } from "react-icons/fa";
 
 const ImageViewer = ({ images }) => {
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -50,10 +51,10 @@ const ImageViewer = ({ images }) => {
           className="main-image"
         />
         <div className="controls">
-          <button onClick={prevImage}>⬅</button>
-          <button onClick={nextImage}>➡</button>
-          <button onClick={zoomIn}>+</button>
-          <button onClick={zoomOut}>-</button>
+          <button onClick={prevImage}><FaArrowLeft /></button>
+          <button onClick={nextImage}><FaArrowRight /></button>
+          <button onClick={zoomIn}><FaSearchPlus /></button>
+          <button onClick={zoomOut}><FaSearchMinus /></button>
           <button onClick={toggleFullScreen}>
             {isFullScreen ? "Exit ⛶" : "Full ⛶"}
           </button>

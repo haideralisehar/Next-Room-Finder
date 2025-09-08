@@ -44,6 +44,7 @@ const images = [
       <Header />
       <div className="hotel-view-container">
         {/* Hotel Name & Location */}
+        
         <div style={{display:"flex", padding:"15px 0px 0px 0px"}}>
           <h1 className="hotel-title" style={{ padding:"0px 12px 0px 0px"}}>{hotel.name}</h1>
           <div style={{marginTop:"13px"}}>
