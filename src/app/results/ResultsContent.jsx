@@ -7,8 +7,8 @@ import Footer from "../components/Footer";
 import "../results/ResultsPage.css";
 import Link from "next/link";
 import Filters from "../components/filter"; // ✅ Import Filters component
+import MobFilter from "../components/MobFilter";
 import {IoLocationOutline, IoCalendarOutline  }  from "react-icons/io5"
-
 export default function ResultsContent() {
   const searchParams = useSearchParams();
 
@@ -19,6 +19,8 @@ export default function ResultsContent() {
   const [to, setTo] = useState("");
   const [rooms, setRooms] = useState([]);
   const [nights, setNights] = useState();
+  const [showPopup, setShowPopup] = useState(false);
+  const handlePopupToggle = () => setShowPopup(!showPopup);
 
   // ✅ Filters state
   const [filters, setFilters] = useState({
@@ -147,7 +149,11 @@ export default function ResultsContent() {
           {filteredResults.length} properties in {destination}
           {/* {filteredResults.length} destinations */}
         </p>
-
+ <div style={{display:"flex", gap:"7px"}} >
+  <div className="btn-filter" style={{padding:"6px 12px", borderRadius:"5px",  background:" #0071c2", color:"white", cursor:"pointer"}} onClick={handlePopupToggle}>
+    <p style={{fontSize:"14px"}}>Filter</p>
+  
+  </div>
         {/* ✅ Sort Dropdown (aligned right) */}
         <select
           className="sort-dropdown"
@@ -162,6 +168,7 @@ export default function ResultsContent() {
           <option value="stars-low">Stars: Low to High</option>
           <option value="stars-high">Stars: High to Low</option>
         </select>
+        </div>
       </div>
 
       <div className="results-container">
@@ -244,6 +251,19 @@ export default function ResultsContent() {
     ))}
   </div>
 </main>
+
+{showPopup && (
+        <div className="popup-overlay">
+          <div className="popup">
+            <MobFilter
+            filters={filters}
+          setFilters={setFilters}
+          clearFilters={clearFilters}
+          handlePopupToggle = {handlePopupToggle}
+            />
+          </div>
+        </div>
+      )}
 
       </div>
       <Footer />

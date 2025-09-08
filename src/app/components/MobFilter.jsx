@@ -2,22 +2,16 @@
 import React from "react";
 import Slider from "rc-slider";
 import "rc-slider/assets/index.css";
-import "../results/ResultsPage.css"; // if styles are defined there
-import "../styling/filter.css"
+import "../styling/MobFilter.css"
 
-export default function Filters({ filters, setFilters, clearFilters }) {
+export default function MobFilter({filters, setFilters, clearFilters, handlePopupToggle }) {
   return (
-    <aside className="filters">
-      <h3>Filters</h3>
+    <div className="mobile-main-filter">
+        <h3>Filter</h3>
 
-      <button className="clear-btn" onClick={clearFilters}>
-        Clear Filters
-      </button>
-
-      {/* Title Search */}
       <div className="filter-group">
         <label htmlFor="hotelName">
-          <h3>Hotel Name</h3>
+          <h4>Hotel Name</h4>
         </label>
         <input
           style={{
@@ -36,9 +30,7 @@ export default function Filters({ filters, setFilters, clearFilters }) {
           }
         />
       </div>
-
-      {/* Rating Filter */}
-      <div className="filter-group">
+       <div className="filter-group">
         <p>Guest Rating</p>
         {["4+", "3+", "2+", "1+"].map((rate) => (
           <label key={rate}>
@@ -55,9 +47,7 @@ export default function Filters({ filters, setFilters, clearFilters }) {
           </label>
         ))}
       </div>
-
-      {/* Price Range Filter */}
-      <div className="filter-group">
+       <div className="filter-group">
         <p>Price Range ($)</p>
         <Slider
           range
@@ -73,7 +63,15 @@ export default function Filters({ filters, setFilters, clearFilters }) {
           ${filters.priceRange[0]} – ${filters.priceRange[1]}
         </p>
       </div>
-    </aside>
-  );
-}
 
+      <div className="btn-appRe">
+        <button className="resets-btn" onClick={clearFilters}>Reset</button>
+        <button className="applys-btn" onClick={handlePopupToggle}>Apply</button>
+
+      </div>
+
+      
+      
+    </div>
+  )
+}
