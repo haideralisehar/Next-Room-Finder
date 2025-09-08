@@ -33,18 +33,18 @@ export default function MobFilter({ filters, setFilters, clearFilters, handlePop
       {/* Guest Rating */}
       <div className="filter-group">
         <p>Guest Rating</p>
-        {[4, 3, 2, 1].map((rate) => (
-          <label key={rate} style={{ marginRight: "10px" }}>
+        {["4+", "3+", "2+", "1+"].map((rate) => (
+          <label key={rate}>
             <input
               type="radio"
               name="rating"
               value={rate}
               checked={filters.rating === rate}
               onChange={(e) =>
-                setFilters({ ...filters, rating: Number(e.target.value) })
+                setFilters({ ...filters, rating: e.target.value })
               }
             />
-            {rate}+
+            {rate}
           </label>
         ))}
       </div>
