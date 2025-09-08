@@ -8,7 +8,7 @@ import "../styling/filter.css"
 export default function Filters({ filters, setFilters, clearFilters }) {
   return (
     <aside className="filters">
-      <h3>Filters</h3>
+      <p style={{fontWeight: "bold", textAlign:"center", padding:"10px 0px"}}>Filters</p>
 
       <button className="clear-btn" onClick={clearFilters}>
         Clear Filters
@@ -16,9 +16,8 @@ export default function Filters({ filters, setFilters, clearFilters }) {
 
       {/* Title Search */}
       <div className="filter-group">
-        <label htmlFor="hotelName">
-          <h3>Hotel Name</h3>
-        </label>
+          <p>Hotel Name</p>
+        
         <input
           style={{
             border: "1px solid silver",

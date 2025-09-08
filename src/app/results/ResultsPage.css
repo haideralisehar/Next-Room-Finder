@@ -27,6 +27,7 @@
   padding: 15px;
   border-radius: 8px;
   height: fit-content;
+  box-shadow: 1px 1px 19px rgba(22, 22, 22, 0.058);
 }
 
 .filters h3 {
@@ -78,7 +79,7 @@
   border-radius: 10px;
   overflow: hidden;
   background: #fff;
-  box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+  box-shadow: 1px 1px 19px rgba(22, 22, 22, 0.058);
   padding: 10px;
 }
 
@@ -333,16 +334,17 @@
 }
 .results-container {
     flex-direction: column;
-    padding: 0px 20px;
+    padding: 0px 10px;
   }
 
 .nf-pro{
-  padding: 20px 30px;
+  padding: 20px 10px;
 }
 .hotel-card{
-  margin: 0px 10px;
+  margin: 0px 00px;
  
 }
+
   
 }
 

@@ -151,8 +151,11 @@ export default function ResultsContent() {
           {/* {filteredResults.length} destinations */}
         </p>
  <div className="set-fil" style={{display:"flex", gap:"7px",marginTop:"10px"}} >
-  <div className="btn-filter" style={{padding:"7px 12px 6px 12px", borderRadius:"5px",  background:" #0071c2", color:"white", cursor:"pointer", display:"flex", justifyContent:"center"}} onClick={handlePopupToggle}>
-   <FaFilter/> <p style={{fontSize:"14px", fontWeight:"normal"}}>Filter</p>
+  <div className="btn-filter" style={{padding:"7px 12px 6px 12px", borderRadius:"5px",  background:" #0071c2", color:"white", cursor:"pointer"}} onClick={handlePopupToggle}>
+   <div style={{display:"flex", justifyContent:"center"}}>
+    <FaFilter/> <p style={{fontSize:"14px", fontWeight:"normal"}}>Filter</p>
+   </div>
+   
   
   </div>
         {/* ✅ Sort Dropdown (aligned right) */}
