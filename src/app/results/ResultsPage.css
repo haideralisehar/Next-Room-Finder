@@ -16,6 +16,7 @@
 }
 .nf-pro p{
   font-size: 20px;
+  font-weight: 600;
 }
 
 /* --- Filters Sidebar --- */
@@ -254,12 +255,17 @@
 }
 .btn-filter{
   display: none;
+
 }
 @media (max-width: 1010px) {
   .hotel-card {
     flex-direction: column;
     justify-content: space-between;
   }
+  .nf-pro p{
+  font-size: 16px;
+  font-weight: 600;
+}
 
   .hotel-img {
     width: 100vw;
@@ -269,16 +275,35 @@
     display: flex;
     justify-content: space-between;
   }
+  
 
 }
 
+@media (max-width: 780px) {
+  .btn-filter{
+    width: 50%;
+    text-align: center;
+  }
+  .nf-pro p{
+  font-size: 16px;
+  font-weight: 600;
+}
+  .set-fil{
+    display: flex;
+    justify-content: space-between;
+
+  }
+  .sort-dropdown{
+    width: 50%;
+  }
+}
 
 
 /* --- Responsive Design --- */
 @media (max-width: 860px) {
   .results-container {
     flex-direction: column;
-    padding: 20px 30px;
+    padding: 20px 100px;
   }
   .price-info .price{
     text-align: right;
@@ -286,7 +311,6 @@
   .nf-pro{
   width: 100%;
   /* background-color: red; */
-  padding: 20px 20px 0px 20px;
 }
 .btn-filter{
   display: block;
@@ -294,7 +318,32 @@
 
 .nf-pro p{
   font-size: 16px;
-  font-weight: normal;
+  font-weight: 600;
+}
+
+@media (max-width: 780px) {
+    .nf-pro{
+
+  display: block;
+  
+}
+.nf-pro p{
+  font-size: 16px;
+  font-weight: 600;
+}
+.results-container {
+    flex-direction: column;
+    padding: 0px 20px;
+  }
+
+.nf-pro{
+  padding: 20px 30px;
+}
+.hotel-card{
+  margin: 10px 10px;
+ 
+}
+  
 }
 
   

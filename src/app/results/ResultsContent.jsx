@@ -9,6 +9,7 @@ import Link from "next/link";
 import Filters from "../components/filter"; // ✅ Import Filters component
 import MobFilter from "../components/MobFilter";
 import {IoLocationOutline, IoCalendarOutline  }  from "react-icons/io5"
+ import { FaFilter } from "react-icons/fa";
 export default function ResultsContent() {
   const searchParams = useSearchParams();
 
@@ -149,9 +150,9 @@ export default function ResultsContent() {
           {filteredResults.length} properties in {destination}
           {/* {filteredResults.length} destinations */}
         </p>
- <div style={{display:"flex", gap:"7px"}} >
-  <div className="btn-filter" style={{padding:"6px 12px", borderRadius:"5px",  background:" #0071c2", color:"white", cursor:"pointer"}} onClick={handlePopupToggle}>
-    <p style={{fontSize:"14px"}}>Filter</p>
+ <div className="set-fil" style={{display:"flex", gap:"7px",marginTop:"10px"}} >
+  <div className="btn-filter" style={{padding:"7px 12px 6px 12px", borderRadius:"5px",  background:" #0071c2", color:"white", cursor:"pointer", display:"flex", justifyContent:"center"}} onClick={handlePopupToggle}>
+   <FaFilter/> <p style={{fontSize:"14px", fontWeight:"normal"}}>Filter</p>
   
   </div>
         {/* ✅ Sort Dropdown (aligned right) */}
@@ -230,18 +231,19 @@ export default function ResultsContent() {
 
             {/* Breakfast */}
             <p className="breakfast">🥗 Breakfast included</p>
-
+            <p style={{fontSize:"14px", color:"red", paddingBottom:"10px"}}>🚫 Non-Refundable</p>
+          
             {/* Rating + Price */}
             <div className="hotel-footer">
               <div className="rating">
                 <span className="rating-badge">{hotel.rating}</span>
-                <span>{hotel.rating >= 8 ? "Very Good" : "Good"}</span>
+                <span>{hotel.rating >= 3 ? "Very Good" : "Good"}</span>
               </div>
 
               <div className="price-info">
                 <p className="price">{hotel.price} USD</p>
                 <p className="price-sub">
-                  1 room(s) br {nights} night(s) incl. taxes
+                  {rooms.length} room(s) <br /> {nights} night(s) incl. taxes
                 </p>
               </div>
             </div>

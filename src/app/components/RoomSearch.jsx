@@ -255,6 +255,7 @@ export default function HotelSearchBar({
           <FaSearch /> Search Hotels
         </button>
       </div>
+     
 
       {/* 🔹 Multi-room Popup */}
       {showPopup && (
