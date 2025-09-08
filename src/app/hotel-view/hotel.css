@@ -17,6 +17,13 @@
   margin-bottom: 0px;
   color: #222;
 }
+.RatingPlusTitle{
+  display: flex;
+  padding: 15px 0px 0px 0px;
+}
+.StartManage{
+  margin-top:13px;
+}
 
 .tit-mng {
   display: flex;
@@ -114,10 +121,24 @@
 }
 
 /* Responsive Design */
+@media (max-width: 850px) {
+  .RatingPlusTitle{
+    display: flex;
+  }
+  .StartManage{
+    margin: 13px 0px 0px 0px;
+  }
+}
 @media (max-width: 780px) {
   .hotel-view-container {
     padding: 15px;
-    margin: 20px 20px;
+    margin: 20px 10px;
+  }
+  .RatingPlusTitle{
+    display: block;
+  }
+  .StartManage{
+    margin: 0px 0px 5px 0px;
   }
 
   .hotel-title {

@@ -4,7 +4,7 @@
   gap: 15px;
   width: 100%;
   max-width: 1200px;
-  margin: auto;
+  margin-bottom: 20px;
   align-items: flex-start;
   max-height: 80vh;
 }

@@ -45,9 +45,9 @@ const images = [
       <div className="hotel-view-container">
         {/* Hotel Name & Location */}
         
-        <div style={{display:"flex", padding:"15px 0px 0px 0px"}}>
+        <div className="RatingPlusTitle">
           <h1 className="hotel-title" style={{ padding:"0px 12px 0px 0px"}}>{hotel.name}</h1>
-          <div style={{marginTop:"13px"}}>
+          <div className="StartManage" >
             <StarRating rating={hotel.rating }/>
           </div>
           
