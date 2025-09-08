@@ -11,9 +11,9 @@ export default function MobFilter({ filters, setFilters, clearFilters, handlePop
 
       {/* Hotel Name */}
       <div className="filter-group">
-        <label htmlFor="hotelName">
-          <h4>Hotel Name</h4>
-        </label>
+        
+          <p>Hotel Name</p>
+       
         <input
           style={{
             border: "1px solid silver",
