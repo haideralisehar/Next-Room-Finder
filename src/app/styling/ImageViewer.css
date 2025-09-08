@@ -1,11 +1,11 @@
 .viewer-container {
   display: flex;
+  
   gap: 15px;
   width: 100%;
   max-width: 1200px;
   margin: auto;
   align-items: flex-start;
-  padding: 10px;
   max-height: 80vh;
 }
 

@@ -50,10 +50,10 @@ const ImageViewer = ({ images }) => {
           className="main-image"
         />
         <div className="controls">
-          <button onClick={prevImage}>⬅ Prev</button>
-          <button onClick={nextImage}>Next ➡</button>
-          <button onClick={zoomIn}>🔍+</button>
-          <button onClick={zoomOut}>🔍-</button>
+          <button onClick={prevImage}>⬅</button>
+          <button onClick={nextImage}>➡</button>
+          <button onClick={zoomIn}>+</button>
+          <button onClick={zoomOut}>-</button>
           <button onClick={toggleFullScreen}>
             {isFullScreen ? "Exit ⛶" : "Full ⛶"}
           </button>
