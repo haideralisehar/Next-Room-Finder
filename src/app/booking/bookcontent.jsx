@@ -6,6 +6,7 @@ import {IoLocationOutline, IoCalendarOutline  }  from "react-icons/io5"
 import Header from "../components/Header";
 import Footer from "../components/Footer";
 import { useSearchParams } from "next/navigation";
+import StarRating from "../components/rating"
 
 
 export default function BookingPage() {
@@ -21,13 +22,14 @@ export default function BookingPage() {
     to: searchParams.get("to"),
     count: searchParams.get("count"),
     nights: searchParams.get("nights"),
+    rating: searchParams.get("rating"),
     rooms: searchParams.get("rooms")
       ? JSON.parse(searchParams.get("rooms"))
       : [],
    
   };
 
-  console.log("Hotel Data:", hotel);
+  // console.log("Hotel Data:", hotel);
 
   const [formData, setFormData] = useState({
     firstName: "",
@@ -218,12 +220,15 @@ export default function BookingPage() {
     />
     <div>
       {/* ⭐ Rating Row */}
-      <div className={styles.rating}>
+      {/* <div className={styles.rating}>
         <FaStar className={styles.star} />
         <FaStar className={styles.star} />
         <FaStar className={styles.star} />
         <FaStar className={styles.star} />
         <FaRegStar className={styles.star} />
+      </div> */}
+      <div style={{paddingBottom:"5px"}}>
+      <StarRating rating={hotel.rating}/>
       </div>
 
       <h4 style={{display:"flex", justifyContent:"flex-start"}}>{hotel.name}</h4>

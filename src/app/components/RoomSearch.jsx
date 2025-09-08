@@ -14,63 +14,13 @@ import "react-datepicker/dist/react-datepicker.css";
 import "../styling/HotelSearchBar.css";
 import { useRouter } from "next/navigation";
 
-// ✅ Static Hotel Data
-export const hotelsData = {
-  Islamabad: [
-    {
-      id: 1,
-      name: "Islamabad Serena Hotel",
-      location: "Khaliq Uz Zaman Road, Islamabad",
-      price: 120,
-      image: "https://images.pexels.com/photos/260922/pexels-photo-260922.jpeg",
-      rating: 5,
-    },
-    {
-      id: 2,
-      name: "Marriott Islamabad",
-      location: "Agha Khan Road, Islamabad",
-      price: 90,
-      image:
-        "https://images.unsplash.com/photo-1496417263034-38ec4f0b665a?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTN8fGhvdGVsfGVufDB8MHwwfHx8MA%3D%3D",
-      rating: 4,
-    },
-    {
-      id: 3,
-      name: "Marriott Islamabad",
-      location: "Agha Khan Road, Islamabad",
-      price: 30,
-      image:
-        "https://images.unsplash.com/photo-1611892440504-42a792e24d32?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTd8fGhvdGVsfGVufDB8MHwwfHx8MA%3D%3D",
-      rating: 2,
-    },
-  ],
-  Lahore: [
-    {
-      id: 1,
-      name: "Pearl Continental Lahore",
-      location: "Shahrah-e-Quaid-e-Azam, Lahore",
-      price: 150,
-      image: "https://images.pexels.com/photos/260922/pexels-photo-260922.jpeg",
-      rating: 2,
-    },
-    {
-      id: 2,
-      name: "Avari Lahore",
-      location: "Mall Road, Lahore",
-      price: 110,
-      image: "https://images.pexels.com/photos/271624/pexels-photo-271624.jpeg",
-      rating: 3,
-    },
-  ],
-};
-
 const destinations = ["Islamabad", "Lahore"];
 
 export default function HotelSearchBar({
   initialDestination = "",
   initialCheckIn = null,
   initialCheckOut = null,
-  initialRooms = [{ adults: 2, children: 0, childrenAges: [] }],
+  initialRooms = [{ adults: 1, children: 0, childrenAges: [] }],
 }) {
   const router = useRouter();
 
@@ -181,7 +131,7 @@ export default function HotelSearchBar({
       destination.slice(1).toLowerCase();
     const searchUrl = `/results?destination=${normalizedDest}&from=${checkInDate?.toISOString()}&to=${checkOutDate?.toISOString()}&rooms=${encodeURIComponent(
       JSON.stringify(rooms)
-    )}&nights=${nights}`;
+    )}&nights=${nights}&description=${destinations}`;
 
     // Decide whether to push or replace
     if (window.location.pathname === "/") {

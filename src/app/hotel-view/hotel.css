@@ -1,6 +1,6 @@
 .hotel-view-container {
   max-width: 95%;
-  margin: 20px auto;
+  margin: 20px 100px;
   padding: 20px;
   background-color: #ffffff;
   border-radius: 10px;
@@ -14,7 +14,7 @@
 .hotel-title {
   font-size: 26px;
   font-weight: 700;
-  margin-bottom: 8px;
+  margin-bottom: 0px;
   color: #222;
 }
 
@@ -114,9 +114,10 @@
 }
 
 /* Responsive Design */
-@media (max-width: 768px) {
+@media (max-width: 780px) {
   .hotel-view-container {
     padding: 15px;
+    margin: 20px 20px;
   }
 
   .hotel-title {

@@ -1,0 +1,116 @@
+.viewer-container {
+  display: flex;
+  gap: 15px;
+  width: 100%;
+  max-width: 1200px;
+  margin: auto;
+  align-items: flex-start;
+  padding: 10px;
+  max-height: 80vh;
+}
+
+.main-image-section {
+  flex: 3;
+  position: relative;
+  background: #000; /* black background */
+  border-radius: 8px;
+  overflow: hidden; /* keep zoom inside */
+  height: 70vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.main-image {
+  width: 100%;
+  max-height: 80vh;
+  object-fit: cover; /* image covers container */
+  transition: transform 0.3s ease;
+}
+
+/* Controls overlay on image */
+.controls {
+  position: absolute;
+  bottom: 0; /* stick to bottom of image */
+  left: 0;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  padding: 10px;
+  background: rgba(0, 0, 0, 0.6); /* black transparent background */
+}
+
+.controls button {
+  padding: 6px 12px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  background: #ffffffcc; /* light transparent */
+  color: #000;
+  font-size: 14px;
+  font-weight: bold;
+  transition: background 0.2s;
+}
+
+.controls button:hover {
+  background: #fff;
+}
+
+/* Thumbnails */
+.thumbnail-section {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  max-height: 70vh;
+  overflow-y: auto;
+  
+}
+
+.thumbnail {
+  width: 100%;
+  max-height: 100px;
+  object-fit: cover;
+  cursor: pointer;
+  border-radius: 6px;
+  border: 2px solid transparent;
+  transition: 0.3s;
+}
+
+.thumbnail:hover {
+  border: 2px solid #007bff;
+}
+
+.active-thumb {
+  border: 2px solid #007bff;
+}
+
+/* Responsive */
+@media (max-width: 780px) {
+  .viewer-container {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .thumbnail-section {
+    flex-direction: row;
+    padding-bottom: 10px;
+    /* flex-wrap: wrap; */
+
+    justify-content: start;
+    max-height: unset;
+    overflow-y: hidden;
+    overflow-x: auto;
+    
+  }
+
+  .thumbnail {
+    width: 70px;
+    height: 70px;
+  }
+
+  .main-image-section {
+    height: 50vh;
+  }
+}

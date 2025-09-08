@@ -6,6 +6,10 @@ import Header from "../components/Header";
 import Footer from "../components/Footer";
 import { IoLocationOutline } from "react-icons/io5";
 import Link from "next/link";
+import StarRating from "../components/rating"
+import HotelTabs from "../components/tabs"
+import "../styling/ImageViewer.css"
+import ImageViewer from "../components/ImageViewer";
 
 export default function HotelView() {
   const searchParams = useSearchParams();
@@ -21,25 +25,47 @@ export default function HotelView() {
     rooms: searchParams.get("rooms") ? JSON.parse(searchParams.get("rooms")) : [],
     count: searchParams.get("count"),
     nights: searchParams.get("nights"),
-  };
+    rating: searchParams.get("rating"),
+    description: searchParams.get("description"),
+    facilities: searchParams.get("facility") ? JSON.parse(searchParams.get("facility")): [],
 
+  };
+const images = [
+    "https://static.cupid.travel/hotels/607490031.jpg",
+    "https://static.cupid.travel/hotels/612441158.jpg",
+    "https://static.cupid.travel/hotels/612441406.jpg",
+    "https://static.cupid.travel/hotels/612441406.jpg",
+    "https://static.cupid.travel/hotels/612441158.jpg",
+    "https://static.cupid.travel/hotels/612441406.jpg",
+    "https://static.cupid.travel/hotels/612441406.jpg",
+  ];
   return (
     <>
       <Header />
-
       <div className="hotel-view-container">
         {/* Hotel Name & Location */}
-        <h1 className="hotel-title">{hotel.name}</h1>
+        <div style={{display:"flex", padding:"15px 0px 0px 0px"}}>
+          <h1 className="hotel-title" style={{ padding:"0px 12px 0px 0px"}}>{hotel.name}</h1>
+          <div style={{marginTop:"13px"}}>
+            <StarRating rating={hotel.rating }/>
+          </div>
+          
+        </div>
+        
         <div className="tit-mng">
           <IoLocationOutline />
           <p>{hotel.location}</p>
+          
         </div>
 
         {/* Hotel Image */}
-        <img src={hotel.image} alt={hotel.name} className="hotel-view-img" />
+        {/* <img src={hotel.image} alt={hotel.name} className="hotel-view-img" /> */}
+        <ImageViewer images={images} />
+        <HotelTabs description={hotel.description} facility={hotel.facilities}/>
+        
 
         {/* Facilities */}
-        <h2 className="section-title">Facilities</h2>
+        {/* <h2 className="section-title">Facilities</h2>
         <div className="facilityList">
           <span>✅ Free breakfast</span>
           <span>✅ Free WiFi</span>
@@ -47,7 +73,7 @@ export default function HotelView() {
           <span>✅ Safe deposit box</span>
           <span>✅ Smoke-free property</span>
           <span>✅ Free parking</span>
-        </div>
+        </div> */}
 
         {/* Amenities */}
         <h2 className="section-title">Amenities</h2>
@@ -55,7 +81,7 @@ export default function HotelView() {
         <p>🍳 Breakfast Included | 🚫 Non-refundable</p>
 
         {/* Hotel Details */}
-        <div className="hotel-details">
+        {/* <div className="hotel-details">
           <p>
             <strong>Check-in:</strong>{" "}
             {hotel.from ? hotel.from.slice(0, 10) : "N/A"}
@@ -77,7 +103,7 @@ export default function HotelView() {
             <strong>Total Price:</strong>{" "}
             ${Number(hotel.price) * Number(hotel.count) * Number(hotel.nights)}
           </p>
-        </div>
+        </div> */}
 
         {/* Proceed to Booking */}
         <Link
@@ -94,6 +120,7 @@ export default function HotelView() {
               rooms: JSON.stringify(hotel.rooms),
               count: hotel.count,
               nights: hotel.nights,
+              rating: hotel.rating
             },
           }}
         >
