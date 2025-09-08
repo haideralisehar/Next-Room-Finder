@@ -131,7 +131,7 @@ export default function HotelSearchBar({
       destination.slice(1).toLowerCase();
     const searchUrl = `/results?destination=${normalizedDest}&from=${checkInDate?.toISOString()}&to=${checkOutDate?.toISOString()}&rooms=${encodeURIComponent(
       JSON.stringify(rooms)
-    )}&nights=${nights}&description=${destinations}`;
+    )}&nights=${nights}`;
 
     // Decide whether to push or replace
     if (window.location.pathname === "/") {

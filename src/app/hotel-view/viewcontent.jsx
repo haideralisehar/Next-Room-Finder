@@ -28,17 +28,18 @@ export default function HotelView() {
     rating: searchParams.get("rating"),
     description: searchParams.get("description"),
     facilities: searchParams.get("facility") ? JSON.parse(searchParams.get("facility")): [],
+    roomImages: searchParams.get("roomImages") ? JSON.parse(searchParams.get("roomImages")): [],
 
   };
-const images = [
-    "https://static.cupid.travel/hotels/607490031.jpg",
-    "https://static.cupid.travel/hotels/612441158.jpg",
-    "https://static.cupid.travel/hotels/612441406.jpg",
-    "https://static.cupid.travel/hotels/612441406.jpg",
-    "https://static.cupid.travel/hotels/612441158.jpg",
-    "https://static.cupid.travel/hotels/612441406.jpg",
-    "https://static.cupid.travel/hotels/612441406.jpg",
-  ];
+// const images = [
+//     "https://static.cupid.travel/hotels/607490031.jpg",
+//     "https://static.cupid.travel/hotels/612441158.jpg",
+//     "https://static.cupid.travel/hotels/612441406.jpg",
+//     "https://static.cupid.travel/hotels/612441406.jpg",
+//     "https://static.cupid.travel/hotels/612441158.jpg",
+//     "https://static.cupid.travel/hotels/612441406.jpg",
+//     "https://static.cupid.travel/hotels/612441406.jpg",
+//   ];
   return (
     <>
       <Header />
@@ -61,7 +62,7 @@ const images = [
 
         {/* Hotel Image */}
         {/* <img src={hotel.image} alt={hotel.name} className="hotel-view-img" /> */}
-        <ImageViewer images={images} />
+        <ImageViewer images={hotel.roomImages} />
         <HotelTabs description={hotel.description} facility={hotel.facilities}/>
         
 

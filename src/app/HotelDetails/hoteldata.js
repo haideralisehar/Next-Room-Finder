@@ -16,6 +16,14 @@ export const hotelsData = {
         "Laundry Service",
         "Car Rental",
       ],
+
+      roomImages: [
+        "https://static.cupid.travel/hotels/508614426.jpg",
+        "https://static.cupid.travel/hotels/518527047.jpg",
+        "https://static.cupid.travel/hotels/518526053.jpg",
+        "https://static.cupid.travel/hotels/491810902.jpg",
+        "https://static.cupid.travel/hotels/491176899.jpg",
+      ],
     },
     {
       id: 2,
@@ -34,6 +42,13 @@ export const hotelsData = {
         "Fitness Center",
         "Spa & Wellness",
       ],
+      roomImages: [
+        "https://static.cupid.travel/hotels/518527047.jpg",
+        "https://static.cupid.travel/hotels/508614426.jpg",
+        "https://static.cupid.travel/hotels/518526053.jpg",
+        "https://static.cupid.travel/hotels/491810902.jpg",
+        "https://static.cupid.travel/hotels/491176899.jpg",
+      ],
     },
     {
       id: 3,
@@ -51,6 +66,14 @@ export const hotelsData = {
         "Pet Friendly",
         "Live Entertainment",
         "Private Parking",
+      ],
+      roomImages: [
+        "https://static.cupid.travel/hotels/508614426.jpg",
+        "https://static.cupid.travel/hotels/518527047.jpg",
+        "https://static.cupid.travel/hotels/518526053.jpg",
+        "https://static.cupid.travel/hotels/491810902.jpg",
+        "https://static.cupid.travel/hotels/491176899.jpg",
+        "https://static.cupid.travel/hotels/518526053.jpg",
       ],
     },
   ],
@@ -71,6 +94,14 @@ export const hotelsData = {
         "Luggage Storage",
         "Daily Housekeeping",
       ],
+      roomImages: [
+        "https://static.cupid.travel/hotels/508614426.jpg",
+        "https://static.cupid.travel/hotels/518527047.jpg",
+        "https://static.cupid.travel/hotels/491176899.jpg",
+        "https://static.cupid.travel/hotels/518526053.jpg",
+        "https://static.cupid.travel/hotels/491810902.jpg",
+        "https://static.cupid.travel/hotels/491176899.jpg",
+      ],
     },
     {
       id: 2,
@@ -87,6 +118,13 @@ export const hotelsData = {
         "Library",
         "Coffee Shop",
         "24/7 Security",
+      ],
+      roomImages: [
+        "https://static.cupid.travel/hotels/508614426.jpg",
+        "https://static.cupid.travel/hotels/518527047.jpg",
+        "https://static.cupid.travel/hotels/518526053.jpg",
+        "https://static.cupid.travel/hotels/491810902.jpg",
+        "https://static.cupid.travel/hotels/491176899.jpg",
       ],
     },
   ],

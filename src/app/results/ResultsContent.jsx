@@ -223,6 +223,7 @@ export default function ResultsContent() {
                     rating: hotel.rating,
                     description: hotel.description,
                     facility: JSON.stringify(hotel.facilities),
+                    roomImages: JSON.stringify(hotel.roomImages),
                   },
                 }}
                 target="_blank"

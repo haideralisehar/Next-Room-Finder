@@ -53,8 +53,9 @@ const ImageViewer = ({ images }) => {
         <div className="controls">
           <button onClick={prevImage}><FaArrowLeft /></button>
           <button onClick={nextImage}><FaArrowRight /></button>
-          <button onClick={zoomIn}><FaSearchPlus /></button>
           <button onClick={zoomOut}><FaSearchMinus /></button>
+          <button onClick={zoomIn}><FaSearchPlus /></button>
+          
           <button onClick={toggleFullScreen}>
             {isFullScreen ? "Exit ⛶" : "Full ⛶"}
           </button>
