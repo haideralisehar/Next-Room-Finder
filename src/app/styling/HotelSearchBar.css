@@ -362,9 +362,9 @@
     font-size: 12px; /* smaller for mobile */
   }
 
-  .footer-buttons {
-    justify-content: space-between; /* spread buttons */
-  }
+  /* .footer-buttons {
+    justify-content: space-between; 
+  } */
 }
 
 @media (max-width: 500px) {

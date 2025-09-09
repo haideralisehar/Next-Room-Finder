@@ -222,25 +222,28 @@ export default function HotelSearchBar({
               onClick={(e) => e.stopPropagation()}
             >
               <DateRange
-                ranges={dateRange}
-                onChange={(ranges) => {
-                  const { startDate, endDate } = ranges.selection;
-                  if (startDate < today) return; // block past dates
-                  setDateRange([ranges.selection]);
-                  setCheckInDate(startDate);
-                  if (endDate < startDate) {
-                    setCheckOutDate(startDate);
-                    setDateRange([
-                      { startDate, endDate: startDate, key: "selection" },
-                    ]);
-                  } else {
-                    setCheckOutDate(endDate);
-                  }
-                }}
-                minDate={today}
-                moveRangeOnFirstSelection={false}
-                rangeColors={["#0071c2"]}
-              />
+  ranges={dateRange}
+  onChange={(ranges) => {
+    const { startDate, endDate } = ranges.selection;
+
+    // Set check-in date
+    if (startDate < today) return; // Prevent past selection
+    setCheckInDate(startDate);
+
+    // Set check-out date
+    if (endDate < startDate) {
+      setCheckOutDate(startDate);
+      setDateRange([{ startDate, endDate: startDate, key: "selection" }]);
+    } else {
+      setCheckOutDate(endDate);
+      setDateRange([{ startDate, endDate, key: "selection" }]);
+    }
+  }}
+  minDate={checkInDate || today} // ✅ Dynamically disables all dates before selected check-in
+  moveRangeOnFirstSelection={false}
+  rangeColors={["#0071c2"]}
+/>
+
               <div className="footer-buttons">
                 <button className="cancel-btn" onClick={cancelDates}>
                   Cancel
