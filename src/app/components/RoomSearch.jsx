@@ -29,16 +29,26 @@ export default function HotelSearchBar({
 
   const [destination, setDestination] = useState(initialDestination);
 
-  // ✅ Default dates: check-in today, check-out tomorrow
+  // ✅ Parse "dd-mm-yyyy" safely into a Date
+  const parseDate = (str) => {
+    if (!str) return null;
+    const parts = str.split("-");
+    if (parts.length !== 3) return null;
+    const [day, month, year] = parts.map(Number);
+    return new Date(year, month - 1, day);
+  };
+
+  // ✅ Default dates: today + tomorrow
   const today = new Date();
   const tomorrow = new Date();
   tomorrow.setDate(today.getDate() + 1);
 
   const [checkInDate, setCheckInDate] = useState(
-    initialCheckIn ? new Date(initialCheckIn) : today
+    initialCheckIn ? parseDate(initialCheckIn) : today
   );
+
   const [checkOutDate, setCheckOutDate] = useState(
-    initialCheckOut ? new Date(initialCheckOut) : tomorrow
+    initialCheckOut ? parseDate(initialCheckOut) : tomorrow
   );
 
   const [rooms, setRooms] = useState(initialRooms);
@@ -133,11 +143,10 @@ export default function HotelSearchBar({
     const normalizedDest =
       destination.charAt(0).toUpperCase() + destination.slice(1).toLowerCase();
     const searchUrl = `/results?destination=${normalizedDest}&from=${formatDate(
-  checkInDate
-)}&to=${formatDate(checkOutDate)}&rooms=${encodeURIComponent(
-  JSON.stringify(rooms)
-)}&nights=${nights}`;
-
+      checkInDate
+    )}&to=${formatDate(checkOutDate)}&rooms=${encodeURIComponent(
+      JSON.stringify(rooms)
+    )}&nights=${nights}`;
 
     // Decide whether to push or replace
     if (window.location.pathname === "/") {
@@ -171,11 +180,11 @@ export default function HotelSearchBar({
 
   // ✅ Format dates without UTC shift
   const formatDate = (date) => {
-    if (!date) return null;
-    const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, "0");
-    const day = String(date.getDate()).padStart(2, "0");
-    return `${day}-${month}-${year}`;
+    if (!date || isNaN(date)) return "";
+    const d = date.getDate();
+    const m = date.getMonth() + 1;
+    const y = date.getFullYear();
+    return `${d}-${m}-${y}`;
   };
 
   const effectiveMinDate =
@@ -205,61 +214,62 @@ export default function HotelSearchBar({
         </div>
 
         {/* Dates */}
-<div
-  className="search-box date-box"
-  ref={dateBoxRef}
-  onClick={() => setShowDatePicker(true)}
->
-  <FaCalendarAlt className="icon" />
-  <input
-    type="text"
-    readOnly
-    value={
-      checkInDate && checkOutDate
-        ? `${formatDate(checkInDate)} -- ${formatDate(checkOutDate)}`
-        : "Select dates"
-    }
-  />
-  {showDatePicker && (
-    <div
-      className="date-picker-popup"
-      onClick={(e) => e.stopPropagation()} // prevent closing when clicking inside
-    >
-      <DateRange
-        ranges={dateRange}
-        onChange={(ranges) => {
-          const { startDate, endDate } = ranges.selection;
+        <div
+          className="search-box date-box"
+          ref={dateBoxRef}
+          onClick={() => setShowDatePicker(true)}
+        >
+          <FaCalendarAlt className="icon" />
+          <input
+            type="text"
+            readOnly
+            value={
+              checkInDate && checkOutDate
+                ? `${formatDate(checkInDate)} -- ${formatDate(checkOutDate)}`
+                : "Select dates"
+            }
+          />
+          {showDatePicker && (
+            <div
+              className="date-picker-popup"
+              onClick={(e) => e.stopPropagation()} // prevent closing when clicking inside
+            >
+              <DateRange
+                ranges={dateRange}
+                onChange={(ranges) => {
+                  const { startDate, endDate } = ranges.selection;
 
-          // ✅ Always disable all dates before today
-          if (startDate < today) return;
+                  // ✅ Always disable all dates before today
+                  if (startDate < today) return;
 
-          setDateRange([ranges.selection]);
-          setCheckInDate(startDate);
+                  setDateRange([ranges.selection]);
+                  setCheckInDate(startDate);
 
-          // ✅ If endDate is before startDate, reset endDate
-          if (endDate < startDate) {
-            setCheckOutDate(startDate);
-            setDateRange([{ startDate, endDate: startDate, key: "selection" }]);
-          } else {
-            setCheckOutDate(endDate);
-          }
-        }}
-        minDate={today} // ✅ disables past dates
-        moveRangeOnFirstSelection={false}
-        rangeColors={["#0071c2"]}
-        
-      />
-      <div className="footer-buttons">
-        <button className="cancel-btn" onClick={cancelDates}>
-          Cancel
-        </button>
-        <button className="apply-btn" onClick={applyDates}>
-          Apply
-        </button>
-      </div>
-    </div>
-  )}
-</div>
+                  // ✅ If endDate is before startDate, reset endDate
+                  if (endDate < startDate) {
+                    setCheckOutDate(startDate);
+                    setDateRange([
+                      { startDate, endDate: startDate, key: "selection" },
+                    ]);
+                  } else {
+                    setCheckOutDate(endDate);
+                  }
+                }}
+                minDate={today} // ✅ disables past dates
+                moveRangeOnFirstSelection={false}
+                rangeColors={["#0071c2"]}
+              />
+              <div className="footer-buttons">
+                <button className="cancel-btn" onClick={cancelDates}>
+                  Cancel
+                </button>
+                <button className="apply-btn" onClick={applyDates}>
+                  Apply
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
 
         {/* ✅ Show Nights */}
         {/* <div className="search-box">
