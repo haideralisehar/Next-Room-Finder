@@ -11,6 +11,7 @@ import Filters from "../components/filter"; // ✅ Import Filters component
 import MobFilter from "../components/MobFilter";
 import { IoLocationOutline, IoCalendarOutline } from "react-icons/io5";
 import { FaFilter } from "react-icons/fa";
+import StarRating from "../components/rating"
 export default function ResultsContent() {
   const searchParams = useSearchParams();
 
@@ -241,10 +242,11 @@ export default function ResultsContent() {
                   </div>
 
                   {/* Right: Details */}
+                  
                   <div className="hotel-details">
                     {/* Stars + Name */}
                     <div className="hotel-header">
-                      <div className="stars">⭐⭐⭐⭐⭐</div>
+                     <StarRating rating={hotel.rating}/>
                       <h3>{hotel.name}</h3>
                     </div>
 
