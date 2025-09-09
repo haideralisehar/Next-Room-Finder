@@ -24,6 +24,20 @@ export const hotelsData = {
         "https://static.cupid.travel/hotels/491810902.jpg",
         "https://static.cupid.travel/hotels/491176899.jpg",
       ],
+
+      totRooms:[
+        {
+          id:11,
+          title: "deluxe Room",
+          fitforadults:2,
+          roomdetails:{
+            count:2,
+            direction:"25 m2",
+            enmities:["Minibar", "Shower", "Safety deposit box", "TV"]
+          }
+          
+        }
+      ]
     },
     {
       id: 2,
@@ -49,6 +63,7 @@ export const hotelsData = {
         "https://static.cupid.travel/hotels/491810902.jpg",
         "https://static.cupid.travel/hotels/491176899.jpg",
       ],
+      
     },
     {
       id: 3,

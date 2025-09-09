@@ -10,7 +10,7 @@
   /* box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1); */
   flex-wrap: wrap;
   width: 100%;
-  padding: 10px 100px;
+  padding: 20px 100px;
   /* border-radius: 5px; */
   
 }
@@ -82,7 +82,7 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  z-index: 2000;
+  z-index: 3000;
 }
 
 .popup {
@@ -244,6 +244,145 @@
 .close-btn:hover {
   background: #ddd;
 }
+/* ---------------- Date Picker ---------------- */
+.date-box {
+  position: relative; /* ensures popup positions under input */
+  flex: 1;
+  min-width: 200px;
+}
+.rdrDateDisplayWrapper {
+  display: none !important;
+}
+
+.date-box input {
+  border: none;
+  outline: none;
+  background: #f9f9f9;
+  font-size: 14px;
+  width: 100%;
+  cursor: pointer;
+}
+
+/* Default: Popup under input */
+.date-picker-popup {
+  position: absolute;
+  top: 50px; /* below input */
+  left: 0;
+  z-index: 2000;
+  background: #fff;
+  border: 1px solid #ddd;
+  border-radius: 12px;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.25);
+  padding: 12px;
+  width: max-content;
+}
+
+/* Calendar */
+.date-picker-popup .rdrCalendarWrapper {
+  width: 100%;
+  border-bottom: 1px solid #eee;
+  padding-bottom: 10px;
+  font-size: 14px;
+}
+
+/* Footer inside popup */
+.date-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 12px;
+  font-size: 14px;
+  color: #333;
+}
+
+.date-footer span {
+  font-weight: 500;
+}
+
+.footer-buttons {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 10px;
+  margin: 10px 5px 10px 5px;
+}
+
+.footer-buttons button {
+  padding: 7px 15px;
+  border: none;
+  border-radius: 6px;
+  font-size: 13px;
+  cursor: pointer;
+  transition: background 0.2s ease-in-out;
+}
+
+.footer-buttons button:hover {
+  opacity: 0.9;
+}
+
+.footer-buttons .apply-btn {
+  background: #0071c2;
+  color: #fff;
+  font-weight: 500;
+}
+
+.footer-buttons .apply-btn:hover {
+  background: #005fa3;
+}
+
+.footer-buttons .cancel-btn {
+  background: #f5f5f5;
+  color: #333;
+  font-weight: 500;
+}
+
+.footer-buttons .cancel-btn:hover {
+  background: #ddd;
+}
+
+/* ---------------- Responsive (Mobile) ---------------- */
+@media (max-width: 980px) {
+  .date-picker-popup {
+    position: fixed; /* Center on screen */
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 90%; /* take most of screen */
+    max-width: 350px;
+    max-height: 90vh;
+    overflow-y: auto;
+    border-radius: 16px;
+    z-index: 4000; /* above everything */
+    padding: 0px;
+  }
+  
+  
+
+  .date-picker-popup .rdrCalendarWrapper {
+    font-size: 12px; /* smaller for mobile */
+  }
+
+  .footer-buttons {
+    justify-content: space-between; /* spread buttons */
+  }
+}
+
+@media (max-width: 500px) {
+    .date-picker-popup {
+    position: fixed; /* Center on screen */
+    
+    
+    transform: translate(-50%, -50%);
+    width: 100%; /* take most of screen */
+    
+    max-height: 100%;
+    overflow-y: auto;
+    border-radius: 16px;
+   
+    z-index: 4000; /* above everything */
+  }
+
+  }
 
 
 

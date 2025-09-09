@@ -29,6 +29,9 @@ export default function HotelView() {
     description: searchParams.get("description"),
     facilities: searchParams.get("facility") ? JSON.parse(searchParams.get("facility")): [],
     roomImages: searchParams.get("roomImages") ? JSON.parse(searchParams.get("roomImages")): [],
+    totRooms : searchParams.get("totRooms")
+        ? JSON.parse(searchParams.get("totRooms"))
+        : [],
 
   };
 // const images = [
@@ -43,6 +46,7 @@ export default function HotelView() {
   return (
     <>
       <Header />
+    
       <div className="hotel-view-container">
         {/* Hotel Name & Location */}
         

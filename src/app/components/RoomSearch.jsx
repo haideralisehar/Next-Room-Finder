@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import {
   FaMapMarkerAlt,
   FaCalendarAlt,
@@ -13,6 +13,9 @@ import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import "../styling/HotelSearchBar.css";
 import { useRouter } from "next/navigation";
+import { DateRange } from "react-date-range";
+import "react-date-range/dist/styles.css";
+import "react-date-range/dist/theme/default.css";
 
 const destinations = ["Islamabad", "Lahore"];
 
@@ -92,7 +95,7 @@ export default function HotelSearchBar({
   const deleteRoom = (roomIndex) =>
     setRooms(rooms.filter((_, i) => i !== roomIndex));
 
-  const CloseDone =()=>{
+  const CloseDone = () => {
     // Normalize: capitalize first letter, lowercase the rest
     // const normalizedDest =
     //   destination.charAt(0).toUpperCase() +
@@ -100,7 +103,7 @@ export default function HotelSearchBar({
     // const searchUrl = `/results?destination=${normalizedDest}&from=${checkInDate?.toISOString()}&to=${checkOutDate?.toISOString()}&rooms=${encodeURIComponent(
     //   JSON.stringify(rooms)
     // )}&nights=${nights}`;
-  
+
     setShowPopup(false);
     // Decide whether to push or replace
     // if (window.location.pathname === "/") {
@@ -108,14 +111,15 @@ export default function HotelSearchBar({
     // } else {
     //   router.replace(searchUrl);
     // }
-
-  }
+  };
 
   const getSummary = () => {
     const totalRooms = rooms.length;
     const totalAdults = rooms.reduce((sum, r) => sum + r.adults, 0);
     const totalChildren = rooms.reduce((sum, r) => sum + r.children, 0);
-    return `${totalRooms} Room${totalRooms > 1 ? "s" : ""}, ${totalAdults} Adults${
+    return `${totalRooms} Room${
+      totalRooms > 1 ? "s" : ""
+    }, ${totalAdults} Adults${
       totalChildren > 0 ? `, ${totalChildren} Children` : ""
     }`;
   };
@@ -127,11 +131,13 @@ export default function HotelSearchBar({
     }
     // Normalize: capitalize first letter, lowercase the rest
     const normalizedDest =
-      destination.charAt(0).toUpperCase() +
-      destination.slice(1).toLowerCase();
-    const searchUrl = `/results?destination=${normalizedDest}&from=${checkInDate?.toISOString()}&to=${checkOutDate?.toISOString()}&rooms=${encodeURIComponent(
-      JSON.stringify(rooms)
-    )}&nights=${nights}`;
+      destination.charAt(0).toUpperCase() + destination.slice(1).toLowerCase();
+    const searchUrl = `/results?destination=${normalizedDest}&from=${formatDate(
+  checkInDate
+)}&to=${formatDate(checkOutDate)}&rooms=${encodeURIComponent(
+  JSON.stringify(rooms)
+)}&nights=${nights}`;
+
 
     // Decide whether to push or replace
     if (window.location.pathname === "/") {
@@ -140,6 +146,42 @@ export default function HotelSearchBar({
       router.replace(searchUrl);
     }
   };
+
+  const [dateRange, setDateRange] = useState([
+    { startDate: today, endDate: tomorrow, key: "selection" },
+  ]);
+  const [showDatePicker, setShowDatePicker] = useState(false);
+  const dateBoxRef = useRef(null);
+  const applyDates = () => setShowDatePicker(false);
+
+  // ✅ Handle date selection
+  const handleDateSelect = (ranges) => {
+    const { startDate, endDate } = ranges.selection;
+    setDateRange([ranges.selection]);
+    setCheckInDate(startDate);
+    setCheckOutDate(endDate);
+  };
+
+  const cancelDates = () => {
+    setDateRange([
+      { startDate: checkInDate, endDate: checkOutDate, key: "selection" },
+    ]);
+    setShowDatePicker(false);
+  };
+
+  // ✅ Format dates without UTC shift
+  const formatDate = (date) => {
+    if (!date) return null;
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    const day = String(date.getDate()).padStart(2, "0");
+    return `${year}-${month}-${day}`;
+  };
+
+  const effectiveMinDate =
+    dateRange[0].startDate && dateRange[0].endDate === dateRange[0].startDate
+      ? today
+      : dateRange[0].startDate || today;
 
   return (
     <div>
@@ -163,26 +205,61 @@ export default function HotelSearchBar({
         </div>
 
         {/* Dates */}
-        <div className="search-box date-box">
-          <FaCalendarAlt className="icon" />
-          <DatePicker
-            selected={checkInDate}
-            onChange={(date) => setCheckInDate(date)}
-            selectsStart
-            startDate={checkInDate}
-            endDate={checkOutDate}
-            placeholderText="Check-in"
-          />
-          <DatePicker
-            selected={checkOutDate}
-            onChange={(date) => setCheckOutDate(date)}
-            selectsEnd
-            startDate={checkInDate}
-            endDate={checkOutDate}
-            minDate={checkInDate}
-            placeholderText="Check-out"
-          />
-        </div>
+<div
+  className="search-box date-box"
+  ref={dateBoxRef}
+  onClick={() => setShowDatePicker(true)}
+>
+  <FaCalendarAlt className="icon" />
+  <input
+    type="text"
+    readOnly
+    value={
+      checkInDate && checkOutDate
+        ? `${formatDate(checkInDate)} → ${formatDate(checkOutDate)}`
+        : "Select dates"
+    }
+  />
+  {showDatePicker && (
+    <div
+      className="date-picker-popup"
+      onClick={(e) => e.stopPropagation()} // prevent closing when clicking inside
+    >
+      <DateRange
+        ranges={dateRange}
+        onChange={(ranges) => {
+          const { startDate, endDate } = ranges.selection;
+
+          // ✅ Always disable all dates before today
+          if (startDate < today) return;
+
+          setDateRange([ranges.selection]);
+          setCheckInDate(startDate);
+
+          // ✅ If endDate is before startDate, reset endDate
+          if (endDate < startDate) {
+            setCheckOutDate(startDate);
+            setDateRange([{ startDate, endDate: startDate, key: "selection" }]);
+          } else {
+            setCheckOutDate(endDate);
+          }
+        }}
+        minDate={today} // ✅ disables past dates
+        moveRangeOnFirstSelection={false}
+        rangeColors={["#0071c2"]}
+        
+      />
+      <div className="footer-buttons">
+        <button className="cancel-btn" onClick={cancelDates}>
+          Cancel
+        </button>
+        <button className="apply-btn" onClick={applyDates}>
+          Apply
+        </button>
+      </div>
+    </div>
+  )}
+</div>
 
         {/* ✅ Show Nights */}
         {/* <div className="search-box">
@@ -205,7 +282,6 @@ export default function HotelSearchBar({
           <FaSearch /> Search Hotels
         </button>
       </div>
-     
 
       {/* 🔹 Multi-room Popup */}
       {showPopup && (
@@ -227,13 +303,17 @@ export default function HotelSearchBar({
                 <div className="counter">
                   <label>Adults</label>
                   <button
-                    onClick={() => updateCount(roomIndex, "adults", "decrement")}
+                    onClick={() =>
+                      updateCount(roomIndex, "adults", "decrement")
+                    }
                   >
                     <FaMinus />
                   </button>
                   <span>{room.adults}</span>
                   <button
-                    onClick={() => updateCount(roomIndex, "adults", "increment")}
+                    onClick={() =>
+                      updateCount(roomIndex, "adults", "increment")
+                    }
                   >
                     <FaPlus />
                   </button>

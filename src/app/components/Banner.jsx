@@ -18,7 +18,7 @@ const Banner = () => {
         </div>
 
        
-
+          
          <HotelSearchBar/>
           </div>
         
