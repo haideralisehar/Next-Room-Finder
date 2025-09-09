@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import {
   FaMapMarkerAlt,
   FaCalendarAlt,
@@ -9,7 +9,6 @@ import {
   FaMinus,
   FaTrash,
 } from "react-icons/fa";
-import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import "../styling/HotelSearchBar.css";
 import { useRouter } from "next/navigation";
@@ -46,7 +45,6 @@ export default function HotelSearchBar({
   const [checkInDate, setCheckInDate] = useState(
     initialCheckIn ? parseDate(initialCheckIn) : today
   );
-
   const [checkOutDate, setCheckOutDate] = useState(
     initialCheckOut ? parseDate(initialCheckOut) : tomorrow
   );
@@ -105,23 +103,7 @@ export default function HotelSearchBar({
   const deleteRoom = (roomIndex) =>
     setRooms(rooms.filter((_, i) => i !== roomIndex));
 
-  const CloseDone = () => {
-    // Normalize: capitalize first letter, lowercase the rest
-    // const normalizedDest =
-    //   destination.charAt(0).toUpperCase() +
-    //   destination.slice(1).toLowerCase();
-    // const searchUrl = `/results?destination=${normalizedDest}&from=${checkInDate?.toISOString()}&to=${checkOutDate?.toISOString()}&rooms=${encodeURIComponent(
-    //   JSON.stringify(rooms)
-    // )}&nights=${nights}`;
-
-    setShowPopup(false);
-    // Decide whether to push or replace
-    // if (window.location.pathname === "/") {
-    //   router.push(searchUrl);
-    // } else {
-    //   router.replace(searchUrl);
-    // }
-  };
+  const CloseDone = () => setShowPopup(false);
 
   const getSummary = () => {
     const totalRooms = rooms.length;
@@ -161,6 +143,16 @@ export default function HotelSearchBar({
   ]);
   const [showDatePicker, setShowDatePicker] = useState(false);
   const dateBoxRef = useRef(null);
+
+  // ✅ Sync dateRange with restored values (FIX)
+  useEffect(() => {
+    if (checkInDate && checkOutDate) {
+      setDateRange([
+        { startDate: checkInDate, endDate: checkOutDate, key: "selection" },
+      ]);
+    }
+  }, [checkInDate, checkOutDate]);
+
   const applyDates = () => setShowDatePicker(false);
 
   // ✅ Handle date selection
@@ -186,11 +178,6 @@ export default function HotelSearchBar({
     const y = date.getFullYear();
     return `${d}-${m}-${y}`;
   };
-
-  const effectiveMinDate =
-    dateRange[0].startDate && dateRange[0].endDate === dateRange[0].startDate
-      ? today
-      : dateRange[0].startDate || today;
 
   return (
     <div>
@@ -232,20 +219,15 @@ export default function HotelSearchBar({
           {showDatePicker && (
             <div
               className="date-picker-popup"
-              onClick={(e) => e.stopPropagation()} // prevent closing when clicking inside
+              onClick={(e) => e.stopPropagation()}
             >
               <DateRange
                 ranges={dateRange}
                 onChange={(ranges) => {
                   const { startDate, endDate } = ranges.selection;
-
-                  // ✅ Always disable all dates before today
-                  if (startDate < today) return;
-
+                  if (startDate < today) return; // block past dates
                   setDateRange([ranges.selection]);
                   setCheckInDate(startDate);
-
-                  // ✅ If endDate is before startDate, reset endDate
                   if (endDate < startDate) {
                     setCheckOutDate(startDate);
                     setDateRange([
@@ -255,7 +237,7 @@ export default function HotelSearchBar({
                     setCheckOutDate(endDate);
                   }
                 }}
-                minDate={today} // ✅ disables past dates
+                minDate={today}
                 moveRangeOnFirstSelection={false}
                 rangeColors={["#0071c2"]}
               />
@@ -271,20 +253,10 @@ export default function HotelSearchBar({
           )}
         </div>
 
-        {/* ✅ Show Nights */}
-        {/* <div className="search-box">
-          <p>{nights} Night{nights > 1 ? "s" : ""}</p>
-        </div> */}
-
         {/* Guests */}
         <div className="search-box" onClick={handlePopupToggle}>
           <FaUsers className="icon" />
-          <input
-            type="text"
-            placeholder="1 Room, 2 Adults"
-            value={getSummary()}
-            readOnly
-          />
+          <input type="text" value={getSummary()} readOnly />
         </div>
 
         {/* Search Button */}
