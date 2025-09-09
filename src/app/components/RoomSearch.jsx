@@ -26,9 +26,10 @@ export default function HotelSearchBar({
 }) {
   const router = useRouter();
 
-  const [destination, setDestination] = useState(initialDestination);
+  const today = new Date();
+  const tomorrow = new Date();
+  tomorrow.setDate(today.getDate() + 1);
 
-  // ✅ Parse "dd-mm-yyyy" safely into a Date
   const parseDate = (str) => {
     if (!str) return null;
     const parts = str.split("-");
@@ -37,11 +38,7 @@ export default function HotelSearchBar({
     return new Date(year, month - 1, day);
   };
 
-  // ✅ Default dates: today + tomorrow
-  const today = new Date();
-  const tomorrow = new Date();
-  tomorrow.setDate(today.getDate() + 1);
-
+  const [destination, setDestination] = useState(initialDestination);
   const [checkInDate, setCheckInDate] = useState(
     initialCheckIn ? parseDate(initialCheckIn) : today
   );
@@ -51,8 +48,19 @@ export default function HotelSearchBar({
 
   const [rooms, setRooms] = useState(initialRooms);
   const [showPopup, setShowPopup] = useState(false);
+  const [showDatePicker, setShowDatePicker] = useState(false);
+  const dateBoxRef = useRef(null);
 
-  // ✅ Calculate number of nights
+  const [dateRange, setDateRange] = useState([
+    { startDate: checkInDate, endDate: checkOutDate, key: "selection" },
+  ]);
+
+  useEffect(() => {
+    setDateRange([
+      { startDate: checkInDate, endDate: checkOutDate, key: "selection" },
+    ]);
+  }, [checkInDate, checkOutDate]);
+
   const nights =
     checkInDate && checkOutDate
       ? Math.max(
@@ -121,7 +129,6 @@ export default function HotelSearchBar({
       alert("Please enter a destination!");
       return;
     }
-    // Normalize: capitalize first letter, lowercase the rest
     const normalizedDest =
       destination.charAt(0).toUpperCase() + destination.slice(1).toLowerCase();
     const searchUrl = `/results?destination=${normalizedDest}&from=${formatDate(
@@ -129,8 +136,6 @@ export default function HotelSearchBar({
     )}&to=${formatDate(checkOutDate)}&rooms=${encodeURIComponent(
       JSON.stringify(rooms)
     )}&nights=${nights}`;
-
-    // Decide whether to push or replace
     if (window.location.pathname === "/") {
       router.push(searchUrl);
     } else {
@@ -138,31 +143,7 @@ export default function HotelSearchBar({
     }
   };
 
-  const [dateRange, setDateRange] = useState([
-    { startDate: today, endDate: tomorrow, key: "selection" },
-  ]);
-  const [showDatePicker, setShowDatePicker] = useState(false);
-  const dateBoxRef = useRef(null);
-
-  // ✅ Sync dateRange with restored values (FIX)
-  useEffect(() => {
-    if (checkInDate && checkOutDate) {
-      setDateRange([
-        { startDate: checkInDate, endDate: checkOutDate, key: "selection" },
-      ]);
-    }
-  }, [checkInDate, checkOutDate]);
-
   const applyDates = () => setShowDatePicker(false);
-
-  // ✅ Handle date selection
-  const handleDateSelect = (ranges) => {
-    const { startDate, endDate } = ranges.selection;
-    setDateRange([ranges.selection]);
-    setCheckInDate(startDate);
-    setCheckOutDate(endDate);
-  };
-
   const cancelDates = () => {
     setDateRange([
       { startDate: checkInDate, endDate: checkOutDate, key: "selection" },
@@ -170,7 +151,6 @@ export default function HotelSearchBar({
     setShowDatePicker(false);
   };
 
-  // ✅ Format dates without UTC shift
   const formatDate = (date) => {
     if (!date || isNaN(date)) return "";
     const d = date.getDate();
@@ -222,28 +202,25 @@ export default function HotelSearchBar({
               onClick={(e) => e.stopPropagation()}
             >
               <DateRange
-  ranges={dateRange}
-  onChange={(ranges) => {
-    const { startDate, endDate } = ranges.selection;
+                ranges={dateRange}
+                onChange={(ranges) => {
+                  const { startDate, endDate } = ranges.selection;
 
-    // Set check-in date
-    if (startDate < today) return; // Prevent past selection
-    setCheckInDate(startDate);
-
-    // Set check-out date
-    if (endDate < startDate) {
-      setCheckOutDate(startDate);
-      setDateRange([{ startDate, endDate: startDate, key: "selection" }]);
-    } else {
-      setCheckOutDate(endDate);
-      setDateRange([{ startDate, endDate, key: "selection" }]);
-    }
-  }}
-  minDate={checkInDate || today} // ✅ Dynamically disables all dates before selected check-in
-  moveRangeOnFirstSelection={false}
-  rangeColors={["#0071c2"]}
-/>
-
+                  // Always update state
+                  setCheckInDate(startDate);
+                  setCheckOutDate(endDate < startDate ? startDate : endDate);
+                  setDateRange([
+                    {
+                      startDate,
+                      endDate: endDate < startDate ? startDate : endDate,
+                      key: "selection",
+                    },
+                  ]);
+                }}
+                minDate={today} // cannot select dates before today
+                moveRangeOnFirstSelection={false}
+                rangeColors={["#0071c2"]}
+              />
               <div className="footer-buttons">
                 <button className="cancel-btn" onClick={cancelDates}>
                   Cancel
