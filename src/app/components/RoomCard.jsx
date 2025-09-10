@@ -1,12 +1,18 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import "../styling/RoomCard.css";
+import Link from "next/link";
 
-export default function RoomCard({ room, nights, roomCount }) {
-  const images = [
-    "https://static.cupid.travel/hotels/508614426.jpg",
-    "https://plus.unsplash.com/premium_photo-1670360414903-19e5832f8bc4?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTB8fGhvdGVsJTIwcm9vbXN8ZW58MHx8MHx8fDA%3D",
-    "https://images.unsplash.com/photo-1566665797739-1674de7a421a?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTJ8fGhvdGVsJTIwcm9vbXN8ZW58MHx8MHx8fDA%3D",
-  ];
+export default function RoomCard({ room, roomCount,id, name, location, price, image, from, to, rooms, count, nights, rating
+ }) {
+  // ✅ Use room.roomPhotos if available, otherwise fallback images
+  const images = room.roomPhotos && room.roomPhotos.length > 0
+    ? room.roomPhotos
+    : [
+        "https://static.cupid.travel/hotels/508614426.jpg",
+        "https://plus.unsplash.com/premium_photo-1670360414903-19e5832f8bc4?w=600&auto=format&fit=crop&q=60",
+        "https://images.unsplash.com/photo-1566665797739-1674de7a421a?w=600&auto=format&fit=crop&q=60",
+      ];
+
   const [current, setCurrent] = useState(0);
 
   const nextSlide = () => {
@@ -17,17 +23,13 @@ export default function RoomCard({ room, nights, roomCount }) {
     setCurrent((prev) => (prev - 1 + images.length) % images.length);
   };
 
-  // Optional autoplay every 3s
-  //   useEffect(() => {
-  //     const interval = setInterval(nextSlide, 3000);
-  //     return () => clearInterval(interval);
-  //   }, []);
-
   return (
     <div className="room-card">
       {/* Left container */}
       <div className="room-left">
         <h3 style={{ fontWeight: "bold" }}>{room.title}</h3>
+
+        {/* ✅ Slider uses room.roomPhotos */}
         <div className="slider">
           <div
             className="slider-wrapper"
@@ -56,14 +58,14 @@ export default function RoomCard({ room, nights, roomCount }) {
           </div>
         </div>
 
+        {/* Room Details */}
         <div className="room-details">
           <h4 style={{ fontWeight: "bold" }}>Room Details</h4>
-
           <p>
             🛏 Sleeps {room.fitForAdults} | 📐 {room.roomDetails.size}
           </p>
+          
           <h4 style={{ fontWeight: "bold" }}>Amenities</h4>
-
           <div className="facilities-list">
             {Array.isArray(room.roomDetails.amenities) &&
             room.roomDetails.amenities.length > 0 ? (
@@ -82,36 +84,29 @@ export default function RoomCard({ room, nights, roomCount }) {
 
       {/* Right container */}
       <div className="room-right">
-        {/* <div className="lft-data" style={{backgroundColor:"red", width:"50%"}}>
-            <h4>Room Only • Non-refundable</h4>
-        </div>
-
-        <div className="rgt-data" style={{backgroundColor:"blue", width:"50%"}}>
-  <p>a</p>
-        </div> */}
-
         <div>
           <h4 style={{ fontWeight: "bold" }}>
             {room.breakFast ? "Breakfast" : "Room Only"} •{" "}
             {room.refund ? "Refundable" : "Non-refundable"}
           </h4>
+
           {room.breakFast ? (
             <p>
-              <span className="green">✔</span>Breakfast Included
+              <span className="green">✔</span> Breakfast Included
             </p>
           ) : (
             <p>
-              <span className="red">✖</span>No Meal Included
+              <span className="red">✖</span> No Meal Included
             </p>
           )}
 
           {room.refund ? (
             <p>
-              <span className="green">✔</span>Refundable
+              <span className="green">✔</span> Refundable
             </p>
           ) : (
             <p>
-              <span className="red">✖</span>Non-refundable
+              <span className="red">✖</span> Non-refundable
             </p>
           )}
         </div>
@@ -124,8 +119,27 @@ export default function RoomCard({ room, nights, roomCount }) {
           </div>
           <p style={{ color: "#8a8a8aff" }}>1 room(s)</p>
           <p style={{ color: "#8a8a8aff" }}>{nights} night(s) incl. taxes</p>
-
+          <Link
+          href={{
+            pathname: "/booking",
+            query: {
+              id: id,
+              name: name,
+              location: location,
+              price: price,
+              image: image,
+              from: from,
+              to: to,
+              rooms: rooms,
+              count: count,
+              nights: nights, // ✅ Pass updated nights
+              rating: rating,
+              selroom: room.price
+            },
+          }}
+        >
           <button className="choose-btn">Choose Room</button>
+          </Link>
         </div>
       </div>
     </div>

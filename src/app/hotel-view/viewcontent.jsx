@@ -1,7 +1,7 @@
 "use client";
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
-import "../hotel-view/hotel.css"; 
+import "../hotel-view/hotel.css";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
 import { IoLocationOutline } from "react-icons/io5";
@@ -12,8 +12,6 @@ import "../styling/ImageViewer.css";
 import ImageViewer from "../components/ImageViewer";
 import RoomCard from "../components/RoomCard";
 import HotelSearchBar from "../components/RoomSearch";
-
-// ✅ Import toastify
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
@@ -55,27 +53,80 @@ export default function HotelView() {
       : [],
   };
 
-  // ✅ Show toast when rooms are checked
+  // ✅ States that will be updated when user searches again
+  const [checkInDate, setCheckInDate] = useState(hotel.from);
+  const [checkOutDate, setCheckOutDate] = useState(hotel.to);
+  const [nights, setNights] = useState(hotel.nights);
+  const [selectedRooms, setSelectedRooms] = useState(hotel.rooms);
+  const [filteredRooms, setFilteredRooms] = useState(hotelRooms);
+
+  // ✅ Auto filter when page loads
   useEffect(() => {
-    if (hotelRooms.length > 0) {
-      toast.success(`${hotelRooms.length} Rooms Available`, {
+    if (hotelRooms.length > 0 && hotel.rooms.length > 0) {
+      const { adults = 1, children = 0 } = hotel.rooms[0]; 
+      const filtered = hotelRooms.filter(
+        (room) => room.fitForAdults >= adults && room.fitForChildren >= children
+      );
+
+      setFilteredRooms(filtered);
+
+      if (filtered.length > 0) {
+        toast.success(`${filtered.length} room(s) available`, {
+          position: "top-right",
+          autoClose: 3000,
+        });
+      } else {
+        toast.error("No rooms are available", {
+          position: "top-right",
+          autoClose: 3000,
+        });
+      }
+    } else if (hotelRooms.length > 0) {
+      setFilteredRooms(hotelRooms);
+      toast.success(`${hotelRooms.length} Room(s) Available`, {
         position: "top-right",
         autoClose: 3000,
       });
     } else {
-      toast.error("No rooms are available for this hotel", {
+      toast.error("No rooms are available", {
         position: "top-right",
         autoClose: 3000,
       });
     }
-  }, [hotelRooms]);
+  }, []);
+
+  // ✅ Filter rooms & update dates/nights when search bar is used
+  const handleSearchRooms = ({ from, to, rooms, nights }) => {
+    setCheckInDate(from);
+    setCheckOutDate(to);
+    setNights(nights);
+    setSelectedRooms(rooms);
+
+    const { adults = 1, children = 0 } = rooms[0] || {};
+    const filtered = hotelRooms.filter(
+      (room) => room.fitForAdults >= adults && room.fitForChildren >= children
+    );
+
+    setFilteredRooms(filtered);
+
+    if (filtered.length > 0) {
+      toast.success(`${filtered.length} ${filtered.length >2? "Rooms Available": "Rooms Available"}`, {
+        position: "top-right",
+        autoClose: 2000,
+      });
+    } else {
+      toast.error("No rooms are available", {
+        position: "top-right",
+        autoClose: 2000,
+      });
+    }
+  };
 
   return (
     <>
       <Header />
 
       <div className="hotel-view-container">
-        {/* Hotel Name & Location */}
         <div className="RatingPlusTitle">
           <h1 className="hotel-title" style={{ padding: "0px 12px 0px 0px" }}>
             {hotel.name}
@@ -90,13 +141,8 @@ export default function HotelView() {
           <p>{hotel.location}</p>
         </div>
 
-        {/* Hotel Image */}
         <ImageViewer images={hotel.roomImages} />
-
-        <HotelTabs
-          description={hotel.description}
-          facility={hotel.facilities}
-        />
+        <HotelTabs description={hotel.description} facility={hotel.facilities} />
 
         <div style={{ marginTop: "20px" }}>
           <h2
@@ -108,18 +154,33 @@ export default function HotelView() {
           >
             Choose Room
           </h2>
+
           <HotelSearchBar
             showDestination={false}
-            initialDestination="Islamabad"
+            initialCheckIn={checkInDate}
+            initialCheckOut={checkOutDate}
+            initialRooms={selectedRooms}
+            onSearch={handleSearchRooms}
           />
 
-          {hotelRooms.length > 0 ? (
-            hotelRooms.map((room) => (
+          {filteredRooms.length > 0 ? (
+            filteredRooms.map((room) => (
               <RoomCard
                 key={room.id}
                 room={room}
-                nights={hotel.nights}
-                roomCount={hotelRooms.length}
+                nights={nights} // ✅ Now uses latest nights
+                roomCount={filteredRooms.length}
+                id = {hotel.id}
+                name = {hotel.name}
+                location = {hotel.location}
+                price = {hotel.price} 
+                image = {hotel.image}
+                from = {checkInDate} 
+                to = {checkOutDate}
+                rooms = {JSON.stringify(selectedRooms)} 
+                count = {hotel.count}
+                rating = {hotel.rating}
+
               />
             ))
           ) : (
@@ -127,7 +188,6 @@ export default function HotelView() {
           )}
         </div>
 
-        {/* Proceed to Booking */}
         <Link
           href={{
             pathname: "/booking",
@@ -137,11 +197,11 @@ export default function HotelView() {
               location: hotel.location,
               price: hotel.price,
               image: hotel.image,
-              from: hotel.from,
-              to: hotel.to,
-              rooms: JSON.stringify(hotel.rooms),
+              from: checkInDate,
+              to: checkOutDate,
+              rooms: JSON.stringify(selectedRooms),
               count: hotel.count,
-              nights: hotel.nights,
+              nights: nights, // ✅ Pass updated nights
               rating: hotel.rating,
             },
           }}
@@ -151,8 +211,6 @@ export default function HotelView() {
       </div>
 
       <Footer />
-
-      {/* ✅ Toast container */}
       <ToastContainer />
     </>
   );

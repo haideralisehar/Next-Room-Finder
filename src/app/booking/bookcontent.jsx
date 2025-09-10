@@ -23,6 +23,7 @@ export default function BookingPage() {
     count: searchParams.get("count"),
     nights: searchParams.get("nights"),
     rating: searchParams.get("rating"),
+    roomprice: searchParams.get("selroom"),
     rooms: searchParams.get("rooms")
       ? JSON.parse(searchParams.get("rooms"))
       : [],
@@ -34,7 +35,7 @@ export default function BookingPage() {
   const [formData, setFormData] = useState({
     firstName: "",
     lastName: "",
-    countryCode: "+92 Pakistan",
+    countryCode: "+973 Bahrain",
     phone: "",
     email: "",
     guestType: "Myself",
@@ -97,6 +98,7 @@ export default function BookingPage() {
               value={formData.countryCode}
               onChange={handleChange}
             >
+              <option value="+973 Bahrain">+973 Bahrain</option>
               <option value="+92 Pakistan">+92 Pakistan</option>
               <option value="+91 India">+91 India</option>
               <option value="+1 USA">+1 USA</option>

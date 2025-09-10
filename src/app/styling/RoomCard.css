@@ -103,6 +103,7 @@
   display: flex;
   flex-direction: row;
   justify-content: space-between;
+  padding-top: 30px;
 }
 
 .room-right h4 {
@@ -156,7 +157,7 @@
 }
 
 /* Responsive */
-@media (max-width: 768px) {
+@media (max-width: 868px) {
   .room-card {
     flex-direction: column;
   }

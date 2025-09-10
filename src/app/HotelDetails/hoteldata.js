@@ -1,5 +1,5 @@
 export const hotelsData = {
-  Islamabad: [
+  Bahrain: [
     {
       id: 1,
       name: "Islamabad Serena Hotel",
@@ -32,6 +32,10 @@ export const hotelsData = {
           price: 120,
           breakFast:true,
           refund:true,
+          roomPhotos:["https://static.cupid.travel/rooms-large-pictures/ex_046d1ff8_z.jpg",
+            "https://static.cupid.travel/rooms-large-pictures/ex_046d1ff8_z.jpg",
+            "https://static.cupid.travel/rooms-large-pictures/ex_1f5ec217_z.jpg"
+          ],
           roomDetails: {
             count: 5,
             size: "25 m²",
@@ -46,6 +50,10 @@ export const hotelsData = {
           price: 180,
           breakFast:false,
           refund:false,
+          roomPhotos:["https://static.cupid.travel/rooms-large-pictures/ex_w1021h765x0y0-7875366c_z.jpg",
+            "https://static.cupid.travel/rooms-large-pictures/ex_046d1ff8_z.jpg",
+            "https://static.cupid.travel/rooms-large-pictures/ex_1f5ec217_z.jpg"
+          ],
           roomDetails: {
             count: 3,
             size: "40 m²",
@@ -85,6 +93,10 @@ export const hotelsData = {
           price: 90,
           breakFast:true,
           refund:true,
+          roomPhotos:["https://static.cupid.travel/rooms-large-pictures/ex_w1021h765x0y0-7875366c_z.jpg",
+            "https://static.cupid.travel/rooms-large-pictures/ex_046d1ff8_z.jpg",
+            "https://static.cupid.travel/rooms-large-pictures/ex_1f5ec217_z.jpg"
+          ],
           roomDetails: {
             count: 10,
             size: "20 m²",
@@ -99,6 +111,10 @@ export const hotelsData = {
           price: 150,
           breakFast:true,
           refund:true,
+          roomPhotos:["https://static.cupid.travel/rooms-large-pictures/ex_w1021h765x0y0-7875366c_z.jpg",
+            "https://static.cupid.travel/rooms-large-pictures/ex_046d1ff8_z.jpg",
+            "https://static.cupid.travel/rooms-large-pictures/ex_1f5ec217_z.jpg"
+          ],
           roomDetails: {
             count: 2,
             size: "60 m²",
@@ -109,7 +125,7 @@ export const hotelsData = {
     },
   ],
 
-  Lahore: [
+  Dubai: [
     {
       id: 1,
       name: "Pearl Continental Lahore",
@@ -131,32 +147,42 @@ export const hotelsData = {
         "https://static.cupid.travel/hotels/518527047.jpg",
       ],
       rooms: [
-        // {
-        //   id: 301,
-        //   title: "Classic Room",
-        //   fitForAdults: 2,
-        //   fitForChildren: 1,
-        //   price: 150,
-        //   roomDetails: {
-        //     count: 8,
-        //     size: "22 m²",
-        //     amenities: ["AC", "TV", "Private Bathroom"],
-        //   },
-        // },
-        // {
-        //   id: 302,
-        //   title: "Presidential Suite",
-        //   fitForAdults: 4,
-        //   fitForChildren: 3,
-        //   price: 300,
-        //   breakFast:true,
-        //   refund:false,
-        //   roomDetails: {
-        //     count: 1,
-        //     size: "80 m²",
-        //     amenities: ["Jacuzzi", "Private Bar", "Kitchen", "Luxury Seating"],
-        //   },
-        // },
+        {
+          id: 301,
+          title: "Classic Room",
+          fitForAdults: 2,
+          fitForChildren: 1,
+          price: 150,
+          breakFast:true,
+          refund:true,
+          roomPhotos:["https://static.cupid.travel/rooms-large-pictures/ex_w1021h765x0y0-7875366c_z.jpg",
+            "https://static.cupid.travel/rooms-large-pictures/ex_046d1ff8_z.jpg",
+            "https://static.cupid.travel/rooms-large-pictures/ex_1f5ec217_z.jpg"
+          ],
+          roomDetails: {
+            count: 8,
+            size: "22 m²",
+            amenities: ["AC", "TV", "Private Bathroom"],
+          },
+        },
+        {
+          id: 302,
+          title: "Presidential Suite",
+          fitForAdults: 4,
+          fitForChildren: 3,
+          price: 300,
+           breakFast:true,
+          refund:true,
+          roomPhotos:["https://static.cupid.travel/rooms-large-pictures/ex_w1021h765x0y0-7875366c_z.jpg",
+            "https://static.cupid.travel/rooms-large-pictures/ex_046d1ff8_z.jpg",
+            "https://static.cupid.travel/rooms-large-pictures/ex_1f5ec217_z.jpg"
+          ],
+          roomDetails: {
+            count: 1,
+            size: "80 m²",
+            amenities: ["Jacuzzi", "Private Bar", "Kitchen", "Luxury Seating"],
+          },
+        },
       ],
     },
 
@@ -201,6 +227,10 @@ export const hotelsData = {
           price: 300,
           breakFast:true,
           refund:false,
+          roomPhotos:["https://static.cupid.travel/rooms-large-pictures/ex_w1021h765x0y0-7875366c_z.jpg",
+            "https://static.cupid.travel/rooms-large-pictures/ex_046d1ff8_z.jpg",
+            "https://static.cupid.travel/rooms-large-pictures/ex_1f5ec217_z.jpg"
+          ],
           roomDetails: {
             count: 1,
             size: "80 m²",

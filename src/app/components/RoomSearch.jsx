@@ -16,14 +16,15 @@ import { DateRange } from "react-date-range";
 import "react-date-range/dist/styles.css";
 import "react-date-range/dist/theme/default.css";
 
-const destinations = ["Islamabad", "Lahore"];
+const destinations = ["Bahrain", "Dubai"];
 
 export default function HotelSearchBar({
   initialDestination = "",
   initialCheckIn = null,
   initialCheckOut = null,
   initialRooms = [{ adults: 2, children: 0, childrenAges: [] }],
-  showDestination = true, // 🔹 new prop
+  showDestination = true,
+  onSearch, // 🔹 new optional callback
 }) {
   const router = useRouter();
 
@@ -130,21 +131,36 @@ export default function HotelSearchBar({
       alert("Please enter a destination!");
       return;
     }
+
     const normalizedDest = destination
       ? destination.charAt(0).toUpperCase() +
         destination.slice(1).toLowerCase()
       : "";
 
-    const searchUrl = `/results?destination=${normalizedDest}&from=${formatDate(
-      checkInDate
-    )}&to=${formatDate(checkOutDate)}&rooms=${encodeURIComponent(
-      JSON.stringify(rooms)
-    )}&nights=${nights}`;
+    const searchParams = {
+      destination: normalizedDest,
+      from: formatDate(checkInDate),
+      to: formatDate(checkOutDate),
+      rooms,
+      nights,
+    };
 
-    if (window.location.pathname === "/") {
-      router.push(searchUrl);
+    if (onSearch) {
+      // 🔹 Parent (like viewcontent) handles filtering
+      onSearch(searchParams);
     } else {
-      router.replace(searchUrl);
+      // 🔹 Default behavior → navigate to results page
+      const searchUrl = `/results?destination=${normalizedDest}&from=${formatDate(
+        checkInDate
+      )}&to=${formatDate(checkOutDate)}&rooms=${encodeURIComponent(
+        JSON.stringify(rooms)
+      )}&nights=${nights}`;
+
+      if (window.location.pathname === "/") {
+        router.push(searchUrl);
+      } else {
+        router.replace(searchUrl);
+      }
     }
   };
 
@@ -212,7 +228,6 @@ export default function HotelSearchBar({
                 ranges={dateRange}
                 onChange={(ranges) => {
                   const { startDate, endDate } = ranges.selection;
-
                   setCheckInDate(startDate);
                   setCheckOutDate(endDate < startDate ? startDate : endDate);
                   setDateRange([

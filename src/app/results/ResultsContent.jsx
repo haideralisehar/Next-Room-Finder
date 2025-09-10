@@ -11,7 +11,7 @@ import Filters from "../components/filter"; // ✅ Import Filters component
 import MobFilter from "../components/MobFilter";
 import { IoLocationOutline, IoCalendarOutline } from "react-icons/io5";
 import { FaFilter } from "react-icons/fa";
-import StarRating from "../components/rating"
+import StarRating from "../components/rating";
 export default function ResultsContent() {
   const searchParams = useSearchParams();
 
@@ -145,17 +145,22 @@ export default function ResultsContent() {
     <>
       <Header />
       <HotelSearchBar
-  initialDestination={destination}
-  initialCheckIn={from}
-  initialCheckOut={to}
-  initialRooms={rooms.length > 0 ? rooms : [{ adults: 2, children: 0, childrenAges: [] }]}
-/>
-
+        initialDestination={destination}
+        initialCheckIn={from}
+        initialCheckOut={to}
+        initialRooms={
+          rooms.length > 0
+            ? rooms
+            : [{ adults: 2, children: 0, childrenAges: [] }]
+        }
+      />
 
       {/* --- Top bar with results count + sort --- */}
       <div className="nf-pro">
         <p>
-          {filteredResults.length} properties in {destination}
+          {filteredResults.length === 0? "No Hotel Available": `${filteredResults.length} properties in ${destination}`}
+          {/* {filteredResults.length} destinations */} 
+          {/* {filteredResults.length} properties in {destination} */}
           {/* {filteredResults.length} destinations */}
         </p>
         <div
@@ -195,20 +200,78 @@ export default function ResultsContent() {
         </div>
       </div>
 
-      <div className="results-container">
-        {/* --- Filters Sidebar --- */}
-        <Filters
-          filters={filters}
-          setFilters={setFilters}
-          clearFilters={clearFilters}
-        />
+    <div className="results-container">
+      {/* <div className="room-details">
+      <p><strong>{rooms.length}</strong> room(s)</p>
+      {rooms.map((room, index) => (
+        <p key={index} style={{ fontSize: "13px", margin: "2px 0" }}>
+          Room {index + 1}: {room.adults} adult(s), {room.children} child(ren)
+        </p>
+      ))}
+    </div> */}
 
-        {/* --- Hotel Results --- */}
-        <main className="hotel-results">
-          <div className="hotel-list">
-            {filteredResults.map((hotel) => (
+     {/* <div className="room-details">
+      <p><strong>{rooms.length}</strong> room(s)</p>
+      {rooms.map((room, index) => (
+        <div key={index} style={{ fontSize: "13px", margin: "4px 0" }}>
+          <p>
+            Room {index + 1}: {room.adults} adult(s), {room.children} child(ren)
+          </p>
+          {room.children > 0 && (
+            <p style={{ marginLeft: "10px", color: "gray" }}>
+              Ages: {room.childrenAges && room.childrenAges.length > 0
+                ? room.childrenAges.join(", ")
+                : "Not specified"}
+            </p>
+          )}
+        </div>
+      ))}
+    </div> */}
+  {destination === "" ? (
+    // --- Show message only ---
+    <main className="hotel-results">
+      <div className="hotel-list">
+        <p
+          style={{
+            fontSize: "16px",
+            color: "gray",
+            textAlign: "center",
+            padding: "20px",
+          }}
+        >
+          Try searching or find other hotels
+        </p>
+      </div>
+    </main>
+  ) : (
+    // --- Show Filters + Results ---
+    <>
+      {/* Filters Sidebar */}
+      <Filters
+        filters={filters}
+        setFilters={setFilters}
+        clearFilters={clearFilters}
+      />
+
+      {/* Hotel Results */}
+      <main className="hotel-results">
+        <div className="hotel-list">
+          {filteredResults.length === 0 ? (
+            <p
+              style={{
+                fontSize: "16px",
+                color: "gray",
+                textAlign: "center",
+                padding: "20px",
+              }}
+            >
+              No properties found for "{destination}". Try adjusting filters or
+              search for another place.
+            </p>
+          ) : (
+            filteredResults.map((hotel) => (
               <Link
-                key={hotel.id} // ✅ key should be here, on the Link
+                key={hotel.id}
                 href={{
                   pathname: "/hotel-view",
                   query: {
@@ -227,6 +290,7 @@ export default function ResultsContent() {
                     facility: JSON.stringify(hotel.facilities),
                     roomImages: JSON.stringify(hotel.roomImages),
                     hotelRooms: JSON.stringify(hotel.rooms),
+                    roomPhotos: JSON.stringify(hotel.roomImages),
                   },
                 }}
                 target="_blank"
@@ -244,26 +308,17 @@ export default function ResultsContent() {
                   </div>
 
                   {/* Right: Details */}
-                  
                   <div className="hotel-details">
-                    {/* Stars + Name */}
                     <div className="hotel-header">
-                     <StarRating rating={hotel.rating}/>
+                      <StarRating rating={hotel.rating} />
                       <h3>{hotel.name}</h3>
                     </div>
 
-                    {/* Location */}
                     <div className="m-xtx-set" style={{ display: "flex" }}>
                       <IoLocationOutline />
-                      <p
-                        className="location"
-                        style={{ padding: "-5px 0px 0px px" }}
-                      >
-                        {hotel.location}
-                      </p>
+                      <p className="location">{hotel.location}</p>
                     </div>
 
-                    {/* Breakfast */}
                     <p className="breakfast">🥗 Breakfast included</p>
                     <p
                       style={{
@@ -275,11 +330,12 @@ export default function ResultsContent() {
                       🚫 Non-Refundable
                     </p>
 
-                    {/* Rating + Price */}
                     <div className="hotel-footer">
                       <div className="rating">
                         <span className="rating-badge">{hotel.rating}</span>
-                        <span>{hotel.rating >= 3 ? "Very Good" : "Good"}</span>
+                        <span>
+                          {hotel.rating >= 3 ? "Very Good" : "Good"}
+                        </span>
                       </div>
 
                       <div className="price-info">
@@ -293,23 +349,15 @@ export default function ResultsContent() {
                   </div>
                 </div>
               </Link>
-            ))}
-          </div>
-        </main>
+            ))
+          )}
+        </div>
+      </main>
+    </>
+  )}
+</div>
 
-        {showPopup && (
-          <div className="popup-overlay">
-            <div className="popup">
-              <MobFilter
-                filters={filters}
-                setFilters={setFilters}
-                clearFilters={clearFilters}
-                handlePopupToggle={handlePopupToggle}
-              />
-            </div>
-          </div>
-        )}
-      </div>
+
       <Footer />
     </>
   );
