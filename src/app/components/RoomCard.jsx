@@ -2,16 +2,30 @@ import React, { useState } from "react";
 import "../styling/RoomCard.css";
 import Link from "next/link";
 
-export default function RoomCard({ room, roomCount,id, name, location, price, image, from, to, rooms, count, nights, rating
- }) {
+export default function RoomCard({
+  room,
+  roomCount,
+  id,
+  name,
+  location,
+  price,
+  image,
+  from,
+  to,
+  rooms,
+  count,
+  nights,
+  rating,
+}) {
   // ✅ Use room.roomPhotos if available, otherwise fallback images
-  const images = room.roomPhotos && room.roomPhotos.length > 0
-    ? room.roomPhotos
-    : [
-        "https://static.cupid.travel/hotels/508614426.jpg",
-        "https://plus.unsplash.com/premium_photo-1670360414903-19e5832f8bc4?w=600&auto=format&fit=crop&q=60",
-        "https://images.unsplash.com/photo-1566665797739-1674de7a421a?w=600&auto=format&fit=crop&q=60",
-      ];
+  const images =
+    room.roomPhotos && room.roomPhotos.length > 0
+      ? room.roomPhotos
+      : [
+          "https://static.cupid.travel/hotels/508614426.jpg",
+          "https://plus.unsplash.com/premium_photo-1670360414903-19e5832f8bc4?w=600&auto=format&fit=crop&q=60",
+          "https://images.unsplash.com/photo-1566665797739-1674de7a421a?w=600&auto=format&fit=crop&q=60",
+        ];
 
   const [current, setCurrent] = useState(0);
 
@@ -64,7 +78,7 @@ export default function RoomCard({ room, roomCount,id, name, location, price, im
           <p>
             🛏 Sleeps {room.fitForAdults} | 📐 {room.roomDetails.size}
           </p>
-          
+
           <h4 style={{ fontWeight: "bold" }}>Amenities</h4>
           <div className="facilities-list">
             {Array.isArray(room.roomDetails.amenities) &&
@@ -120,25 +134,25 @@ export default function RoomCard({ room, roomCount,id, name, location, price, im
           <p style={{ color: "#8a8a8aff" }}>1 room(s)</p>
           <p style={{ color: "#8a8a8aff" }}>{nights} night(s) incl. taxes</p>
           <Link
-          href={{
-            pathname: "/booking",
-            query: {
-              id: id,
-              name: name,
-              location: location,
-              price: price,
-              image: image,
-              from: from,
-              to: to,
-              rooms: rooms,
-              count: count,
-              nights: nights, // ✅ Pass updated nights
-              rating: rating,
-              selroom: room.price
-            },
-          }}
-        >
-          <button className="choose-btn">Choose Room</button>
+            href={{
+              pathname: "/booking",
+              query: {
+                id: id,
+                name: name,
+                location: location,
+                price: price,
+                image: image,
+                from: from,
+                to: to,
+                rooms: rooms,
+                count: count,
+                nights: nights, // ✅ Pass updated nights
+                rating: rating,
+                selroom: room.price,
+              },
+            }}
+          >
+            <button className="choose-btn">Choose Room</button>
           </Link>
         </div>
       </div>

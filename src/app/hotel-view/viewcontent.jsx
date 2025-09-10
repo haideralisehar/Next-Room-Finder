@@ -63,7 +63,7 @@ export default function HotelView() {
   // ✅ Auto filter when page loads
   useEffect(() => {
     if (hotelRooms.length > 0 && hotel.rooms.length > 0) {
-      const { adults = 1, children = 0 } = hotel.rooms[0]; 
+      const { adults = 1, children = 0 } = hotel.rooms[0];
       const filtered = hotelRooms.filter(
         (room) => room.fitForAdults >= adults && room.fitForChildren >= children
       );
@@ -110,10 +110,15 @@ export default function HotelView() {
     setFilteredRooms(filtered);
 
     if (filtered.length > 0) {
-      toast.success(`${filtered.length} ${filtered.length >2? "Rooms Available": "Rooms Available"}`, {
-        position: "top-right",
-        autoClose: 2000,
-      });
+      toast.success(
+        `${filtered.length} ${
+          filtered.length > 2 ? "Rooms Available" : "Rooms Available"
+        }`,
+        {
+          position: "top-right",
+          autoClose: 2000,
+        }
+      );
     } else {
       toast.error("No rooms are available", {
         position: "top-right",
@@ -142,7 +147,10 @@ export default function HotelView() {
         </div>
 
         <ImageViewer images={hotel.roomImages} />
-        <HotelTabs description={hotel.description} facility={hotel.facilities} />
+        <HotelTabs
+          description={hotel.description}
+          facility={hotel.facilities}
+        />
 
         <div style={{ marginTop: "20px" }}>
           <h2
@@ -170,17 +178,16 @@ export default function HotelView() {
                 room={room}
                 nights={nights} // ✅ Now uses latest nights
                 roomCount={filteredRooms.length}
-                id = {hotel.id}
-                name = {hotel.name}
-                location = {hotel.location}
-                price = {hotel.price} 
-                image = {hotel.image}
-                from = {checkInDate} 
-                to = {checkOutDate}
-                rooms = {JSON.stringify(selectedRooms)} 
-                count = {hotel.count}
-                rating = {hotel.rating}
-
+                id={hotel.id}
+                name={hotel.name}
+                location={hotel.location}
+                price={hotel.price}
+                image={hotel.image}
+                from={checkInDate}
+                to={checkOutDate}
+                rooms={JSON.stringify(selectedRooms)}
+                count={hotel.count}
+                rating={hotel.rating}
               />
             ))
           ) : (
@@ -188,7 +195,7 @@ export default function HotelView() {
           )}
         </div>
 
-        <Link
+        {/* <Link
           href={{
             pathname: "/booking",
             query: {
@@ -207,7 +214,7 @@ export default function HotelView() {
           }}
         >
           <button className="confirm-btn">Proceed to Booking</button>
-        </Link>
+        </Link> */}
       </div>
 
       <Footer />
