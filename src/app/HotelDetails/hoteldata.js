@@ -159,5 +159,55 @@ export const hotelsData = {
         // },
       ],
     },
+
+    {
+      id: 2,
+      name: "Pearl Continental Lahore",
+      location: "Shahrah-e-Quaid-e-Azam, Lahore",
+      price: 150,
+      image: "https://images.pexels.com/photos/260922/pexels-photo-260922.jpeg",
+      rating: 2,
+      description:
+        "Pearl Continental Lahore is a commercial establishment that provides lodging, meals, and other services.",
+      facilities: [
+        "Business Center",
+        "Concierge Service",
+        "Mini Bar in Rooms",
+        "Luggage Storage",
+        "Daily Housekeeping",
+      ],
+      roomImages: [
+        "https://static.cupid.travel/hotels/508614426.jpg",
+        "https://static.cupid.travel/hotels/518527047.jpg",
+      ],
+      rooms: [
+        // {
+        //   id: 301,
+        //   title: "Classic Room",
+        //   fitForAdults: 2,
+        //   fitForChildren: 1,
+        //   price: 150,
+        //   roomDetails: {
+        //     count: 8,
+        //     size: "22 m²",
+        //     amenities: ["AC", "TV", "Private Bathroom"],
+        //   },
+        // },
+        {
+          id: 302,
+          title: "Presidential Suite",
+          fitForAdults: 4,
+          fitForChildren: 3,
+          price: 300,
+          breakFast:true,
+          refund:false,
+          roomDetails: {
+            count: 1,
+            size: "80 m²",
+            amenities: ["Jacuzzi", "Private Bar", "Kitchen", "Luxury Seating"],
+          },
+        },
+      ],
+    },
   ],
 };

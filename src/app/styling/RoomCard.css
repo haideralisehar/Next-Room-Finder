@@ -10,6 +10,12 @@
   margin: 20px auto;
 
 }
+.old-new{
+  display: flex;
+  flex-direction: row;
+  gap: 8px;
+ 
+}
 
 /* Left side */
 .room-left {
@@ -160,4 +166,10 @@
     padding-left: 0;
     padding-top: 15px;
   }
+  .old-new{
+  display: flex;
+  flex-direction: column;
+  gap: 0px;
+ 
+}
 }

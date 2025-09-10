@@ -118,7 +118,7 @@ export default function RoomCard({ room, nights, roomCount }) {
 
         <div className="price-box">
           <span className="discount">8% OFF</span>
-          <div style={{ display: "flex", flexDirection: "row", gap: "8px" }}>
+          <div className="old-new">
             <p className="old-price">91.669 SAR</p>
             <h2 className="new-price">{room.price} SAR</h2>
           </div>
