@@ -8,7 +8,7 @@ export const hotelsData = {
       image: "https://images.pexels.com/photos/260922/pexels-photo-260922.jpeg",
       rating: 5,
       description:
-        "Islamabad Serena Hotel is a commercial establishment that provides lodging, meals, and other services to guests, travelers, and tourists. Hotels can range from small family-run businesses to large international chains. Most hotels list a variety of services, such as room service, laundry, and concierge. Some hotels also offer meeting and conference facilities, fitness centers, and spas.",
+        "Islamabad Serena Hotel is a commercial establishment that provides lodging, meals, and other services to guests, travelers, and tourists.",
       facilities: [
         "Restaurant & Bar",
         "Airport Shuttle",
@@ -16,7 +16,6 @@ export const hotelsData = {
         "Laundry Service",
         "Car Rental",
       ],
-
       roomImages: [
         "https://static.cupid.travel/hotels/508614426.jpg",
         "https://static.cupid.travel/hotels/518527047.jpg",
@@ -24,20 +23,36 @@ export const hotelsData = {
         "https://static.cupid.travel/hotels/491810902.jpg",
         "https://static.cupid.travel/hotels/491176899.jpg",
       ],
-
-      totRooms:[
+      rooms: [
         {
-          id:11,
-          title: "deluxe Room",
-          fitforadults:2,
-          roomdetails:{
-            count:2,
-            direction:"25 m2",
-            enmities:["Minibar", "Shower", "Safety deposit box", "TV"]
-          }
-          
-        }
-      ]
+          id: 101,
+          title: "1 x Deluxe Double Room, 1 Double Bed, Smoking",
+          fitForAdults: 2,
+          fitForChildren: 1,
+          price: 120,
+          breakFast:true,
+          refund:true,
+          roomDetails: {
+            count: 5,
+            size: "25 m²",
+            amenities: ["Minibar", "Shower", "Safety deposit box", "TV"],
+          },
+        },
+        {
+          id: 102,
+          title: "Executive Suite",
+          fitForAdults: 3,
+          fitForChildren: 2,
+          price: 180,
+          breakFast:false,
+          refund:false,
+          roomDetails: {
+            count: 3,
+            size: "40 m²",
+            amenities: ["Jacuzzi", "Balcony", "Flat-screen TV", "Work Desk"],
+          },
+        },
+      ],
     },
     {
       id: 2,
@@ -45,10 +60,10 @@ export const hotelsData = {
       location: "Agha Khan Road, Islamabad",
       price: 90,
       image:
-        "https://images.unsplash.com/photo-1496417263034-38ec4f0b665a?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTN8fGhvdGVsfGVufDB8MHwwfHx8MA%3D%3D",
+        "https://images.unsplash.com/photo-1496417263034-38ec4f0b665a?w=600&auto=format&fit=crop&q=60",
       rating: 4,
       description:
-        "Islamabad Serena Hotel new is a commercial establishment that provides lodging, meals, and other services to guests, travelers, and tourists. Hotels can range from small family-run businesses to large international chains. Most hotels list a variety of services, such as room service, laundry, and concierge. Some hotels also offer meeting and conference facilities, fitness centers, and spas.",
+        "Marriott Hotel, Islamabad is a commercial establishment that provides lodging, meals, and other services.",
       facilities: [
         "Free Wi-Fi",
         "24/7 Room Service",
@@ -60,38 +75,40 @@ export const hotelsData = {
         "https://static.cupid.travel/hotels/518527047.jpg",
         "https://static.cupid.travel/hotels/508614426.jpg",
         "https://static.cupid.travel/hotels/518526053.jpg",
-        "https://static.cupid.travel/hotels/491810902.jpg",
-        "https://static.cupid.travel/hotels/491176899.jpg",
       ],
-      
-    },
-    {
-      id: 3,
-      name: "Marriott Hotel, Islamabad",
-      location: "Agha Khan Road, Islamabad",
-      price: 30,
-      image:
-        "https://images.unsplash.com/photo-1611892440504-42a792e24d32?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTd8fGhvdGVsfGVufDB8MHwwfHx8MA%3D%3D",
-      rating: 2,
-      description:
-        "Marriott Hotel, Islamabad is a commercial establishment that provides lodging, meals, and other services to guests, travelers, and tourists. Hotels can range from small family-run businesses to large international chains. Most hotels list a variety of services, such as room service, laundry, and concierge. Some hotels also offer meeting and conference facilities, fitness centers, and spas.",
-      facilities: [
-        "Beach Access",
-        "Kids Play Area",
-        "Pet Friendly",
-        "Live Entertainment",
-        "Private Parking",
-      ],
-      roomImages: [
-        "https://static.cupid.travel/hotels/508614426.jpg",
-        "https://static.cupid.travel/hotels/518527047.jpg",
-        "https://static.cupid.travel/hotels/518526053.jpg",
-        "https://static.cupid.travel/hotels/491810902.jpg",
-        "https://static.cupid.travel/hotels/491176899.jpg",
-        "https://static.cupid.travel/hotels/518526053.jpg",
+      rooms: [
+        {
+          id: 201,
+          title: "Standard Room",
+          fitForAdults: 2,
+          fitForChildren: 0,
+          price: 90,
+          breakFast:true,
+          refund:true,
+          roomDetails: {
+            count: 10,
+            size: "20 m²",
+            amenities: ["Wi-Fi", "TV", "Private Bathroom"],
+          },
+        },
+        {
+          id: 202,
+          title: "Luxury Suite",
+          fitForAdults: 4,
+          fitForChildren: 2,
+          price: 150,
+          breakFast:true,
+          refund:true,
+          roomDetails: {
+            count: 2,
+            size: "60 m²",
+            amenities: ["Kitchenette", "Balcony", "Living Area", "Jacuzzi"],
+          },
+        },
       ],
     },
   ],
+
   Lahore: [
     {
       id: 1,
@@ -101,7 +118,7 @@ export const hotelsData = {
       image: "https://images.pexels.com/photos/260922/pexels-photo-260922.jpeg",
       rating: 2,
       description:
-        "Pearl Continental Lahore is a commercial establishment that provides lodging, meals, and other services to guests, travelers, and tourists. Hotels can range from small family-run businesses to large international chains. Most hotels list a variety of services, such as room service, laundry, and concierge. Some hotels also offer meeting and conference facilities, fitness centers, and spas.",
+        "Pearl Continental Lahore is a commercial establishment that provides lodging, meals, and other services.",
       facilities: [
         "Business Center",
         "Concierge Service",
@@ -112,34 +129,34 @@ export const hotelsData = {
       roomImages: [
         "https://static.cupid.travel/hotels/508614426.jpg",
         "https://static.cupid.travel/hotels/518527047.jpg",
-        "https://static.cupid.travel/hotels/491176899.jpg",
-        "https://static.cupid.travel/hotels/518526053.jpg",
-        "https://static.cupid.travel/hotels/491810902.jpg",
-        "https://static.cupid.travel/hotels/491176899.jpg",
       ],
-    },
-    {
-      id: 2,
-      name: "Avari Lahore",
-      location: "Mall Road, Lahore",
-      price: 110,
-      image: "https://images.pexels.com/photos/271624/pexels-photo-271624.jpeg",
-      rating: 3,
-      description:
-        "Avari Lahore is a commercial establishment that provides lodging, meals, and other services to guests, travelers, and tourists. Hotels can range from small family-run businesses to large international chains. Most hotels list a variety of services, such as room service, laundry, and concierge. Some hotels also offer meeting and conference facilities, fitness centers, and spas.",
-      facilities: [
-        "Rooftop Lounge",
-        "Outdoor Sports",
-        "Library",
-        "Coffee Shop",
-        "24/7 Security",
-      ],
-      roomImages: [
-        "https://static.cupid.travel/hotels/508614426.jpg",
-        "https://static.cupid.travel/hotels/518527047.jpg",
-        "https://static.cupid.travel/hotels/518526053.jpg",
-        "https://static.cupid.travel/hotels/491810902.jpg",
-        "https://static.cupid.travel/hotels/491176899.jpg",
+      rooms: [
+        // {
+        //   id: 301,
+        //   title: "Classic Room",
+        //   fitForAdults: 2,
+        //   fitForChildren: 1,
+        //   price: 150,
+        //   roomDetails: {
+        //     count: 8,
+        //     size: "22 m²",
+        //     amenities: ["AC", "TV", "Private Bathroom"],
+        //   },
+        // },
+        // {
+        //   id: 302,
+        //   title: "Presidential Suite",
+        //   fitForAdults: 4,
+        //   fitForChildren: 3,
+        //   price: 300,
+        //   breakFast:true,
+        //   refund:false,
+        //   roomDetails: {
+        //     count: 1,
+        //     size: "80 m²",
+        //     amenities: ["Jacuzzi", "Private Bar", "Kitchen", "Luxury Seating"],
+        //   },
+        // },
       ],
     },
   ],

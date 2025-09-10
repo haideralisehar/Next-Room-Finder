@@ -1,0 +1,133 @@
+import React, { useState, useEffect } from "react";
+import "../styling/RoomCard.css";
+
+export default function RoomCard({ room, nights, roomCount }) {
+  const images = [
+    "https://static.cupid.travel/hotels/508614426.jpg",
+    "https://plus.unsplash.com/premium_photo-1670360414903-19e5832f8bc4?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTB8fGhvdGVsJTIwcm9vbXN8ZW58MHx8MHx8fDA%3D",
+    "https://images.unsplash.com/photo-1566665797739-1674de7a421a?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTJ8fGhvdGVsJTIwcm9vbXN8ZW58MHx8MHx8fDA%3D",
+  ];
+  const [current, setCurrent] = useState(0);
+
+  const nextSlide = () => {
+    setCurrent((prev) => (prev + 1) % images.length);
+  };
+
+  const prevSlide = () => {
+    setCurrent((prev) => (prev - 1 + images.length) % images.length);
+  };
+
+  // Optional autoplay every 3s
+  //   useEffect(() => {
+  //     const interval = setInterval(nextSlide, 3000);
+  //     return () => clearInterval(interval);
+  //   }, []);
+
+  return (
+    <div className="room-card">
+      {/* Left container */}
+      <div className="room-left">
+        <h3 style={{ fontWeight: "bold" }}>{room.title}</h3>
+        <div className="slider">
+          <div
+            className="slider-wrapper"
+            style={{ transform: `translateX(-${current * 100}%)` }}
+          >
+            {images.map((img, index) => (
+              <img key={index} src={img} alt="Room" />
+            ))}
+          </div>
+
+          <button onClick={prevSlide} className="nav-btn left">
+            ‹
+          </button>
+          <button onClick={nextSlide} className="nav-btn right">
+            ›
+          </button>
+
+          <div className="dots">
+            {images.map((_, index) => (
+              <span
+                key={index}
+                className={`dot ${current === index ? "active" : ""}`}
+                onClick={() => setCurrent(index)}
+              ></span>
+            ))}
+          </div>
+        </div>
+
+        <div className="room-details">
+          <h4 style={{ fontWeight: "bold" }}>Room Details</h4>
+
+          <p>
+            🛏 Sleeps {room.fitForAdults} | 📐 {room.roomDetails.size}
+          </p>
+          <h4 style={{ fontWeight: "bold" }}>Amenities</h4>
+
+          <div className="facilities-list">
+            {Array.isArray(room.roomDetails.amenities) &&
+            room.roomDetails.amenities.length > 0 ? (
+              room.roomDetails.amenities.map((item, i) => (
+                <div key={i} className="facility-item">
+                  <span className="icon">i</span>
+                  {item}
+                </div>
+              ))
+            ) : (
+              <p>No facilities listed</p>
+            )}
+          </div>
+        </div>
+      </div>
+
+      {/* Right container */}
+      <div className="room-right">
+        {/* <div className="lft-data" style={{backgroundColor:"red", width:"50%"}}>
+            <h4>Room Only • Non-refundable</h4>
+        </div>
+
+        <div className="rgt-data" style={{backgroundColor:"blue", width:"50%"}}>
+  <p>a</p>
+        </div> */}
+
+        <div>
+          <h4 style={{ fontWeight: "bold" }}>
+            {room.breakFast ? "Breakfast" : "Room Only"} •{" "}
+            {room.refund ? "Refundable" : "Non-refundable"}
+          </h4>
+          {room.breakFast ? (
+            <p>
+              <span className="green">✔</span>Breakfast Included
+            </p>
+          ) : (
+            <p>
+              <span className="red">✖</span>No Meal Included
+            </p>
+          )}
+
+          {room.refund ? (
+            <p>
+              <span className="green">✔</span>Refundable
+            </p>
+          ) : (
+            <p>
+              <span className="red">✖</span>Non-refundable
+            </p>
+          )}
+        </div>
+
+        <div className="price-box">
+          <span className="discount">8% OFF</span>
+          <div style={{ display: "flex", flexDirection: "row", gap: "8px" }}>
+            <p className="old-price">91.669 SAR</p>
+            <h2 className="new-price">{room.price} SAR</h2>
+          </div>
+          <p style={{ color: "#8a8a8aff" }}>1 room(s)</p>
+          <p style={{ color: "#8a8a8aff" }}>{nights} night(s) incl. taxes</p>
+
+          <button className="choose-btn">Choose Room</button>
+        </div>
+      </div>
+    </div>
+  );
+}

@@ -145,11 +145,12 @@ export default function ResultsContent() {
     <>
       <Header />
       <HotelSearchBar
-        initialDestination={destination}
-        initialCheckIn={from}
-        initialCheckOut={to}
-        initialRooms={rooms}
-      />
+  initialDestination={destination}
+  initialCheckIn={from}
+  initialCheckOut={to}
+  initialRooms={rooms.length > 0 ? rooms : [{ adults: 2, children: 0, childrenAges: [] }]}
+/>
+
 
       {/* --- Top bar with results count + sort --- */}
       <div className="nf-pro">
@@ -225,6 +226,7 @@ export default function ResultsContent() {
                     description: hotel.description,
                     facility: JSON.stringify(hotel.facilities),
                     roomImages: JSON.stringify(hotel.roomImages),
+                    hotelRooms: JSON.stringify(hotel.rooms),
                   },
                 }}
                 target="_blank"

@@ -22,7 +22,8 @@ export default function HotelSearchBar({
   initialDestination = "",
   initialCheckIn = null,
   initialCheckOut = null,
-  initialRooms = [{ adults: 1, children: 0, childrenAges: [] }],
+  initialRooms = [{ adults: 2, children: 0, childrenAges: [] }],
+  showDestination = true, // 🔹 new prop
 }) {
   const router = useRouter();
 
@@ -125,17 +126,21 @@ export default function HotelSearchBar({
   };
 
   const handleSearch = () => {
-    if (!destination) {
+    if (showDestination && !destination) {
       alert("Please enter a destination!");
       return;
     }
-    const normalizedDest =
-      destination.charAt(0).toUpperCase() + destination.slice(1).toLowerCase();
+    const normalizedDest = destination
+      ? destination.charAt(0).toUpperCase() +
+        destination.slice(1).toLowerCase()
+      : "";
+
     const searchUrl = `/results?destination=${normalizedDest}&from=${formatDate(
       checkInDate
     )}&to=${formatDate(checkOutDate)}&rooms=${encodeURIComponent(
       JSON.stringify(rooms)
     )}&nights=${nights}`;
+
     if (window.location.pathname === "/") {
       router.push(searchUrl);
     } else {
@@ -164,21 +169,23 @@ export default function HotelSearchBar({
       {/* 🔹 Search Bar */}
       <div className="search-bar">
         {/* Destination */}
-        <div className="search-box">
-          <FaMapMarkerAlt className="icon" />
-          <input
-            type="text"
-            placeholder="Enter destination"
-            list="destinations"
-            value={destination}
-            onChange={(e) => setDestination(e.target.value)}
-          />
-          <datalist id="destinations">
-            {destinations.map((place, i) => (
-              <option key={i} value={place} />
-            ))}
-          </datalist>
-        </div>
+        {showDestination && (
+          <div className="search-box">
+            <FaMapMarkerAlt className="icon" />
+            <input
+              type="text"
+              placeholder="Enter destination"
+              list="destinations"
+              value={destination}
+              onChange={(e) => setDestination(e.target.value)}
+            />
+            <datalist id="destinations">
+              {destinations.map((place, i) => (
+                <option key={i} value={place} />
+              ))}
+            </datalist>
+          </div>
+        )}
 
         {/* Dates */}
         <div
@@ -206,7 +213,6 @@ export default function HotelSearchBar({
                 onChange={(ranges) => {
                   const { startDate, endDate } = ranges.selection;
 
-                  // Always update state
                   setCheckInDate(startDate);
                   setCheckOutDate(endDate < startDate ? startDate : endDate);
                   setDateRange([
@@ -217,7 +223,7 @@ export default function HotelSearchBar({
                     },
                   ]);
                 }}
-                minDate={today} // cannot select dates before today
+                minDate={today}
                 moveRangeOnFirstSelection={false}
                 rangeColors={["#0071c2"]}
               />
