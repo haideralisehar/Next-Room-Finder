@@ -37,6 +37,10 @@ export default function RoomCard({
     setCurrent((prev) => (prev - 1 + images.length) % images.length);
   };
 
+  const priceValue = room.price * room.off/100;
+  const finalValue = (room.price-priceValue).toFixed(2);
+
+
   return (
     <div className="room-card">
       {/* Left container */}
@@ -126,13 +130,37 @@ export default function RoomCard({
         </div>
 
         <div className="price-box">
-          <span className="discount">8% OFF</span>
+          <span className="discount">{room.off}% OFF</span>
           <div className="old-new">
-            <p className="old-price">91.669 SAR</p>
-            <h2 className="new-price">{room.price} SAR</h2>
+            <p className="old-price">{room.price} SAR</p>
+            <h2 className="new-price">{finalValue } SAR</h2>
           </div>
-          <p style={{ color: "#8a8a8aff" }}>1 room(s)</p>
+          <p style={{ color: "#8a8a8aff" }}>{roomCount} room(s)</p>
           <p style={{ color: "#8a8a8aff" }}>{nights} night(s) incl. taxes</p>
+          <p>{}</p>
+
+          {/* <div className="selected-rooms">
+        <h4>Selected Rooms:</h4>
+        {rooms && rooms.length > 0 ? (
+          rooms.map((r, i) => (
+            <div key={i}>
+              <p>Room {i + 1}</p>
+              <p>Adults: {r.adults}</p>
+              <p>Children: {r.children}</p>
+
+              {r.children > 0 && (
+                <ul>
+                  {r.childrenAges?.map((age, idx) => (
+                    <li key={idx}>Child {idx + 1} Age: {age}</li>
+                  ))}
+                </ul>
+              )}
+            </div>
+          ))
+        ) : (
+          <p>No rooms selected</p>
+        )}
+      </div> */}
           <Link
             href={{
               pathname: "/booking",
@@ -141,14 +169,18 @@ export default function RoomCard({
                 name: name,
                 location: location,
                 price: price,
+                roomPrice: room.price,
                 image: image,
                 from: from,
                 to: to,
-                rooms: rooms,
+                roomTitle:room.title,
+                rooms: JSON.stringify(rooms),
                 count: count,
                 nights: nights, // ✅ Pass updated nights
                 rating: rating,
                 selroom: room.price,
+                totalRooms: roomCount
+
               },
             }}
           >

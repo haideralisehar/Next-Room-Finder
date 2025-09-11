@@ -158,8 +158,10 @@ export default function ResultsContent() {
       {/* --- Top bar with results count + sort --- */}
       <div className="nf-pro">
         <p>
-          {filteredResults.length === 0? "No Hotel Available": `${filteredResults.length} properties in ${destination}`}
-          {/* {filteredResults.length} destinations */} 
+          {filteredResults.length === 0
+            ? "No Hotel Available"
+            : `${filteredResults.length} properties in ${destination}`}
+          {/* {filteredResults.length} destinations */}
           {/* {filteredResults.length} properties in {destination} */}
           {/* {filteredResults.length} destinations */}
         </p>
@@ -176,9 +178,11 @@ export default function ResultsContent() {
               color: "white",
               cursor: "pointer",
             }}
-            onClick={handlePopupToggle}
           >
-            <div style={{ display: "flex", justifyContent: "center" }}>
+            <div
+              style={{ display: "flex", justifyContent: "center" }}
+              onClick={handlePopupToggle}
+            >
               <FaFilter />{" "}
               <p style={{ fontSize: "14px", fontWeight: "normal" }}>Filter</p>
             </div>
@@ -200,8 +204,8 @@ export default function ResultsContent() {
         </div>
       </div>
 
-    <div className="results-container">
-      {/* <div className="room-details">
+      <div className="results-container">
+        {/* <div className="room-details">
       <p><strong>{rooms.length}</strong> room(s)</p>
       {rooms.map((room, index) => (
         <p key={index} style={{ fontSize: "13px", margin: "2px 0" }}>
@@ -210,7 +214,7 @@ export default function ResultsContent() {
       ))}
     </div> */}
 
-     {/* <div className="room-details">
+        {/* <div className="room-details">
       <p><strong>{rooms.length}</strong> room(s)</p>
       {rooms.map((room, index) => (
         <div key={index} style={{ fontSize: "13px", margin: "4px 0" }}>
@@ -227,136 +231,155 @@ export default function ResultsContent() {
         </div>
       ))}
     </div> */}
-  {destination === "" ? (
-    // --- Show message only ---
-    <main className="hotel-results">
-      <div className="hotel-list">
-        <p
-          style={{
-            fontSize: "16px",
-            color: "gray",
-            textAlign: "center",
-            padding: "20px",
-          }}
-        >
-          Try searching or find other hotels
-        </p>
-      </div>
-    </main>
-  ) : (
-    // --- Show Filters + Results ---
-    <>
-      {/* Filters Sidebar */}
-      <Filters
-        filters={filters}
-        setFilters={setFilters}
-        clearFilters={clearFilters}
-      />
-
-      {/* Hotel Results */}
-      <main className="hotel-results">
-        <div className="hotel-list">
-          {filteredResults.length === 0 ? (
-            <p
-              style={{
-                fontSize: "16px",
-                color: "gray",
-                textAlign: "center",
-                padding: "20px",
-              }}
-            >
-              No properties found for "{destination}". Try adjusting filters or
-              search for another place.
-            </p>
-          ) : (
-            filteredResults.map((hotel) => (
-              <Link
-                key={hotel.id}
-                href={{
-                  pathname: "/hotel-view",
-                  query: {
-                    id: hotel.id,
-                    name: hotel.name,
-                    location: hotel.location,
-                    price: hotel.price,
-                    image: hotel.image,
-                    from: from,
-                    to: to,
-                    rooms: JSON.stringify(rooms),
-                    count: rooms.length,
-                    nights: nights,
-                    rating: hotel.rating,
-                    description: hotel.description,
-                    facility: JSON.stringify(hotel.facilities),
-                    roomImages: JSON.stringify(hotel.roomImages),
-                    hotelRooms: JSON.stringify(hotel.rooms),
-                    roomPhotos: JSON.stringify(hotel.roomImages),
-                  },
+        {destination === "" ? (
+          // --- Show message only ---
+          <main className="hotel-results">
+            <div className="hotel-list">
+              <p
+                style={{
+                  fontSize: "16px",
+                  color: "gray",
+                  textAlign: "center",
+                  padding: "20px",
                 }}
-                target="_blank"
-                rel="noopener noreferrer"
               >
-                <div className="hotel-card">
-                  {/* Left: Image */}
-                  <div className="hotel-img-wrapper">
-                    <img
-                      src={hotel.image}
-                      alt={hotel.name}
-                      className="hotel-img"
-                    />
-                    <div className="favorite-icon">❤</div>
-                  </div>
+                Try searching or find other hotels
+              </p>
+            </div>
+          </main>
+        ) : (
+          // --- Show Filters + Results ---
+          <>
+            {/* Filters Sidebar */}
+            <Filters
+              filters={filters}
+              setFilters={setFilters}
+              clearFilters={clearFilters}
+            />
 
-                  {/* Right: Details */}
-                  <div className="hotel-details">
-                    <div className="hotel-header">
-                      <StarRating rating={hotel.rating} />
-                      <h3>{hotel.name}</h3>
-                    </div>
-
-                    <div className="m-xtx-set" style={{ display: "flex" }}>
-                      <IoLocationOutline />
-                      <p className="location">{hotel.location}</p>
-                    </div>
-
-                    <p className="breakfast">🥗 Breakfast included</p>
-                    <p
-                      style={{
-                        fontSize: "14px",
-                        color: "red",
-                        paddingBottom: "10px",
+            {/* Hotel Results */}
+            <main className="hotel-results">
+              <div className="hotel-list">
+                {filteredResults.length === 0 ? (
+                  <p
+                    style={{
+                      fontSize: "16px",
+                      color: "gray",
+                      textAlign: "center",
+                      padding: "20px",
+                    }}
+                  >
+                    No properties found for "{destination}". Try adjusting
+                    filters or search for another place.
+                  </p>
+                ) : (
+                  filteredResults.map((hotel) => (
+                    <Link
+                      key={hotel.id}
+                      href={{
+                        pathname: "/hotel-view",
+                        query: {
+                          id: hotel.id,
+                          name: hotel.name,
+                          location: hotel.location,
+                          price: hotel.price,
+                          image: hotel.image,
+                          from: from,
+                          to: to,
+                          rooms: JSON.stringify(rooms),
+                          count: rooms.length,
+                          nights: nights,
+                          rating: hotel.rating,
+                          description: hotel.description,
+                          facility: JSON.stringify(hotel.facilities),
+                          roomImages: JSON.stringify(hotel.roomImages),
+                          hotelRooms: JSON.stringify(hotel.rooms),
+                          roomPhotos: JSON.stringify(hotel.roomImages),
+                        },
                       }}
+                      target="_blank"
+                      rel="noopener noreferrer"
                     >
-                      🚫 Non-Refundable
-                    </p>
+                      <div className="hotel-card">
+                        {/* Left: Image */}
+                        <div className="hotel-img-wrapper">
+                          <img
+                            src={hotel.image}
+                            alt={hotel.name}
+                            className="hotel-img"
+                          />
+                          <div className="favorite-icon">❤</div>
+                        </div>
 
-                    <div className="hotel-footer">
-                      <div className="rating">
-                        <span className="rating-badge">{hotel.rating}</span>
-                        <span>
-                          {hotel.rating >= 3 ? "Very Good" : "Good"}
-                        </span>
+                        {/* Right: Details */}
+                        <div className="hotel-details">
+                          <div className="hotel-header">
+                            <StarRating rating={hotel.rating} />
+                            <h3>{hotel.name}</h3>
+                          </div>
+
+                          <div
+                            className="m-xtx-set"
+                            style={{ display: "flex" }}
+                          >
+                            <IoLocationOutline />
+                            <p className="location">{hotel.location}</p>
+                          </div>
+
+                          <p className="breakfast">🥗 Breakfast included</p>
+                          <p
+                            style={{
+                              fontSize: "14px",
+                              color: "red",
+                              paddingBottom: "10px",
+                            }}
+                          >
+                            🚫 Non-Refundable
+                          </p>
+
+                          <div className="hotel-footer">
+                            <div className="rating">
+                              <span className="rating-badge">
+                                {hotel.rating}
+                              </span>
+                              <span>
+                                {hotel.rating >= 3 ? "Very Good" : "Good"}
+                              </span>
+                            </div>
+
+                            <div className="price-info">
+                              <p className="price">{hotel.price} USD</p>
+                              <p className="price-sub">
+                                {rooms.length} room(s) <br /> {nights} night(s)
+                                incl. taxes
+                              </p>
+                            </div>
+                          </div>
+                        </div>
                       </div>
+                    </Link>
+                  ))
+                )}
+              </div>
+            </main>
+          </>
+        )}
 
-                      <div className="price-info">
-                        <p className="price">{hotel.price} USD</p>
-                        <p className="price-sub">
-                          {rooms.length} room(s) <br /> {nights} night(s) incl.
-                          taxes
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </Link>
-            ))
-          )}
-        </div>
-      </main>
-    </>
-  )}
-</div>
-
+        {showPopup && (
+          <div className="popup-overlay">
+            {" "}
+            <div className="popup">
+              {" "}
+              <MobFilter
+                filters={filters}
+                setFilters={setFilters}
+                clearFilters={clearFilters}
+                handlePopupToggle={handlePopupToggle}
+              />{" "}
+            </div>{" "}
+          </div>
+        )}
+      </div>
 
       <Footer />
     </>

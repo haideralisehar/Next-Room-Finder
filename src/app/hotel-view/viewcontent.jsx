@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect, useState } from "react";
+import React, { use, useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import "../hotel-view/hotel.css";
 import Header from "../components/Header";
@@ -14,9 +14,11 @@ import RoomCard from "../components/RoomCard";
 import HotelSearchBar from "../components/RoomSearch";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { FaFrown } from "react-icons/fa";
 
 export default function HotelView() {
   const searchParams = useSearchParams();
+  
 
   let hotelRooms = [];
   try {
@@ -65,8 +67,10 @@ export default function HotelView() {
     if (hotelRooms.length > 0 && hotel.rooms.length > 0) {
       const { adults = 1, children = 0 } = hotel.rooms[0];
       const filtered = hotelRooms.filter(
-        (room) => room.fitForAdults >= adults && room.fitForChildren >= children
+        (room) => room.fitForAdults == adults && room.fitForChildren >= children
       );
+
+      //i updated here >= to ==
 
       setFilteredRooms(filtered);
 
@@ -95,37 +99,45 @@ export default function HotelView() {
     }
   }, []);
 
-  // ✅ Filter rooms & update dates/nights when search bar is used
   const handleSearchRooms = ({ from, to, rooms, nights }) => {
-    setCheckInDate(from);
-    setCheckOutDate(to);
-    setNights(nights);
-    setSelectedRooms(rooms);
+  setCheckInDate(from);
+  setCheckOutDate(to);
+  setNights(nights);
+  setSelectedRooms(rooms);
 
-    const { adults = 1, children = 0 } = rooms[0] || {};
-    const filtered = hotelRooms.filter(
-      (room) => room.fitForAdults >= adults && room.fitForChildren >= children
-    );
+  const requestedRoomCount = rooms.length;
 
-    setFilteredRooms(filtered);
+  // 🚨 Check if hotel has enough rooms
+  if (hotelRooms.length < requestedRoomCount) {
+    setFilteredRooms([]); // no available rooms
+    toast.error(`Only ${hotelRooms.length} room(s) available, but you requested ${requestedRoomCount}`, {
+      position: "top-right",
+      autoClose: 2000,
+    });
+    return;
+  }
 
-    if (filtered.length > 0) {
-      toast.success(
-        `${filtered.length} ${
-          filtered.length > 2 ? "Rooms Available" : "Rooms Available"
-        }`,
-        {
-          position: "top-right",
-          autoClose: 2000,
-        }
-      );
-    } else {
-      toast.error("No rooms are available", {
-        position: "top-right",
-        autoClose: 2000,
-      });
-    }
-  };
+  // ✅ Continue filtering by capacity
+  const { adults = 1, children = 0 } = rooms[0] || {};
+  const filtered = hotelRooms.filter(
+    (room) => room.fitForAdults >= adults && room.fitForChildren >= children
+  );
+
+  setFilteredRooms(filtered);
+
+  if (filtered.length > 0) {
+    toast.success(`${filtered.length} room(s) available`, {
+      position: "top-right",
+      autoClose: 2000,
+    });
+  } else {
+    toast.error("No rooms are available", {
+      position: "top-right",
+      autoClose: 2000,
+    });
+  }
+};
+
 
   return (
     <>
@@ -163,13 +175,14 @@ export default function HotelView() {
             Choose Room
           </h2>
 
-          <HotelSearchBar
+          {/* <HotelSearchBar
             showDestination={false}
             initialCheckIn={checkInDate}
             initialCheckOut={checkOutDate}
-            initialRooms={selectedRooms}
+            rooms={selectedRooms} // ✅ controlled rooms
+            onRoomsChange={setSelectedRooms} // ✅ keep in sync
             onSearch={handleSearchRooms}
-          />
+          /> */}
 
           {filteredRooms.length > 0 ? (
             filteredRooms.map((room) => (
@@ -177,7 +190,7 @@ export default function HotelView() {
                 key={room.id}
                 room={room}
                 nights={nights} // ✅ Now uses latest nights
-                roomCount={filteredRooms.length}
+                roomCount={selectedRooms.length}
                 id={hotel.id}
                 name={hotel.name}
                 location={hotel.location}
@@ -185,40 +198,26 @@ export default function HotelView() {
                 image={hotel.image}
                 from={checkInDate}
                 to={checkOutDate}
-                rooms={JSON.stringify(selectedRooms)}
+                // rooms={JSON.stringify(selectedRooms)}
+                rooms={selectedRooms}
                 count={hotel.count}
                 rating={hotel.rating}
               />
             ))
           ) : (
-            <p>No rooms available for this hotel.</p>
+            <div style={{ fontSize: "20px", color: "#ec4141ff", display:"flex", padding:"15px" }}>
+ <p style={{paddingTop:"-10px"}}>😔 We’re sorry, no rooms are available based on your selected criteria!
+Please try adjusting your dates, room type, or applied filters to see more options, or consider selecting another hotel.</p>
+    </div>
           )}
         </div>
-
-        {/* <Link
-          href={{
-            pathname: "/booking",
-            query: {
-              id: hotel.id,
-              name: hotel.name,
-              location: hotel.location,
-              price: hotel.price,
-              image: hotel.image,
-              from: checkInDate,
-              to: checkOutDate,
-              rooms: JSON.stringify(selectedRooms),
-              count: hotel.count,
-              nights: nights, // ✅ Pass updated nights
-              rating: hotel.rating,
-            },
-          }}
-        >
-          <button className="confirm-btn">Proceed to Booking</button>
-        </Link> */}
       </div>
+      
 
       <Footer />
       <ToastContainer />
     </>
   );
 }
+
+
