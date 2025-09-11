@@ -161,7 +161,7 @@ export default function RoomCard({
           <p>No rooms selected</p>
         )}
       </div> */}
-          <Link
+      <Link
             href={{
               pathname: "/booking",
               query: {
@@ -186,8 +186,35 @@ export default function RoomCard({
           >
             <button className="choose-btn">Choose Room</button>
           </Link>
+          
         </div>
+        
       </div>
+      <Link
+            href={{
+              pathname: "/booking",
+              query: {
+                id: id,
+                name: name,
+                location: location,
+                price: price,
+                roomPrice: room.price,
+                image: image,
+                from: from,
+                to: to,
+                roomTitle:room.title,
+                rooms: JSON.stringify(rooms),
+                count: count,
+                nights: nights, // ✅ Pass updated nights
+                rating: rating,
+                selroom: room.price,
+                totalRooms: roomCount
+
+              },
+            }}
+          >
+            <button className="choose-btn-mob">Choose Room</button>
+          </Link>
     </div>
   );
 }
