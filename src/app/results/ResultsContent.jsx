@@ -13,7 +13,11 @@ import { IoLocationOutline, IoCalendarOutline } from "react-icons/io5";
 import { FaFilter } from "react-icons/fa";
 import StarRating from "../components/rating";
 import { useCurrency } from "../Context/CurrencyContext";
-import MapWithPrices from "../MapView/MapShow"
+import dynamic from "next/dynamic";
+
+const MapWithPrices = dynamic(() => import("../MapView/MapShow"), {
+  ssr: false,
+});
 export default function ResultsContent() {
   const searchParams = useSearchParams();
 
