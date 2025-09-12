@@ -97,7 +97,8 @@ const Footer = () => {
       {/* Bottom Section */}
       <div className="footer-bottom">
         <p>
-          © 2025 CityIn Booking | Developed by <span>Haider Ali Sehar</span>
+          © 2025 CityIn Booking 
+          {/* | Developed by <span>Haider Ali Sehar</span> */}
         </p>
         <div className="payment-icons">
           <img

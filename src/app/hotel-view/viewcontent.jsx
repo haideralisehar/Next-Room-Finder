@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { useSearchParams } from "next/navigation";
 import "../hotel-view/hotel.css";
 import Header from "../components/Header";
@@ -57,48 +57,88 @@ export default function HotelView() {
   const [nights, setNights] = useState(hotel.nights);
   const [selectedRooms, setSelectedRooms] = useState(hotel.rooms);
 
-  // ✅ Keep two datasets
-  const [baseFilteredRooms, setBaseFilteredRooms] = useState([]); // after search
-  const [filteredRooms, setFilteredRooms] = useState([]); // after applying filters
+  const [baseFilteredRooms, setBaseFilteredRooms] = useState([]); 
+  const [filteredRooms, setFilteredRooms] = useState([]); 
 
-  // ✅ Initial load filter (adults/children)
+  const lastCountRef = useRef(null);
+    const prevCountRef = useRef(null);
+
+  // ✅ Initial load filter (exact room match anywhere in the list)
   useEffect(() => {
     if (hotelRooms.length > 0 && hotel.rooms.length > 0) {
-      const { adults = 1, children = 0 } = hotel.rooms[0];
-      const filtered = hotelRooms.filter(
-        (room) => room.fitForAdults == adults && room.fitForChildren >= children
-      );
+      const matchedRooms = [];
+      const availableRooms = [...hotelRooms];
 
-      setBaseFilteredRooms(filtered);
-      setFilteredRooms(filtered);
+      hotel.rooms.forEach((requested) => {
+        const adults = Number(requested.adults ?? 1);
+        const children = Number(requested.children ?? 0);
 
-      if (filtered.length > 0) {
-        toast.success(`${filtered.length} room(s) available`, {
-          position: "top-right",
-          autoClose: 3000,
-        });
-      } else {
-        toast.error("No rooms are available", {
-          position: "top-right",
-          autoClose: 3000,
-        });
+        const idx = availableRooms.findIndex(
+          (room) =>
+            Number(room.fitForAdults) === adults &&
+            Number(room.fitForChildren) >= children
+        );
+
+        if (idx !== -1) {
+          matchedRooms.push(availableRooms[idx]);
+          availableRooms.splice(idx, 1);
+        }
+      });
+
+      // ✅ Update state only if different
+      setBaseFilteredRooms((prev) => {
+        const same =
+          prev.length === matchedRooms.length &&
+          prev.every((r, i) => r.id === matchedRooms[i].id);
+        return same ? prev : matchedRooms;
+      });
+
+      setFilteredRooms((prev) => {
+        const same =
+          prev.length === matchedRooms.length &&
+          prev.every((r, i) => r.id === matchedRooms[i].id);
+        return same ? prev : matchedRooms;
+      });
+
+      // ✅ Toast only if count changes
+      if (prevCountRef.current !== matchedRooms.length) {
+        if (matchedRooms.length > 0) {
+          toast.success(`${matchedRooms.length} room(s) available`, {
+            position: "top-right",
+            autoClose: 3000,
+          });
+        } else {
+          toast.error("No rooms are available", {
+            position: "top-right",
+            autoClose: 3000,
+          });
+        }
+        prevCountRef.current = matchedRooms.length; // ✅ update ref
       }
     } else if (hotelRooms.length > 0) {
       setBaseFilteredRooms(hotelRooms);
       setFilteredRooms(hotelRooms);
-      toast.success(`${hotelRooms.length} Room(s) Available`, {
-        position: "top-right",
-        autoClose: 3000,
-      });
-    } else {
-      toast.error("No rooms are available", {
-        position: "top-right",
-        autoClose: 3000,
-      });
-    }
-  }, []);
 
-  // ✅ Search handler (adults/children filter)
+      if (prevCountRef.current !== hotelRooms.length) {
+        toast.success(`${hotelRooms.length} Room(s) Available`, {
+          position: "top-right",
+          autoClose: 3000,
+        });
+        prevCountRef.current = hotelRooms.length;
+      }
+    } else {
+      if (prevCountRef.current !== 0) {
+        toast.error("No rooms are available", {
+          position: "top-right",
+          autoClose: 3000,
+        });
+        prevCountRef.current = 0;
+      }
+    }
+  }, [hotelRooms, hotel.rooms]);
+
+
+  // ✅ Search handler (manual filtering)
   const handleSearchRooms = ({ from, to, rooms, nights }) => {
     setCheckInDate(from);
     setCheckOutDate(to);
@@ -127,11 +167,13 @@ export default function HotelView() {
       if (available) matchedRooms.push(available);
     });
 
-    setBaseFilteredRooms(matchedRooms); // ✅ store search results
-    setFilteredRooms(matchedRooms); // ✅ reset filtered rooms
+    setBaseFilteredRooms(matchedRooms);
+    setFilteredRooms(matchedRooms);
 
     if (matchedRooms.length > 0) {
-      toast.success(`${matchedRooms.length} room(s) available`, { autoClose: 2000 });
+      toast.success(`${matchedRooms.length} room(s) available`, {
+        autoClose: 2000,
+      });
     } else {
       toast.error("No rooms are available", { autoClose: 2000 });
     }
@@ -144,9 +186,8 @@ export default function HotelView() {
       return;
     }
 
-    let filtered = [...baseFilteredRooms]; // ✅ always start fresh
+    let filtered = [...baseFilteredRooms]; 
 
-    // Room type filter
     if (roomType) {
       filtered = filtered.filter((room) => {
         if (roomType === "Room Only") return !room.breakFast;
@@ -157,14 +198,12 @@ export default function HotelView() {
       });
     }
 
-    // Refundable filter
     if (refund) {
       filtered = filtered.filter((room) =>
         refund === "Refundable" ? room.refund === true : room.refund === false
       );
     }
 
-    // Free cancellation filter
     if (freeCancel) {
       filtered = filtered.filter((room) =>
         freeCancel === "Free Cancelation"
@@ -173,7 +212,6 @@ export default function HotelView() {
       );
     }
 
-    // Room name search
     if (roomName) {
       filtered = filtered.filter((room) =>
         room.title.toLowerCase().includes(roomName.toLowerCase())
@@ -222,7 +260,6 @@ export default function HotelView() {
             Room Choice
           </h2>
 
-          {/* ✅ Pass filter handler */}
           <HotelFilterBar onFilterChange={handleFilterChange} />
 
           {filteredRooms.length > 0 ? (

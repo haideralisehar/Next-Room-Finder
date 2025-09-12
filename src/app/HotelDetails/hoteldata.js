@@ -261,7 +261,7 @@ export const hotelsData = {
         {
           id: 302,
           title: "Presidential Suite",
-          fitForAdults: 4,
+          fitForAdults: 3,
           fitForChildren: 3,
           price: 300.98,
           breakFast:true,
