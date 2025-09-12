@@ -1,24 +1,21 @@
 "use client";
-import React, { use, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import "../hotel-view/hotel.css";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
 import { IoLocationOutline } from "react-icons/io5";
-import Link from "next/link";
 import StarRating from "../components/rating";
 import HotelTabs from "../components/tabs";
 import "../styling/ImageViewer.css";
 import ImageViewer from "../components/ImageViewer";
 import RoomCard from "../components/RoomCard";
-import HotelSearchBar from "../components/RoomSearch";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import { FaFrown } from "react-icons/fa";
+import HotelFilterBar from "../components/RoomFilter";
 
 export default function HotelView() {
   const searchParams = useSearchParams();
-  
 
   let hotelRooms = [];
   try {
@@ -55,14 +52,16 @@ export default function HotelView() {
       : [],
   };
 
-  // ✅ States that will be updated when user searches again
   const [checkInDate, setCheckInDate] = useState(hotel.from);
   const [checkOutDate, setCheckOutDate] = useState(hotel.to);
   const [nights, setNights] = useState(hotel.nights);
   const [selectedRooms, setSelectedRooms] = useState(hotel.rooms);
-  const [filteredRooms, setFilteredRooms] = useState(hotelRooms);
 
-  // ✅ Auto filter when page loads
+  // ✅ Keep two datasets
+  const [baseFilteredRooms, setBaseFilteredRooms] = useState([]); // after search
+  const [filteredRooms, setFilteredRooms] = useState([]); // after applying filters
+
+  // ✅ Initial load filter (adults/children)
   useEffect(() => {
     if (hotelRooms.length > 0 && hotel.rooms.length > 0) {
       const { adults = 1, children = 0 } = hotel.rooms[0];
@@ -70,8 +69,7 @@ export default function HotelView() {
         (room) => room.fitForAdults == adults && room.fitForChildren >= children
       );
 
-      //i updated here >= to ==
-
+      setBaseFilteredRooms(filtered);
       setFilteredRooms(filtered);
 
       if (filtered.length > 0) {
@@ -86,6 +84,7 @@ export default function HotelView() {
         });
       }
     } else if (hotelRooms.length > 0) {
+      setBaseFilteredRooms(hotelRooms);
       setFilteredRooms(hotelRooms);
       toast.success(`${hotelRooms.length} Room(s) Available`, {
         position: "top-right",
@@ -99,45 +98,96 @@ export default function HotelView() {
     }
   }, []);
 
+  // ✅ Search handler (adults/children filter)
   const handleSearchRooms = ({ from, to, rooms, nights }) => {
-  setCheckInDate(from);
-  setCheckOutDate(to);
-  setNights(nights);
-  setSelectedRooms(rooms);
+    setCheckInDate(from);
+    setCheckOutDate(to);
+    setNights(nights);
+    setSelectedRooms(rooms);
 
-  const requestedRoomCount = rooms.length;
+    if (hotelRooms.length === 0) {
+      setBaseFilteredRooms([]);
+      setFilteredRooms([]);
+      toast.error("No rooms available", { autoClose: 2000 });
+      return;
+    }
 
-  // 🚨 Check if hotel has enough rooms
-  if (hotelRooms.length < requestedRoomCount) {
-    setFilteredRooms([]); // no available rooms
-    toast.error(`Only ${hotelRooms.length} room(s) available, but you requested ${requestedRoomCount}`, {
-      position: "top-right",
-      autoClose: 2000,
+    const matchedRooms = [];
+
+    rooms.forEach((requestedRoom) => {
+      const { adults = 1, children = 0 } = requestedRoom;
+
+      const available = hotelRooms.find(
+        (room) =>
+          room.fitForAdults >= adults &&
+          room.fitForChildren >= children &&
+          !matchedRooms.includes(room)
+      );
+
+      if (available) matchedRooms.push(available);
     });
-    return;
-  }
 
-  // ✅ Continue filtering by capacity
-  const { adults = 1, children = 0 } = rooms[0] || {};
-  const filtered = hotelRooms.filter(
-    (room) => room.fitForAdults >= adults && room.fitForChildren >= children
-  );
+    setBaseFilteredRooms(matchedRooms); // ✅ store search results
+    setFilteredRooms(matchedRooms); // ✅ reset filtered rooms
 
-  setFilteredRooms(filtered);
+    if (matchedRooms.length > 0) {
+      toast.success(`${matchedRooms.length} room(s) available`, { autoClose: 2000 });
+    } else {
+      toast.error("No rooms are available", { autoClose: 2000 });
+    }
+  };
 
-  if (filtered.length > 0) {
-    toast.success(`${filtered.length} room(s) available`, {
-      position: "top-right",
-      autoClose: 2000,
-    });
-  } else {
-    toast.error("No rooms are available", {
-      position: "top-right",
-      autoClose: 2000,
-    });
-  }
-};
+  // ✅ Room filter handler
+  const handleFilterChange = ({ roomType, refund, freeCancel, roomName }) => {
+    if (!baseFilteredRooms || baseFilteredRooms.length === 0) {
+      setFilteredRooms([]);
+      return;
+    }
 
+    let filtered = [...baseFilteredRooms]; // ✅ always start fresh
+
+    // Room type filter
+    if (roomType) {
+      filtered = filtered.filter((room) => {
+        if (roomType === "Room Only") return !room.breakFast;
+        if (roomType === "Bed and Breakfast") return room.breakFast;
+        if (roomType === "Half Board") return room.mealPlan === "Half Board";
+        if (roomType === "Full Board") return room.mealPlan === "Full Board";
+        return true;
+      });
+    }
+
+    // Refundable filter
+    if (refund) {
+      filtered = filtered.filter((room) =>
+        refund === "Refundable" ? room.refund === true : room.refund === false
+      );
+    }
+
+    // Free cancellation filter
+    if (freeCancel) {
+      filtered = filtered.filter((room) =>
+        freeCancel === "Free Cancelation"
+          ? room.Cancelation === true
+          : room.Cancelation === false
+      );
+    }
+
+    // Room name search
+    if (roomName) {
+      filtered = filtered.filter((room) =>
+        room.title.toLowerCase().includes(roomName.toLowerCase())
+      );
+    }
+
+    setFilteredRooms(filtered);
+
+    if (filtered.length > 0) {
+      toast.success(`${filtered.length} room(s) found`, { autoClose: 2000 });
+    } else {
+      toast.error("No rooms match your filters", { autoClose: 2000 });
+    }
+  };
 
   return (
     <>
@@ -145,7 +195,7 @@ export default function HotelView() {
 
       <div className="hotel-view-container">
         <div className="RatingPlusTitle">
-          <h1 className="hotel-title" style={{ padding: "0px 12px 0px 0px" }}>
+          <h1 className="hotel-title" style={{ padding: "0px 12px 0px 20px" }}>
             {hotel.name}
           </h1>
           <div className="StartManage">
@@ -153,43 +203,34 @@ export default function HotelView() {
           </div>
         </div>
 
-        <div className="tit-mng">
+        <div className="tit-mng" style={{ padding: "0px 12px 0px 20px" }}>
           <IoLocationOutline />
           <p>{hotel.location}</p>
         </div>
 
         <ImageViewer images={hotel.roomImages} />
-        <HotelTabs
-          description={hotel.description}
-          facility={hotel.facilities}
-        />
+        <HotelTabs description={hotel.description} facility={hotel.facilities} />
 
         <div style={{ marginTop: "20px" }}>
           <h2
             style={{
               fontWeight: "bold",
               fontSize: "20px",
-              paddingBottom: "10px",
+              padding: "15px 15px",
             }}
           >
-            Choose Room
+            Room Choice
           </h2>
 
-          {/* <HotelSearchBar
-            showDestination={false}
-            initialCheckIn={checkInDate}
-            initialCheckOut={checkOutDate}
-            rooms={selectedRooms} // ✅ controlled rooms
-            onRoomsChange={setSelectedRooms} // ✅ keep in sync
-            onSearch={handleSearchRooms}
-          /> */}
+          {/* ✅ Pass filter handler */}
+          <HotelFilterBar onFilterChange={handleFilterChange} />
 
           {filteredRooms.length > 0 ? (
             filteredRooms.map((room) => (
               <RoomCard
                 key={room.id}
                 room={room}
-                nights={nights} // ✅ Now uses latest nights
+                nights={nights}
                 roomCount={selectedRooms.length}
                 id={hotel.id}
                 name={hotel.name}
@@ -198,26 +239,32 @@ export default function HotelView() {
                 image={hotel.image}
                 from={checkInDate}
                 to={checkOutDate}
-                // rooms={JSON.stringify(selectedRooms)}
                 rooms={selectedRooms}
                 count={hotel.count}
                 rating={hotel.rating}
               />
             ))
           ) : (
-            <div style={{ fontSize: "20px", color: "#ec4141ff", display:"flex", padding:"15px" }}>
- <p style={{paddingTop:"-10px"}}>😔 We’re sorry, no rooms are available based on your selected criteria!
-Please try adjusting your dates, room type, or applied filters to see more options, or consider selecting another hotel.</p>
-    </div>
+            <div
+              style={{
+                fontSize: "20px",
+                color: "#ec4141ff",
+                display: "flex",
+                padding: "15px 5px 15px 5px",
+              }}
+            >
+              <p>
+                😔 We’re sorry, no rooms are available based on your selected
+                criteria! Please try adjusting your dates, room type, or applied
+                filters to see more options, or consider selecting another hotel.
+              </p>
+            </div>
           )}
         </div>
       </div>
-      
 
       <Footer />
       <ToastContainer />
     </>
   );
 }
-
-

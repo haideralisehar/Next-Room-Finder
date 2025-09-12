@@ -1,5 +1,6 @@
 .tabs-container {
   width: 100%;
+  padding: 0px 15px;
   
 }
 
@@ -50,7 +51,7 @@
 .facilities-list {
   display: flex;
   flex-wrap: wrap;
-  gap: 16px;
+  gap: 10px;
 }
 
 .facility-item {

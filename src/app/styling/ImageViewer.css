@@ -1,6 +1,6 @@
 .viewer-container {
   display: flex;
-  
+  padding: 15px 15px;
   gap: 15px;
   width: 100%;
   max-width: 1200px;

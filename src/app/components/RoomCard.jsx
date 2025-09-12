@@ -117,6 +117,10 @@ export default function RoomCard({
               <span className="red">✖</span> No Meal Included
             </p>
           )}
+          {room.Cancelation ? <p>
+              <span className="green">✔</span> Free Cancelation</p> : <p>
+              <span className="red">✖</span> No Cancelation
+            </p>}
 
           {room.refund ? (
             <p>
@@ -131,12 +135,13 @@ export default function RoomCard({
 
         <div className="price-box">
           <span className="discount">{room.off}% OFF</span>
-          <div className="old-new">
+          <div className="old-new" >
             <p className="old-price">{room.price} SAR</p>
+              
             <h2 className="new-price">{finalValue } SAR</h2>
           </div>
           <p style={{ color: "#8a8a8aff" }}>{roomCount} room(s)</p>
-          <p style={{ color: "#8a8a8aff" }}>{nights} night(s) incl. taxes</p>
+          <p style={{ color: "#8a8a8aff" }}>{nights} night(s)</p>
           <p>{}</p>
 
           {/* <div className="selected-rooms">
