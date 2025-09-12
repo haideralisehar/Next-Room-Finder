@@ -272,7 +272,7 @@ export default function ResultsContent() {
 
             {/* Hotel Results */}
 
-            {showMap && (
+            {/* {showMap && ( */}
             <main className="hotel-results">
               <div className="hotel-list">
                 {filteredResults.length === 0 ? (
@@ -380,7 +380,7 @@ export default function ResultsContent() {
                 )}
               </div>
             </main>
-            )}
+            {/* )} */}
 
             {!showMap &&(
               
