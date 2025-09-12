@@ -1,18 +1,67 @@
 "use client";
-import React from "react";
+import React, {useState} from "react";
 import Slider from "rc-slider";
 import "rc-slider/assets/index.css";
 import "../results/ResultsPage.css"; // if styles are defined there
 import "../styling/filter.css"
 
-export default function Filters({ filters, setFilters, clearFilters }) {
+export default function Filters({ filters, setFilters, clearFilters, showMap, setShowMap }) {
+  
   return (
     <aside className="filters">
-      <p style={{fontWeight: "bold", textAlign:"center", padding:"10px 0px"}}>Filters</p>
+      <p style={{fontWeight: "bold", textAlign:"left", padding:"10px 0px"}}>Filters</p>
+      <div
+  className="map-loc"
+  style={{
+    position: "relative",
+    width: "100%",
+    height: "100px",
+    backgroundColor: "#f7f7f7ff",
+    margin: "0 0 20px 0",
+    borderRadius: "8px",
+    border: "1px solid #eaeaea",
+    overflow: "hidden",
+  }}
+>
+  {/* Overlay layer */}
+  <div
+    style={{
+      position: "absolute",
+      top: 0,
+      left: 0,
+      width: "100%",
+      height: "100%",
+      backgroundColor: "rgba(63, 169, 222, 0.37)", // semi-transparent
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+      borderRadius: "8px",
+    }}
+  >
+    {/* Centered button */}
+    <button
+      onClick={() => setShowMap(!showMap)}
+      style={{
+        padding: "10px 20px",
+        backgroundColor: "#007bffc9",
+        color: "#fff",
+        border: "none",
+        borderRadius: "50px",
+        cursor: "pointer",
+        fontWeight: "bold",
+      }}
+    >
+      {showMap ? "Go To Map" : "View List"}
+    </button>
+  </div>
+</div>
+
 
       <button className="clear-btn" onClick={clearFilters}>
         Clear Filters
       </button>
+
+      
 
       {/* Title Search */}
       <div className="filter-group">

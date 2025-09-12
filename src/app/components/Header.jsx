@@ -2,7 +2,7 @@
 import React, { useState } from "react";
 import "../styling/Head.css";
 import Link from "next/link";
-import Dropdown from "./Dropdown";
+import DropdownAlt from "./Dropdown";
 import { BsDisplay } from "react-icons/bs";
 import LanguageSwitcher from "./LanguageSwitcher";
 
@@ -38,7 +38,7 @@ const Header = () => {
             <li>
               <LanguageSwitcher/>
             </li>
-            <Dropdown />
+            <DropdownAlt />
             <button className="login-btn-1">
               <Link href="/authentication/login">Login</Link>
             </button>
@@ -52,7 +52,7 @@ const Header = () => {
             العربية
           </a> */}
           <LanguageSwitcher/>
-          <Dropdown />
+          <DropdownAlt />
 
           <button
             className={`hamburger ${menuOpen ? "open" : ""}`}

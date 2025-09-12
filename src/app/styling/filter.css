@@ -1,3 +1,9 @@
+.map-loc{
+    background-image: url("https://images.pexels.com/photos/19963850/pexels-photo-19963850.jpeg");
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-position: center;
+}
 @media (max-width: 860px) {
     .filters{
         display: none;

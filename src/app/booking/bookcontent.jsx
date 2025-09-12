@@ -7,8 +7,10 @@ import Header from "../components/Header";
 import Footer from "../components/Footer";
 import { useSearchParams } from "next/navigation";
 import StarRating from "../components/rating";
+import { useBhdCurrency } from "../Context/BHDCurrency";
 
 export default function BookingPage() {
+  const { Bhdcurrency, convertPrice } = useBhdCurrency();
   const searchParams = useSearchParams();
   // Get data from query
   const hotel = {
@@ -22,8 +24,9 @@ export default function BookingPage() {
     count: searchParams.get("count"),
     nights: searchParams.get("nights"),
     rating: searchParams.get("rating"),
-    roomprice: searchParams.get("selroom"),
+    roomprice: searchParams.get("roomPrice"),
     roomTitle: searchParams.get("roomTitle"),
+    roomCost: searchParams.get("roomCost"),
 
     totalRooms: searchParams.get("totalRooms"),
     rooms: searchParams.get("rooms")
@@ -374,8 +377,13 @@ export default function BookingPage() {
                 {hotel.roomTitle}
               </p>
               <div style={{ display: "flex", justifyContent: "space-between" }}>
-                <p>USD {hotel.roomprice} per night</p>
-                <p style={{ fontWeight:"bold", color: "black" }}>USD {hotel.roomprice}</p>
+                <p>
+                  {convertPrice(hotel.roomCost)} {Bhdcurrency} per night
+                </p>
+                <p style={{ fontWeight: "bold", color: "black" }}>
+                  {convertPrice(hotel.roomCost)} {Bhdcurrency}
+                  {/* {hotel.roomprice}</p> */}{" "}
+                </p>
               </div>
             </div>
           </div>
@@ -384,16 +392,18 @@ export default function BookingPage() {
             <div className={styles.totalBox}>
               <h5>Total Cal.</h5>
               <p>
-                USD {hotel.roomprice} / Night x {hotel.totalRooms} Room(s) x{" "}
-                {hotel.nights} Night(s)
+                {convertPrice(hotel.roomCost)} {Bhdcurrency} / Night x{" "}
+                {hotel.totalRooms} Room(s) x {hotel.nights} Night(s)
               </p>
             </div>
             <div className={styles.totalBoxee}>
               Total Amount
               <h4>
                 {" "}
-                USD{" "}
-                {(hotel.roomprice * hotel.nights * hotel.totalRooms).toFixed(2)}
+                {convertPrice(
+                  (hotel.roomCost * hotel.nights * hotel.totalRooms).toFixed(2)
+                )}{" "}
+                {Bhdcurrency}
               </h4>
             </div>
           </div>

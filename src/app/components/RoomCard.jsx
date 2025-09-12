@@ -40,9 +40,8 @@ export default function RoomCard({
     setCurrent((prev) => (prev - 1 + images.length) % images.length);
   };
 
-  const priceValue = room.price * room.off/100;
-  const finalValue = (room.price-priceValue).toFixed(2);
-
+  const priceValue = (room.price * room.off) / 100;
+  const finalValue = (room.price - priceValue).toFixed(2);
 
   return (
     <div className="room-card">
@@ -120,10 +119,15 @@ export default function RoomCard({
               <span className="red">✖</span> No Meal Included
             </p>
           )}
-          {room.Cancelation ? <p>
-              <span className="green">✔</span> Free Cancelation</p> : <p>
+          {room.Cancelation ? (
+            <p>
+              <span className="green">✔</span> Free Cancelation
+            </p>
+          ) : (
+            <p>
               <span className="red">✖</span> No Cancelation
-            </p>}
+            </p>
+          )}
 
           {room.refund ? (
             <p>
@@ -138,11 +142,14 @@ export default function RoomCard({
 
         <div className="price-box">
           <span className="discount">{room.off}% OFF</span>
-          <div className="old-new" >
+          <div className="old-new">
             <p className="old-price">
-                 {convertPrice(room.price)} {currency}</p>
-              
-            <h2 className="new-price">{convertPrice(finalValue)} {currency}</h2>
+              {convertPrice(room.price)} {currency}
+            </p>
+
+            <h2 className="new-price">
+              {convertPrice(finalValue)} {currency}
+            </h2>
           </div>
           <p style={{ color: "#8a8a8aff" }}>{roomCount} room(s)</p>
           <p style={{ color: "#8a8a8aff" }}>{nights} night(s)</p>
@@ -170,7 +177,7 @@ export default function RoomCard({
           <p>No rooms selected</p>
         )}
       </div> */}
-      <Link
+          <Link
             href={{
               pathname: "/booking",
               query: {
@@ -182,48 +189,45 @@ export default function RoomCard({
                 image: image,
                 from: from,
                 to: to,
-                roomTitle:room.title,
+                roomTitle: room.title,
                 rooms: JSON.stringify(rooms),
                 count: count,
                 nights: nights, // ✅ Pass updated nights
                 rating: rating,
                 selroom: room.price,
-                totalRooms: roomCount
-
+                totalRooms: roomCount,
+                roomCost: finalValue,
               },
             }}
           >
             <button className="choose-btn">Choose Room</button>
           </Link>
-          
         </div>
-        
       </div>
       <Link
-            href={{
-              pathname: "/booking",
-              query: {
-                id: id,
-                name: name,
-                location: location,
-                price: price,
-                roomPrice: room.price,
-                image: image,
-                from: from,
-                to: to,
-                roomTitle:room.title,
-                rooms: JSON.stringify(rooms),
-                count: count,
-                nights: nights, // ✅ Pass updated nights
-                rating: rating,
-                selroom: room.price,
-                totalRooms: roomCount
-
-              },
-            }}
-          >
-            <button className="choose-btn-mob">Choose Room</button>
-          </Link>
+        href={{
+          pathname: "/booking",
+          query: {
+            id: id,
+            name: name,
+            location: location,
+            price: price,
+            roomPrice: room.price,
+            image: image,
+            from: from,
+            to: to,
+            roomTitle: room.title,
+            rooms: JSON.stringify(rooms),
+            count: count,
+            nights: nights, // ✅ Pass updated nights
+            rating: rating,
+            selroom: room.price,
+            totalRooms: roomCount,
+          },
+        }}
+      >
+        <button className="choose-btn-mob">Choose Room</button>
+      </Link>
     </div>
   );
 }

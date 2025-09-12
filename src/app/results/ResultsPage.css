@@ -9,6 +9,13 @@
   padding: 20px 100px;
   
 }
+.map-con {
+  width: 75%;
+  height: 500px; /* or 100vh if you want fullscreen */
+  position: relative;
+  border-radius: 8px;
+  overflow: hidden; /* ensures map corners follow rounded edges */
+}
 .nf-pro{
   width: 100%;
   /* background-color: red; */
@@ -27,7 +34,7 @@
   padding: 15px;
   border-radius: 8px;
   height: fit-content;
-  box-shadow: 1px 1px 19px rgba(22, 22, 22, 0.058);
+  
 }
 
 .filters h3 {
@@ -36,10 +43,11 @@
 }
 
 .clear-btn {
-  background: #f44336;
-  color: #fff;
-  border: none;
-  padding: 6px 10px;
+  background: #f5f5f5;
+  color: #010101ca;
+  border: 1px solid rgb(233, 233, 233);
+
+  padding: 8px 10px;
   font-size: 14px;
   border-radius: 5px;
   cursor: pointer;
@@ -79,7 +87,7 @@
   border-radius: 10px;
   overflow: hidden;
   background: #fff;
-  box-shadow: 1px 1px 19px rgba(22, 22, 22, 0.058);
+  /* box-shadow: 1px 1px 19px rgba(22, 22, 22, 0.058); */
   padding: 10px;
 }
 
@@ -327,6 +335,10 @@
 
   display: block;
   
+}
+.map-con {
+  width: 100%;
+ 
 }
 .nf-pro p{
   font-size: 16px;

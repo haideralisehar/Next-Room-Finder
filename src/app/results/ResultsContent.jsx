@@ -13,6 +13,7 @@ import { IoLocationOutline, IoCalendarOutline } from "react-icons/io5";
 import { FaFilter } from "react-icons/fa";
 import StarRating from "../components/rating";
 import { useCurrency } from "../Context/CurrencyContext";
+import MapWithPrices from "../MapView/MapShow"
 export default function ResultsContent() {
   const searchParams = useSearchParams();
 
@@ -29,6 +30,7 @@ export default function ResultsContent() {
   const [description, setDescription] = useState("");
   const [facilities, setFacility] = useState([]);
   const handlePopupToggle = () => setShowPopup(!showPopup);
+  const [showMap, setShowMap] = useState(true); // map show
 
   // ✅ Filters state
   const [filters, setFilters] = useState({
@@ -255,12 +257,16 @@ export default function ResultsContent() {
           <>
             {/* Filters Sidebar */}
             <Filters
+            setShowMap={setShowMap}
+            showMap={showMap}
               filters={filters}
               setFilters={setFilters}
               clearFilters={clearFilters}
             />
 
             {/* Hotel Results */}
+
+            {showMap && (
             <main className="hotel-results">
               <div className="hotel-list">
                 {filteredResults.length === 0 ? (
@@ -368,6 +374,15 @@ export default function ResultsContent() {
                 )}
               </div>
             </main>
+            )}
+
+            {!showMap &&(
+              
+              <div className="map-con">
+                <MapWithPrices />
+
+              </div>
+            )}
           </>
         )}
 

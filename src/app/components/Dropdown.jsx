@@ -10,10 +10,24 @@ const DropdownAlt = () => {
   const dropdownRef = useRef(null);
 
   const toggleDropdown = () => setIsOpen(!isOpen);
+  const [lange, setLange] = useState("");
+
+  useEffect(() => {
+    // Load saved language from localStorage
+    const saved = localStorage.getItem("preferred_lang");
+    if (saved) setLange(saved);
+    
+    
+  }, []);
 
   const handleSelect = (option) => {
     setCurrency(option); // ✅ context + auto save in localStorage
     setIsOpen(false);
+    if(lange ==="ar"){
+      window.location.reload();
+    }
+    
+    
   };
 
   // ✅ Close dropdown when clicking outside
