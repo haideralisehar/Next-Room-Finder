@@ -164,6 +164,8 @@ export default function ResultsContent() {
         }
       />
 
+      
+
       {/* --- Top bar with results count + sort --- */}
       <div className="nf-pro">
         <p>
