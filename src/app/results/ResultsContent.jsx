@@ -12,8 +12,11 @@ import MobFilter from "../components/MobFilter";
 import { IoLocationOutline, IoCalendarOutline } from "react-icons/io5";
 import { FaFilter } from "react-icons/fa";
 import StarRating from "../components/rating";
+import { useCurrency } from "../Context/CurrencyContext";
 export default function ResultsContent() {
   const searchParams = useSearchParams();
+
+  const { currency, convertPrice } = useCurrency();
 
   const [loading, setLoading] = useState(true);
   const [results, setResults] = useState([]);
@@ -348,7 +351,10 @@ export default function ResultsContent() {
                             </div>
 
                             <div className="price-info">
-                              <p className="price">{hotel.price} USD</p>
+                              <p className="price">
+                                {convertPrice(hotel.price)} {currency}
+                                
+                                </p>
                               <p className="price-sub">
                                 {rooms.length} room(s) <br /> {nights} night(s)
                                 incl. taxes

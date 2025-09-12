@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import "../styling/RoomCard.css";
 import Link from "next/link";
+import { useCurrency } from "../Context/CurrencyContext";
 
 export default function RoomCard({
   room,
@@ -18,6 +19,8 @@ export default function RoomCard({
   rating,
 }) {
   // ✅ Use room.roomPhotos if available, otherwise fallback images
+  const { currency, convertPrice } = useCurrency(); // ✅ get currency + converter
+  const [currents, setCurrents] = useState(0);
   const images =
     room.roomPhotos && room.roomPhotos.length > 0
       ? room.roomPhotos
@@ -136,9 +139,10 @@ export default function RoomCard({
         <div className="price-box">
           <span className="discount">{room.off}% OFF</span>
           <div className="old-new" >
-            <p className="old-price">{room.price} SAR</p>
+            <p className="old-price">
+                 {convertPrice(room.price)} {currency}</p>
               
-            <h2 className="new-price">{finalValue } SAR</h2>
+            <h2 className="new-price">{convertPrice(finalValue)} {currency}</h2>
           </div>
           <p style={{ color: "#8a8a8aff" }}>{roomCount} room(s)</p>
           <p style={{ color: "#8a8a8aff" }}>{nights} night(s)</p>

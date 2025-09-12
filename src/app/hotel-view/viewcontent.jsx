@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect, useState, useRef } from "react";
+import React, { useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import "../hotel-view/hotel.css";
 import Header from "../components/Header";
@@ -57,88 +57,68 @@ export default function HotelView() {
   const [nights, setNights] = useState(hotel.nights);
   const [selectedRooms, setSelectedRooms] = useState(hotel.rooms);
 
-  const [baseFilteredRooms, setBaseFilteredRooms] = useState([]); 
-  const [filteredRooms, setFilteredRooms] = useState([]); 
+  // ✅ Keep two datasets
+  const [baseFilteredRooms, setBaseFilteredRooms] = useState([]); // after search
+  const [filteredRooms, setFilteredRooms] = useState([]); // after applying filters
 
-  const lastCountRef = useRef(null);
-    const prevCountRef = useRef(null);
-
-  // ✅ Initial load filter (exact room match anywhere in the list)
+  // ✅ Initial load filter (adults/children)
   useEffect(() => {
-    if (hotelRooms.length > 0 && hotel.rooms.length > 0) {
-      const matchedRooms = [];
-      const availableRooms = [...hotelRooms];
+  if (hotelRooms.length > 0 && hotel.rooms.length > 0) {
+    const matchedRooms = [];
 
-      hotel.rooms.forEach((requested) => {
-        const adults = Number(requested.adults ?? 1);
-        const children = Number(requested.children ?? 0);
+    hotel.rooms.forEach((requested) => {
+      const adults = Number(requested.adults ?? 1);
+      const children = Number(requested.children ?? 0);
 
-        const idx = availableRooms.findIndex(
-          (room) =>
-            Number(room.fitForAdults) === adults &&
-            Number(room.fitForChildren) >= children
-        );
+      const found = hotelRooms.filter(
+        (room) =>
+          Number(room.fitForAdults) === adults &&
+          Number(room.fitForChildren) >= children
+      );
 
-        if (idx !== -1) {
-          matchedRooms.push(availableRooms[idx]);
-          availableRooms.splice(idx, 1);
-        }
+      matchedRooms.push(...found);
+    });
+
+    // ✅ Remove duplicates by room.id
+    const uniqueRooms = Array.from(
+      new Map(matchedRooms.map((room) => [room.id, room])).values()
+    );
+
+    setBaseFilteredRooms(uniqueRooms);
+    setFilteredRooms(uniqueRooms);
+
+    if (uniqueRooms.length > 0) {
+      toast.success(`${uniqueRooms.length} room(s) available`, {
+        position: "top-right",
+        autoClose: 3000,
       });
-
-      // ✅ Update state only if different
-      setBaseFilteredRooms((prev) => {
-        const same =
-          prev.length === matchedRooms.length &&
-          prev.every((r, i) => r.id === matchedRooms[i].id);
-        return same ? prev : matchedRooms;
-      });
-
-      setFilteredRooms((prev) => {
-        const same =
-          prev.length === matchedRooms.length &&
-          prev.every((r, i) => r.id === matchedRooms[i].id);
-        return same ? prev : matchedRooms;
-      });
-
-      // ✅ Toast only if count changes
-      if (prevCountRef.current !== matchedRooms.length) {
-        if (matchedRooms.length > 0) {
-          toast.success(`${matchedRooms.length} room(s) available`, {
-            position: "top-right",
-            autoClose: 3000,
-          });
-        } else {
-          toast.error("No rooms are available", {
-            position: "top-right",
-            autoClose: 3000,
-          });
-        }
-        prevCountRef.current = matchedRooms.length; // ✅ update ref
-      }
-    } else if (hotelRooms.length > 0) {
-      setBaseFilteredRooms(hotelRooms);
-      setFilteredRooms(hotelRooms);
-
-      if (prevCountRef.current !== hotelRooms.length) {
-        toast.success(`${hotelRooms.length} Room(s) Available`, {
-          position: "top-right",
-          autoClose: 3000,
-        });
-        prevCountRef.current = hotelRooms.length;
-      }
     } else {
-      if (prevCountRef.current !== 0) {
-        toast.error("No rooms are available", {
-          position: "top-right",
-          autoClose: 3000,
-        });
-        prevCountRef.current = 0;
-      }
+      toast.error("No rooms are available", {
+        position: "top-right",
+        autoClose: 3000,
+      });
     }
-  }, [hotelRooms, hotel.rooms]);
+  } else if (hotelRooms.length > 0) {
+    setBaseFilteredRooms(hotelRooms);
+    setFilteredRooms(hotelRooms);
+
+    toast.success(`${hotelRooms.length} Room(s) Available`, {
+      position: "top-right",
+      autoClose: 3000,
+    });
+  } else {
+    setBaseFilteredRooms([]);
+    setFilteredRooms([]);
+
+    toast.error("No rooms are available", {
+      position: "top-right",
+      autoClose: 3000,
+    });
+  }
+}, [hotelRooms.length, hotel.rooms.length]); // ✅ Runs only when counts change
 
 
-  // ✅ Search handler (manual filtering)
+  // ✅ Search handler (adults/children filter)
   const handleSearchRooms = ({ from, to, rooms, nights }) => {
     setCheckInDate(from);
     setCheckOutDate(to);
@@ -167,8 +147,8 @@ export default function HotelView() {
       if (available) matchedRooms.push(available);
     });
 
-    setBaseFilteredRooms(matchedRooms);
-    setFilteredRooms(matchedRooms);
+    setBaseFilteredRooms(matchedRooms); // ✅ store search results
+    setFilteredRooms(matchedRooms); // ✅ reset filtered rooms
 
     if (matchedRooms.length > 0) {
       toast.success(`${matchedRooms.length} room(s) available`, {
@@ -186,8 +166,9 @@ export default function HotelView() {
       return;
     }
 
-    let filtered = [...baseFilteredRooms]; 
+    let filtered = [...baseFilteredRooms]; // ✅ always start fresh
 
+    // Room type filter
     if (roomType) {
       filtered = filtered.filter((room) => {
         if (roomType === "Room Only") return !room.breakFast;
@@ -198,12 +179,14 @@ export default function HotelView() {
       });
     }
 
+    // Refundable filter
     if (refund) {
       filtered = filtered.filter((room) =>
         refund === "Refundable" ? room.refund === true : room.refund === false
       );
     }
 
+    // Free cancellation filter
     if (freeCancel) {
       filtered = filtered.filter((room) =>
         freeCancel === "Free Cancelation"
@@ -212,6 +195,7 @@ export default function HotelView() {
       );
     }
 
+    // Room name search
     if (roomName) {
       filtered = filtered.filter((room) =>
         room.title.toLowerCase().includes(roomName.toLowerCase())
@@ -247,7 +231,10 @@ export default function HotelView() {
         </div>
 
         <ImageViewer images={hotel.roomImages} />
-        <HotelTabs description={hotel.description} facility={hotel.facilities} />
+        <HotelTabs
+          description={hotel.description}
+          facility={hotel.facilities}
+        />
 
         <div style={{ marginTop: "20px" }}>
           <h2
@@ -260,6 +247,7 @@ export default function HotelView() {
             Room Choice
           </h2>
 
+          {/* ✅ Pass filter handler */}
           <HotelFilterBar onFilterChange={handleFilterChange} />
 
           {filteredRooms.length > 0 ? (
@@ -290,10 +278,11 @@ export default function HotelView() {
                 padding: "15px 5px 15px 5px",
               }}
             >
-              <p>
+              <p style={{padding:"5px 10px"}}>
                 😔 We’re sorry, no rooms are available based on your selected
                 criteria! Please try adjusting your dates, room type, or applied
-                filters to see more options, or consider selecting another hotel.
+                filters to see more options, or consider selecting another
+                hotel.
               </p>
             </div>
           )}

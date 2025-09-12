@@ -2,6 +2,7 @@ import "./globals.css";
 import GoogleTranslateLoader from "../app/components/GoogleTranslateLoader";
 import LanguageSwitcher from "../app/components/LanguageSwitcher";
 import {Jost} from "next/font/google";
+import { CurrencyProvider } from "../app/Context/CurrencyContext";
 
 const jost = Jost({
   subsets:['latin']
@@ -18,8 +19,9 @@ export default function RootLayout({ children }) {
       <body className={jost.className}>
         {/* Load hidden Google widget */}
         <GoogleTranslateLoader />
-
+        <CurrencyProvider>
         {children}
+        </CurrencyProvider>
       </body>
     </html>
   );
