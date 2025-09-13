@@ -16,6 +16,10 @@
   border-radius: 8px;
   overflow: hidden; /* ensures map corners follow rounded edges */
 }
+.map-mobile{
+  margin: 20px 10px -25px 10px;
+  display: none;
+}
 .nf-pro{
   width: 100%;
   /* background-color: red; */
@@ -328,6 +332,12 @@
 .nf-pro p{
   font-size: 16px;
   font-weight: 600;
+}
+@media (max-width: 450px){
+  .map-mobile{
+  
+  display: block;
+}
 }
 
 @media (max-width: 780px) {

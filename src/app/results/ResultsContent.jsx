@@ -164,6 +164,55 @@ export default function ResultsContent() {
         }
       />
 
+      <div className="map-mobile">
+        <div
+  className="map-loc"
+  style={{
+    position: "relative",
+    width: "100%",
+    height: "100px",
+    backgroundColor: "#f7f7f7ff",
+    margin: "0 0 20px 0",
+    borderRadius: "8px",
+    border: "1px solid #eaeaea",
+    overflow: "hidden",
+  }}
+>
+  {/* Overlay layer */}
+  <div
+    style={{
+      position: "absolute",
+      top: 0,
+      left: 0,
+      width: "100%",
+      height: "100%",
+      backgroundColor: "rgba(2, 2, 2, 0.6)", // semi-transparent
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+      borderRadius: "8px",
+    }}
+  >
+    {/* Centered button */}
+    <button
+      onClick={() => setShowMap(!showMap)}
+      style={{
+        padding: "10px 20px",
+        backgroundColor: "#007bffc9",
+        color: "#fff",
+        border: "none",
+        borderRadius: "50px",
+        cursor: "pointer",
+        fontWeight: "bold",
+      }}
+    >
+      {showMap ? "Go To Map" : "View List"}
+    </button>
+  </div>
+</div>
+
+      </div>
+
       
 
       {/* --- Top bar with results count + sort --- */}
@@ -178,7 +227,7 @@ export default function ResultsContent() {
         </p>
         <div
           className="set-fil"
-          style={{ display: "flex", gap: "7px", marginTop: "10px" }}
+          style={{ display: "flex", gap: "7px", marginTop: "0px" }}
         >
           <div
             className="btn-filter"
@@ -191,6 +240,7 @@ export default function ResultsContent() {
             }}
           >
             <div
+            
               style={{ display: "flex", justifyContent: "center" }}
               onClick={handlePopupToggle}
             >
