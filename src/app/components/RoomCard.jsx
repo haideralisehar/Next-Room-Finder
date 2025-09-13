@@ -223,6 +223,7 @@ export default function RoomCard({
             rating: rating,
             selroom: room.price,
             totalRooms: roomCount,
+            roomCost: finalValue,
           },
         }}
       >

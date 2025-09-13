@@ -8,12 +8,9 @@ import Footer from "../components/Footer";
 import { useSearchParams } from "next/navigation";
 import StarRating from "../components/rating";
 import { useBhdCurrency } from "../Context/BHDCurrency";
-import { useCurrency } from "../Context/CurrencyContext";
 
 export default function BookingPage() {
-  // const { Bhdcurrency, convertPrice } = useBhdCurrency();
-  const { currency, convertPrice } = useCurrency();
-
+  const { Bhdcurrency, convertPrice } = useBhdCurrency();
   const searchParams = useSearchParams();
   // Get data from query
   const hotel = {
@@ -36,6 +33,8 @@ export default function BookingPage() {
       ? JSON.parse(searchParams.get("rooms"))
       : [],
   };
+
+  
 
   // console.log("Hotel Data:", hotel);
 
@@ -381,10 +380,10 @@ export default function BookingPage() {
               </p>
               <div style={{ display: "flex", justifyContent: "space-between" }}>
                 <p>
-                  {convertPrice(hotel.roomCost)} {currency} per night
+                  {convertPrice(hotel.roomCost)} {Bhdcurrency} per night
                 </p>
                 <p style={{ fontWeight: "bold", color: "black" }}>
-                  {hotel.roomCost} {currency}
+                  {convertPrice(hotel.roomCost)} {Bhdcurrency}
                   {/* {hotel.roomprice}</p> */}{" "}
                 </p>
               </div>
@@ -395,7 +394,7 @@ export default function BookingPage() {
             <div className={styles.totalBox}>
               <h5>Total Cal.</h5>
               <p>
-                {convertPrice(hotel.roomCost)} {currency} / Night x{" "}
+                {convertPrice(hotel.roomCost)} {Bhdcurrency} / Night x{" "}
                 {hotel.totalRooms} Room(s) x {hotel.nights} Night(s)
               </p>
             </div>
@@ -403,8 +402,10 @@ export default function BookingPage() {
               Total Amount
               <h4>
                 {" "}
-                {convertPrice(hotel.roomCost * hotel.nights * hotel.totalRooms)}
-                {currency}
+                {convertPrice(
+                  (hotel.roomCost * hotel.nights * hotel.totalRooms).toFixed(2)
+                )}{" "}
+                {Bhdcurrency}
               </h4>
             </div>
           </div>

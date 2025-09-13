@@ -13,7 +13,7 @@ const conversionRates = {
 const CurrencyContext = createContext();
 
 export function CurrencyProvider({ children }) {
-  const [currency, setCurrency] = useState("USD"); // ✅ Default: BHD
+  const [currency, setCurrency] = useState("BHD"); // ✅ Default: BHD
 
   // ✅ Load currency from localStorage when app starts
   useEffect(() => {
