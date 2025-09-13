@@ -3,7 +3,10 @@ import React, { useState } from "react";
 import dynamic from "next/dynamic";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
-import "./Map.css"
+import "./Map.css";
+import { IoLocationOutline } from "react-icons/io5";
+import { useCurrency } from "../Context/CurrencyContext";
+import Link from "next/link";
 
 // ✅ Dynamically import Map components (SSR disabled)
 const MapContainer = dynamic(
@@ -18,34 +21,9 @@ const Marker = dynamic(
   () => import("react-leaflet").then((mod) => mod.Marker),
   { ssr: false }
 );
-const Popup = dynamic(
-  () => import("react-leaflet").then((mod) => mod.Popup),
-  { ssr: false }
-);
-
-const sampleLocations = [
-  {
-    id: 1,
-    name: "Manama",
-    position: [26.2708, 50.6261],
-    price: "0 BHD",
-    image: "https://images.pexels.com/photos/1268855/pexels-photo-1268855.jpeg",
-  },
-  {
-    id: 2,
-    name: "Muharraq",
-    position: [16.2708, 50.6261],
-    price: "65 BHD",
-    image: "https://via.placeholder.com/200x120.png?text=Muharraq+Resort",
-  },
-  {
-    id: 3,
-    name: "Riffa",
-    position: [26.1292, 50.555],
-    price: "40 BHD",
-    image: "https://via.placeholder.com/200x120.png?text=Riffa+Inn",
-  },
-];
+const Popup = dynamic(() => import("react-leaflet").then((mod) => mod.Popup), {
+  ssr: false,
+});
 
 // ✅ Custom DivIcon with price
 const createPriceIcon = (price) =>
@@ -66,11 +44,26 @@ const createPriceIcon = (price) =>
     popupAnchor: [0, -20],
   });
 
-export default function MapWithPrices() {
+export default function MapWithPrices({
+  hotels = [],
+  from,
+  to,
+  nights,
+  rooms,
+}) {
   const [showMap, setShowMap] = useState(true);
+  const { currency, convertPrice } = useCurrency();
 
   return (
-    <div style={{ textAlign: "center" , width:"100%", height:"100%", borderRadius:"6px", margin:"0px auto" }}>
+    <div
+      style={{
+        textAlign: "center",
+        width: "100%",
+        height: "100%",
+        borderRadius: "6px",
+        margin: "0px auto",
+      }}
+    >
       {/* Toggle Map */}
       {/* <button
         onClick={() => setShowMap(!showMap)}
@@ -89,51 +82,75 @@ export default function MapWithPrices() {
       </button> */}
 
       {showMap && (
-        <div style={{ borderRadius:"6px", height:"100%" }}>
+        <div style={{ borderRadius: "6px", height: "100%" }}>
           <MapContainer
             center={[26.2285, 50.586]}
-            zoom={11}
-            style={{ height: "500px", width: "100%" }}
+            zoom={3}
+            style={{ height: "90vh", width: "100%" }}
           >
             <TileLayer
               attribution='&copy; <a href="https://osm.org/">OpenStreetMap</a>'
               url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
             />
 
-            {sampleLocations.map((loc) => (
+            {hotels.map((hotel) => (
               <Marker
-                key={loc.id}
-                position={loc.position}
-                icon={createPriceIcon(loc.price)}
+                key={hotel.id}
+                position={hotel.position}
+                icon={createPriceIcon(hotel.price)}
               >
                 <Popup>
-                  <div style={{  width:"250px" }}>
+                  <div className="popup-card">
                     <img
-                      src={loc.image}
-                      alt={loc.name}
-                      style={{
-                        width: "100%",
-                        borderRadius: "8px",
-                        marginBottom: "8px",
-                      }}
+                      src={hotel.image}
+                      alt={hotel.name}
+                      className="popup-image"
                     />
-                    <p>The marque hotel with pleasent things that can looking beautiful and emergin.</p>
-                    <h4>{loc.name}</h4>
-                    <p style={{ fontWeight: "bold" }}>{loc.price}</p>
-                    <button
-                      style={{
-                        padding: "8px 16px",
-                        borderRadius: "6px",
-                        backgroundColor: "#28a745",
-                        color: "#fff",
-                        border: "none",
-                        cursor: "pointer",
-                        fontFamily:"Jost"
-                      }}
-                      onClick={() => alert(`Booking ${loc.name}...`)}
+                    <h4 className="popup-title">{hotel.name}</h4>
+                    <div
+                      className="m-xtx-set"
+                      style={{ display: "flex", margin: "0px 0px 0px 6px" }}
                     >
-                      Book Now
-                    </button>
+                      <IoLocationOutline style={{ fontSize: "14px" }} />
+                      <p className="location">{hotel.location}</p>
+                    </div>
+                    {/* <p className="popup-para">{hotel.location}</p> */}
+                    <div
+                      className="popup-footer"
+                      style={{ padding: "3px 10px" }}
+                    >
+                      <p className="popup-price">
+                        {convertPrice(hotel.price)} {currency}
+                      </p>
+                      <Link
+                        key={hotel.id}
+                        href={{
+                          pathname: "/hotel-view",
+                          query: {
+                            id: hotel.id,
+                            name: hotel.name,
+                            location: hotel.location,
+                            price: hotel.price,
+                            image: hotel.image,
+                            from: from,
+                            to: to,
+                            rooms: JSON.stringify(rooms),
+                            count: rooms.length,
+                            nights: nights,
+                            rating: hotel.rating,
+                            description: hotel.description,
+                            facility: JSON.stringify(hotel.facilities),
+                            roomImages: JSON.stringify(hotel.roomImages),
+                            hotelRooms: JSON.stringify(hotel.rooms),
+                            roomPhotos: JSON.stringify(hotel.roomImages),
+                          },
+                        }}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
+                        <button className="popup-button">Book Now</button>
+                      </Link>
+                    </div>
                   </div>
                 </Popup>
               </Marker>

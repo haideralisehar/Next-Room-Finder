@@ -1,7 +1,92 @@
-.leaflet-container {
-  width: 50%;
-  height: 100%;
+.popup-card h4,
+.popup-card p {
+  margin: 0;   /* ✅ removes unwanted vertical gaps */
+  padding: 0px;
 }
+.popup-card h4{
+  padding: 10px 8px 5px 8px;
+
+}
+.popup-card p{
+  padding: -3px 8px 5px 4px;
+}
+
+/* Popup card container */
+.popup-card {
+  width: 270px;
+  font-family: Jost, sans-serif;
+  background: #fff;
+  padding:8px;
+  border-radius: 10px;
+}
+
+/* Fix Leaflet default popup padding */
+.leaflet-popup-content {
+  margin: 0 !important;
+}
+
+.leaflet-popup-content-wrapper {
+  padding: 0 !important;
+  border-radius: 10px;
+}
+
+/* Image */
+.popup-image {
+  width: 100%;
+  height: 120px;
+  object-fit: cover;
+  display: block;
+  border-radius: 8px;
+}
+
+/* Title */
+.popup-title {
+  font-size: 13px;
+  font-weight: 600;
+  padding: 10px 5px 8px 8px;
+  margin: 6px 8px 2px 8px;
+  text-align: left;
+}
+
+.popup-para{
+  font-size: 11px;
+  color: rgb(160, 160, 160);
+}
+/* Footer */
+.popup-footer {
+  margin-top: 10px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center; /* ✅ keeps button and price aligned */
+  /* padding: 0px 8px 8px 8px; */
+}
+
+/* Price */
+.popup-price {
+  font-weight: bold;
+  font-size: 14px;
+  color: #010101;
+  margin: 0;
+}
+
+/* Button */
+.popup-button {
+  background-color: #ea4e2e;
+  color: #fff;
+  padding: 8px 12px;
+  border-radius: 20px;
+  font-size: 13px;
+  line-height: 1; /* ✅ prevents stretching */
+  border: none;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.2s ease-in-out;
+}
+
+.popup-button:hover {
+  background-color: #ec4321;
+}
+
 
 @media (max-width:590px){
   .leaflet-container {

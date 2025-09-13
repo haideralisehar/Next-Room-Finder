@@ -2,6 +2,7 @@ export const hotelsData = {
   Bahrain: [
     {
       id: 1,
+      position: [26.2708, 50.6261],
       name: "Islamabad Serena Hotel",
       location: "Khaliq Uz Zaman Road, Islamabad",
       price: 120,
@@ -70,6 +71,7 @@ export const hotelsData = {
     },
     {
       id: 2,
+      position: [16.2708, 50.6261],
       name: "Marriott Hotel, Islamabad",
       location: "Agha Khan Road, Islamabad",
       price: 90,
@@ -140,6 +142,7 @@ export const hotelsData = {
   Dubai: [
     {
       id: 1,
+      position: [26.1292, 50.555],
       name: "Pearl Continental Lahore",
       location: "Shahrah-e-Quaid-e-Azam, Lahore",
       price: 150,
@@ -227,6 +230,7 @@ export const hotelsData = {
 
     {
       id: 2,
+      position: [28.1292, 52.555],
       name: "Pearl Continental Lahore",
       location: "Shahrah-e-Quaid-e-Azam, Lahore",
       price: 150.99,

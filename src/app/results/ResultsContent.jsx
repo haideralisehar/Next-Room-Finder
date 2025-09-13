@@ -166,54 +166,51 @@ export default function ResultsContent() {
 
       <div className="map-mobile">
         <div
-  className="map-loc"
-  style={{
-    position: "relative",
-    width: "100%",
-    height: "100px",
-    backgroundColor: "#f7f7f7ff",
-    margin: "0 0 20px 0",
-    borderRadius: "8px",
-    border: "1px solid #eaeaea",
-    overflow: "hidden",
-  }}
->
-  {/* Overlay layer */}
-  <div
-    style={{
-      position: "absolute",
-      top: 0,
-      left: 0,
-      width: "100%",
-      height: "100%",
-      backgroundColor: "rgba(2, 2, 2, 0.6)", // semi-transparent
-      display: "flex",
-      alignItems: "center",
-      justifyContent: "center",
-      borderRadius: "8px",
-    }}
-  >
-    {/* Centered button */}
-    <button
-      onClick={() => setShowMap(!showMap)}
-      style={{
-        padding: "10px 20px",
-        backgroundColor: "#007bffc9",
-        color: "#fff",
-        border: "none",
-        borderRadius: "50px",
-        cursor: "pointer",
-        fontWeight: "bold",
-      }}
-    >
-      {showMap ? "Go To Map" : "View List"}
-    </button>
-  </div>
-</div>
-
+          className="map-loc"
+          style={{
+            position: "relative",
+            width: "100%",
+            height: "120px",
+            backgroundColor: "#f7f7f7ff",
+            margin: "0 0 20px 0",
+            borderRadius: "8px",
+            border: "1px solid #eaeaea",
+            overflow: "hidden",
+          }}
+        >
+          {/* Overlay layer */}
+          <div
+            style={{
+              position: "absolute",
+              top: 0,
+              left: 0,
+              width: "100%",
+              height: "100%",
+              backgroundColor: "rgba(63, 169, 222, 0.24)", // semi-transparent
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              borderRadius: "8px",
+            }}
+          >
+            {/* Centered button */}
+            <button
+              onClick={() => setShowMap(!showMap)}
+              style={{
+                padding: "10px 20px",
+                backgroundColor: "#007bffc9",
+                color: "#fff",
+                border: "none",
+                borderRadius: "50px",
+                cursor: "pointer",
+                fontWeight: "bold",
+              }}
+            >
+              {showMap ? "Go To Map" : "View List"}
+            </button>
+          </div>
+        </div>
       </div>
-
-      
 
       {/* --- Top bar with results count + sort --- */}
       <div className="nf-pro">
@@ -240,7 +237,6 @@ export default function ResultsContent() {
             }}
           >
             <div
-            
               style={{ display: "flex", justifyContent: "center" }}
               onClick={handlePopupToggle}
             >
@@ -313,8 +309,8 @@ export default function ResultsContent() {
           <>
             {/* Filters Sidebar */}
             <Filters
-            setShowMap={setShowMap}
-            showMap={showMap}
+              setShowMap={setShowMap}
+              showMap={showMap}
               filters={filters}
               setFilters={setFilters}
               clearFilters={clearFilters}
@@ -323,120 +319,123 @@ export default function ResultsContent() {
             {/* Hotel Results */}
 
             {showMap && (
-            <main className="hotel-results">
-              <div className="hotel-list">
-                {filteredResults.length === 0 ? (
-                  <p
-                    style={{
-                      fontSize: "16px",
-                      color: "gray",
-                      textAlign: "center",
-                      padding: "20px",
-                    }}
-                  >
-                    No properties found for "{destination}". Try adjusting
-                    filters or search for another place.
-                  </p>
-                ) : (
-                  filteredResults.map((hotel) => (
-                    <Link
-                      key={hotel.id}
-                      href={{
-                        pathname: "/hotel-view",
-                        query: {
-                          id: hotel.id,
-                          name: hotel.name,
-                          location: hotel.location,
-                          price: hotel.price,
-                          image: hotel.image,
-                          from: from,
-                          to: to,
-                          rooms: JSON.stringify(rooms),
-                          count: rooms.length,
-                          nights: nights,
-                          rating: hotel.rating,
-                          description: hotel.description,
-                          facility: JSON.stringify(hotel.facilities),
-                          roomImages: JSON.stringify(hotel.roomImages),
-                          hotelRooms: JSON.stringify(hotel.rooms),
-                          roomPhotos: JSON.stringify(hotel.roomImages),
-                        },
+              <main className="hotel-results">
+                <div className="hotel-list">
+                  {filteredResults.length === 0 ? (
+                    <p
+                      style={{
+                        fontSize: "16px",
+                        color: "gray",
+                        textAlign: "center",
+                        padding: "20px",
                       }}
-                      target="_blank"
-                      rel="noopener noreferrer"
                     >
-                      <div className="hotel-card">
-                        {/* Left: Image */}
-                        <div className="hotel-img-wrapper">
-                          <img
-                            src={hotel.image}
-                            alt={hotel.name}
-                            className="hotel-img"
-                          />
-                          <div className="favorite-icon">❤</div>
-                        </div>
-
-                        {/* Right: Details */}
-                        <div className="hotel-details">
-                          <div className="hotel-header">
-                            <StarRating rating={hotel.rating} />
-                            <h3>{hotel.name}</h3>
+                      No properties found for "{destination}". Try adjusting
+                      filters or search for another place.
+                    </p>
+                  ) : (
+                    filteredResults.map((hotel) => (
+                      <Link
+                        key={hotel.id}
+                        href={{
+                          pathname: "/hotel-view",
+                          query: {
+                            id: hotel.id,
+                            name: hotel.name,
+                            location: hotel.location,
+                            price: hotel.price,
+                            image: hotel.image,
+                            from: from,
+                            to: to,
+                            rooms: JSON.stringify(rooms),
+                            count: rooms.length,
+                            nights: nights,
+                            rating: hotel.rating,
+                            description: hotel.description,
+                            facility: JSON.stringify(hotel.facilities),
+                            roomImages: JSON.stringify(hotel.roomImages),
+                            hotelRooms: JSON.stringify(hotel.rooms),
+                            roomPhotos: JSON.stringify(hotel.roomImages),
+                          },
+                        }}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
+                        <div className="hotel-card">
+                          {/* Left: Image */}
+                          <div className="hotel-img-wrapper">
+                            <img
+                              src={hotel.image}
+                              alt={hotel.name}
+                              className="hotel-img"
+                            />
+                            <div className="favorite-icon">❤</div>
                           </div>
 
-                          <div
-                            className="m-xtx-set"
-                            style={{ display: "flex" }}
-                          >
-                            <IoLocationOutline />
-                            <p className="location">{hotel.location}</p>
-                          </div>
-
-                          <p className="breakfast">🥗 Breakfast included</p>
-                          <p
-                            style={{
-                              fontSize: "14px",
-                              color: "red",
-                              paddingBottom: "10px",
-                            }}
-                          >
-                            🚫 Non-Refundable
-                          </p>
-
-                          <div className="hotel-footer">
-                            <div className="rating">
-                              <span className="rating-badge">
-                                {hotel.rating}
-                              </span>
-                              <span>
-                                {hotel.rating >= 3 ? "Very Good" : "Good"}
-                              </span>
+                          {/* Right: Details */}
+                          <div className="hotel-details">
+                            <div className="hotel-header">
+                              <StarRating rating={hotel.rating} />
+                              <h3>{hotel.name}</h3>
                             </div>
 
-                            <div className="price-info">
-                              <p className="price">
-                                {convertPrice(hotel.price)} {currency}
-                                
+                            <div
+                              className="m-xtx-set"
+                              style={{ display: "flex" }}
+                            >
+                              <IoLocationOutline />
+                              <p className="location">{hotel.location}</p>
+                            </div>
+
+                            <p className="breakfast">🥗 Breakfast included</p>
+                            <p
+                              style={{
+                                fontSize: "14px",
+                                color: "red",
+                                paddingBottom: "10px",
+                              }}
+                            >
+                              🚫 Non-Refundable
+                            </p>
+
+                            <div className="hotel-footer">
+                              <div className="rating">
+                                <span className="rating-badge">
+                                  {hotel.rating}
+                                </span>
+                                <span>
+                                  {hotel.rating >= 3 ? "Very Good" : "Good"}
+                                </span>
+                              </div>
+
+                              <div className="price-info">
+                                <p className="price">
+                                  {convertPrice(hotel.price)} {currency}
                                 </p>
-                              <p className="price-sub">
-                                {rooms.length} room(s) <br /> {nights} night(s)
-                                incl. taxes
-                              </p>
+                                <p className="price-sub">
+                                  {rooms.length} room(s) <br /> {nights}{" "}
+                                  night(s) incl. taxes
+                                </p>
+                              </div>
                             </div>
                           </div>
                         </div>
-                      </div>
-                    </Link>
-                  ))
-                )}
-              </div>
-            </main>
+                      </Link>
+                    ))
+                  )}
+                </div>
+              </main>
             )}
 
-            {!showMap &&(
-              
+            {!showMap && (
               <div className="map-con">
-                <MapWithPrices />
-
+                <MapWithPrices
+                  hotels={filteredResults}
+                  from={from}
+                  to={to}
+                  nights={nights}
+                  rooms={rooms}
+                />
               </div>
             )}
           </>

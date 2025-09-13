@@ -5,6 +5,7 @@ import "rc-slider/assets/index.css";
 import "../results/ResultsPage.css"; // if styles are defined there
 import "../styling/filter.css"
 
+
 export default function Filters({ filters, setFilters, clearFilters, showMap, setShowMap }) {
   
   return (
@@ -15,7 +16,7 @@ export default function Filters({ filters, setFilters, clearFilters, showMap, se
   style={{
     position: "relative",
     width: "100%",
-    height: "100px",
+    height: "120px",
     backgroundColor: "#f7f7f7ff",
     margin: "0 0 20px 0",
     borderRadius: "8px",
@@ -31,7 +32,7 @@ export default function Filters({ filters, setFilters, clearFilters, showMap, se
       left: 0,
       width: "100%",
       height: "100%",
-      backgroundColor: "rgba(63, 169, 222, 0.37)", // semi-transparent
+      backgroundColor: "rgba(63, 169, 222, 0.24)", // semi-transparent
       display: "flex",
       alignItems: "center",
       justifyContent: "center",
