@@ -8,9 +8,12 @@ import Footer from "../components/Footer";
 import { useSearchParams } from "next/navigation";
 import StarRating from "../components/rating";
 import { useBhdCurrency } from "../Context/BHDCurrency";
+import { useCurrency } from "../Context/CurrencyContext";
 
 export default function BookingPage() {
-  const { Bhdcurrency, convertPrice } = useBhdCurrency();
+  // const { Bhdcurrency, convertPrice } = useBhdCurrency();
+  const { currency, convertPrice } = useCurrency();
+
   const searchParams = useSearchParams();
   // Get data from query
   const hotel = {
@@ -378,10 +381,10 @@ export default function BookingPage() {
               </p>
               <div style={{ display: "flex", justifyContent: "space-between" }}>
                 <p>
-                  {convertPrice(hotel.roomCost)} {Bhdcurrency} per night
+                  {convertPrice(hotel.roomCost)} {currency} per night
                 </p>
                 <p style={{ fontWeight: "bold", color: "black" }}>
-                  {convertPrice(hotel.roomCost)} {Bhdcurrency}
+                  {hotel.roomCost} {currency}
                   {/* {hotel.roomprice}</p> */}{" "}
                 </p>
               </div>
@@ -392,7 +395,7 @@ export default function BookingPage() {
             <div className={styles.totalBox}>
               <h5>Total Cal.</h5>
               <p>
-                {convertPrice(hotel.roomCost)} {Bhdcurrency} / Night x{" "}
+                {convertPrice(hotel.roomCost)} {currency} / Night x{" "}
                 {hotel.totalRooms} Room(s) x {hotel.nights} Night(s)
               </p>
             </div>
@@ -400,10 +403,8 @@ export default function BookingPage() {
               Total Amount
               <h4>
                 {" "}
-                {convertPrice(
-                  (hotel.roomCost * hotel.nights * hotel.totalRooms).toFixed(2)
-                )}{" "}
-                {Bhdcurrency}
+                {convertPrice(hotel.roomCost * hotel.nights * hotel.totalRooms)}
+                {currency}
               </h4>
             </div>
           </div>
