@@ -26,20 +26,21 @@ const Popup = dynamic(() => import("react-leaflet").then((mod) => mod.Popup), {
 });
 
 // ✅ Custom DivIcon with price
-const createPriceIcon = (price) =>
+const createPriceIcon = (price, currency) =>
   L.divIcon({
     className: "custom-price-marker",
     html: `<div style="
       background:#007bff;
       font-family:Jost;
       color:#fff;
-      padding:4px 8px;
+      padding:5px 3px;
       border-radius: 12px;
       font-size: 6px;
       font-weight:600;
-      white-space:nowrap;
+      width:50px;
+      
       box-shadow:0 2px 6px rgba(0,0,0,0.2);
-    ">${price}</div>`,
+    ">${price} ${currency}</div>`,
     iconSize: [40, 20],
     iconAnchor: [20, 20],
     popupAnchor: [0, -20],
@@ -65,13 +66,11 @@ export default function MapWithPrices({
         margin: "0px auto",
       }}
     >
-
-
       {showMap && (
         <div style={{ borderRadius: "6px", height: "100%" }}>
           <MapContainer
             center={[26.2285, 50.586]}
-            zoom={3}
+            zoom={5}
             style={{ height: "90vh", width: "100%" }}
           >
             <TileLayer
@@ -83,7 +82,7 @@ export default function MapWithPrices({
               <Marker
                 key={hotel.id}
                 position={hotel.position}
-                icon={createPriceIcon(hotel.price)}
+                icon={createPriceIcon(convertPrice(hotel.price), currency)}
               >
                 <Popup>
                   <div className="popup-card">
