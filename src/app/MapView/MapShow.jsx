@@ -31,10 +31,11 @@ const createPriceIcon = (price) =>
     className: "custom-price-marker",
     html: `<div style="
       background:#007bff;
+      font-family:Jost;
       color:#fff;
       padding:4px 8px;
       border-radius: 12px;
-      font-size: 7px;
+      font-size: 6px;
       font-weight:600;
       white-space:nowrap;
       box-shadow:0 2px 6px rgba(0,0,0,0.2);
@@ -64,22 +65,7 @@ export default function MapWithPrices({
         margin: "0px auto",
       }}
     >
-      {/* Toggle Map */}
-      {/* <button
-        onClick={() => setShowMap(!showMap)}
-        style={{
-          padding: "10px 20px",
-          fontSize: "10px",
-          borderRadius: "8px",
-          fontWeight:"normal",
-          cursor: "pointer",
-          backgroundColor: "#007bff",
-          color: "#fff",
-          border: "none",
-        }}
-      >
-        {showMap ? "Hide Map" : "Show Map of Bahrain"}
-      </button> */}
+
 
       {showMap && (
         <div style={{ borderRadius: "6px", height: "100%" }}>

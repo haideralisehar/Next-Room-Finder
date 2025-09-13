@@ -32,7 +32,7 @@ export default function Filters({ filters, setFilters, clearFilters, showMap, se
       left: 0,
       width: "100%",
       height: "100%",
-      backgroundColor: "rgba(63, 169, 222, 0.24)", // semi-transparent
+      backgroundColor: "rgba(75, 160, 203, 0.24)", // semi-transparent
       display: "flex",
       alignItems: "center",
       justifyContent: "center",
@@ -44,7 +44,7 @@ export default function Filters({ filters, setFilters, clearFilters, showMap, se
       onClick={() => setShowMap(!showMap)}
       style={{
         padding: "10px 20px",
-        backgroundColor: "#007bffc9",
+        backgroundColor: "#007bffff",
         color: "#fff",
         border: "none",
         borderRadius: "50px",

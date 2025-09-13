@@ -71,7 +71,7 @@ export const hotelsData = {
     },
     {
       id: 2,
-      position: [16.2708, 50.6261],
+      position: [19.2708, 50.6261],
       name: "Marriott Hotel, Islamabad",
       location: "Agha Khan Road, Islamabad",
       price: 90,

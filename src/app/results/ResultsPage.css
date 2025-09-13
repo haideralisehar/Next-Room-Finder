@@ -10,7 +10,7 @@
   
 }
 .map-con {
-  width: 75%;
+  width: 74%;
   height: 500px; /* or 100vh if you want fullscreen */
   position: relative;
   border-radius: 8px;
@@ -25,8 +25,12 @@
   /* background-color: red; */
   padding: 20px 100px 0px 100px;
 }
-.nf-pro p{
-  font-size: 20px;
+.nf-pro .desti-count{
+ 
+  padding-bottom: 10px;
+}
+.desti-count{
+  font-size: 16px;
   font-weight: 600;
 }
 
@@ -280,6 +284,7 @@
   font-weight: 600;
 }
 
+
   .hotel-img {
     width: 100vw;
     height: 200px;
@@ -327,6 +332,10 @@
 }
 .btn-filter{
   display: block;
+}
+.map-con {
+  width: 100%;
+ 
 }
 
 .nf-pro p{

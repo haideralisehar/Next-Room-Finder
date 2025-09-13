@@ -170,7 +170,7 @@ export default function ResultsContent() {
           style={{
             position: "relative",
             width: "100%",
-            height: "120px",
+            height: "130px",
             backgroundColor: "#f7f7f7ff",
             margin: "0 0 20px 0",
             borderRadius: "8px",
@@ -186,7 +186,7 @@ export default function ResultsContent() {
               left: 0,
               width: "100%",
               height: "100%",
-              backgroundColor: "rgba(63, 169, 222, 0.24)", // semi-transparent
+              backgroundColor: "rgba(44, 161, 220, 0.24)", // semi-transparent
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
@@ -198,7 +198,7 @@ export default function ResultsContent() {
               onClick={() => setShowMap(!showMap)}
               style={{
                 padding: "10px 20px",
-                backgroundColor: "#007bffc9",
+                backgroundColor: "#007bffff",
                 color: "#fff",
                 border: "none",
                 borderRadius: "50px",
@@ -214,7 +214,7 @@ export default function ResultsContent() {
 
       {/* --- Top bar with results count + sort --- */}
       <div className="nf-pro">
-        <p>
+        <p className="desti-count">
           {filteredResults.length === 0
             ? "No Hotel Available"
             : `${filteredResults.length} properties in ${destination}`}
