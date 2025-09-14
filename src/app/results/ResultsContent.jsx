@@ -35,6 +35,7 @@ export default function ResultsContent() {
   const [facilities, setFacility] = useState([]);
   const handlePopupToggle = () => setShowPopup(!showPopup);
   const [showMap, setShowMap] = useState(true); // map show
+  
 
   // ✅ Filters state
   const [filters, setFilters] = useState({

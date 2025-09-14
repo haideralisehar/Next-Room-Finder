@@ -34,11 +34,11 @@ const createPriceIcon = (price, currency) =>
       font-family:Jost;
       color:#fff;
       padding:5px 3px;
-      border-radius: 12px;
-      font-size: 6px;
+      border-radius: 50px;
+      font-size: 12px;
       font-weight:600;
-      width:50px;
-      
+      width:100px;
+      height:28px;
       box-shadow:0 2px 6px rgba(0,0,0,0.2);
     ">${price} ${currency}</div>`,
     iconSize: [40, 20],
@@ -70,7 +70,7 @@ export default function MapWithPrices({
         <div style={{ borderRadius: "6px", height: "100%" }}>
           <MapContainer
             center={[26.2285, 50.586]}
-            zoom={5}
+            zoom={3}
             style={{ height: "90vh", width: "100%" }}
           >
             <TileLayer

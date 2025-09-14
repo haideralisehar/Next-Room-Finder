@@ -4,6 +4,7 @@ import Slider from "rc-slider";
 import "rc-slider/assets/index.css";
 import "../results/ResultsPage.css"; // if styles are defined there
 import "../styling/filter.css";
+import { useCurrency } from "../Context/CurrencyContext";
 
 export default function Filters({
   filters,
@@ -12,6 +13,7 @@ export default function Filters({
   showMap,
   setShowMap,
 }) {
+  const { currency, convertPrice } = useCurrency();
   return (
     <aside className="filters">
       <p style={{ fontWeight: "bold", textAlign: "left", padding: "10px 0px" }}>
@@ -108,7 +110,7 @@ export default function Filters({
 
       {/* Price Range Filter */}
       <div className="filter-group">
-        <p>Price Range ($)</p>
+        <p>Price Range ({currency})</p>
         <Slider
           range
           min={0}
@@ -118,7 +120,7 @@ export default function Filters({
           onChange={(value) => setFilters({ ...filters, priceRange: value })}
         />
         <p>
-          ${filters.priceRange[0]} – ${filters.priceRange[1]}
+          ({currency}){filters.priceRange[0]} – ({currency}){filters.priceRange[1]}
         </p>
       </div>
     </aside>
