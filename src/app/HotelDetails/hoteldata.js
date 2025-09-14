@@ -286,7 +286,7 @@ export const hotelsData = {
         {
           id: 303,
           title: "Standard Single Bed, Only Single",
-          fitForAdults: 1,
+          fitForAdults: 4,
           fitForChildren: 0,
           price: 50.98,
           breakFast:true,
@@ -307,7 +307,7 @@ export const hotelsData = {
         {
           id: 304,
           title: "Presidential Suite Double Only",
-          fitForAdults: 2,
+          fitForAdults: 4,
           fitForChildren: 0,
           price: 13.98,
           breakFast:false,
