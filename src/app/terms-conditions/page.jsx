@@ -1,9 +1,19 @@
-import React from "react";
+"use client";
+import React, { useState, useRef, useEffect } from "react";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
 import "../terms-conditions/terms.css"
 
 export default function TermsAndConditions() {
+   const [lange, setLange] = useState("");
+  
+    useEffect(() => {
+      // Load saved language from localStorage
+      const saved = localStorage.getItem("preferred_lang");
+      if (saved) setLange(saved);
+      
+      
+    }, []);
   
   return (
     <div>
@@ -18,6 +28,7 @@ export default function TermsAndConditions() {
         //   border: "1px solid silver",
         // }}
       >
+        
         <h3
           style={{
             textAlign: "center",
@@ -210,7 +221,18 @@ export default function TermsAndConditions() {
               Some bookings may be non-refundable, or cancellation fees may apply.
             </li>
             <li style={{ marginBottom: "8px", lineHeight: "1.6" }}>
+              {lange === "en" && (
+              <div translate="no">
               Users should review the cancellation policy of each booking before confirming.
+              </div>
+              )}
+
+              {lange === "ar" && (
+              <div translate="no">
+              يُرجى من المستخدمين مراجعة سياسة الإلغاء لكل حجز قبل تأكيده
+              </div>
+              )}
+            
             </li>
             
           </ul>
@@ -224,6 +246,15 @@ export default function TermsAndConditions() {
           Our terms and conditions are available on our website. The customer
           acknowledges that they have read them and accept to adhere to them.
         </p>
+        
+
+         
+
+
+
+          
+
+
       </div>
 
       <Footer />
