@@ -4,6 +4,7 @@ import Footer from "../components/Footer";
 import "../terms-conditions/terms.css"
 
 export default function TermsAndConditions() {
+  
   return (
     <div>
       <Header />
@@ -187,6 +188,33 @@ export default function TermsAndConditions() {
           the booking at the correct prices, cancel the booking, or provide a
           suitable alternative hotel based on availability.
         </p>
+        
+        <hr style={{ color: "#ccc" }} />
+
+        <h1 style={{ padding: "20px 0px 10px 0px", fontWeight: "bold" }}>
+          Cancellation and Refunds
+        </h1>
+        <div
+          className="lst-txt"
+          style={{
+            padding: "10px 0px",
+            fontSize: "16px",
+            color: "rgb(18, 18, 18)",
+          }}
+        >
+          <ul style={{ listStyleType: "disc", paddingLeft: "20px" }}>
+            <li style={{ marginBottom: "8px", lineHeight: "1.6" }}>
+              Cancellation policies are subject to the hotel’s specific cancellation terms.
+            </li>
+            <li style={{ marginBottom: "8px", lineHeight: "1.6" }}>
+              Some bookings may be non-refundable, or cancellation fees may apply.
+            </li>
+            <li style={{ marginBottom: "8px", lineHeight: "1.6" }}>
+              Users should review the cancellation policy of each booking before confirming.
+            </li>
+            
+          </ul>
+        </div>
         <hr style={{ color: "#ccc" }} />
 
         <h1 style={{ padding: "20px 0px 10px 0px", fontWeight: "bold" }}>
