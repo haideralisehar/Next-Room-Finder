@@ -17,10 +17,31 @@ export default function RoomCard({
   count,
   nights,
   rating,
+  onChooseRoom,
+  isSelected,
+  selectedRoom,
+  selectedRooms,
+  isTaken,
 }) {
   // ✅ Use room.roomPhotos if available, otherwise fallback images
+
   const { currency, convertPrice } = useCurrency(); // ✅ get currency + converter
   const [currents, setCurrents] = useState(0);
+  const [showPopup, setShowPopup] = useState(false);
+  // const handlePopupToggle = () => setShowPopup(!showPopup);
+
+  const handleChooseRoom = () => {
+    onChooseRoom(room); // your existing function to select the room
+
+    // Check if all rooms are selected, then show popup
+    if (
+      selectedRoom.length + 1 === selectedRooms.length && // +1 because we're just selecting this room
+      selectedRoom.every(Boolean)
+    ) {
+      setShowPopup(true);
+    }
+  };
+
   const images =
     room.roomPhotos && room.roomPhotos.length > 0
       ? room.roomPhotos
@@ -42,7 +63,7 @@ export default function RoomCard({
 
   const priceValue = (room.price * room.off) / 100;
   const finalValue = (room.price - priceValue).toFixed(2);
-
+  console.log(selectedRoom);
   return (
     <div className="room-card">
       {/* Left container */}
@@ -177,7 +198,7 @@ export default function RoomCard({
           <p>No rooms selected</p>
         )}
       </div> */}
-          <Link
+          {/* <Link
             href={{
               pathname: "/booking",
               query: {
@@ -199,12 +220,23 @@ export default function RoomCard({
                 roomCost: finalValue,
               },
             }}
+          > */}
+
+          <button
+            className="choose-btn"
+            disabled={isTaken}
+            onClick={!isTaken ? onChooseRoom : undefined}
+            style={{
+              backgroundColor: isTaken? "green" : isSelected ? "green" : "#3c7dabff",
+              cursor: isTaken ? "not-allowed" : "pointer",
+            }}
           >
-            <button className="choose-btn">Choose Room</button>
-          </Link>
+            {isTaken ? "Selected" : isSelected ? "selected" : "Choose"}
+          </button>
+          {/* </Link> */}
         </div>
       </div>
-      <Link
+      {/* <Link
         href={{
           pathname: "/booking",
           query: {
@@ -226,9 +258,21 @@ export default function RoomCard({
             roomCost: finalValue,
           },
         }}
+      > */}
+      <button
+        className="choose-btn-mob"
+        disabled={isTaken}
+        onClick={!isTaken ? onChooseRoom : undefined}
+        style={{
+          backgroundColor: isTaken && isSelected ? "#ccc" : "#3c7dabff",
+          cursor: isTaken ? "not-allowed" : "pointer",
+        }}
       >
-        <button className="choose-btn-mob">Choose Room</button>
-      </Link>
+        {isTaken ? "Selected" : isSelected ? "selected" : "Choose"}
+      </button>
+      {/* </Link> */}
+
+      {/* Popup */}
     </div>
   );
 }

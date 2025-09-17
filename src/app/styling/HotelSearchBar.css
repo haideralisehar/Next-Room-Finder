@@ -4,13 +4,13 @@
   align-items: center;
   justify-content: center;
   gap: 15px;
-  padding: 10px;
+  /* padding: 5px 30px 5px 30px; */
   background: #547b951d;
-  border-bottom: 1px solid rgb(230, 229, 229);
+  /* border-bottom: 1px solid rgb(230, 229, 229); */
   /* box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1); */
   flex-wrap: wrap;
   width: 100%;
-  padding: 20px 100px;
+  padding: 5px 160px;
   /* border-radius: 5px; */
   
 }
@@ -24,7 +24,7 @@
   border-radius: 8px;
   border: 1px solid #ddd;
   flex: 1;
-  min-width: 200px;
+  width: 150px;
   position: relative;
 }
 

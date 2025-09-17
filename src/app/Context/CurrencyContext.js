@@ -6,8 +6,8 @@ import React, { createContext, useContext, useState, useEffect } from "react";
 const conversionRates = {
   BHD: 1,
   USD: 2.65,
-  EUR: 2.45,
-  SAR: 9.95,
+  EUR: 2.26,
+  SAR: 9.94,
 };
 
 const CurrencyContext = createContext();

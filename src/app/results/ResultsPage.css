@@ -6,7 +6,7 @@
   gap: 20px;
   width: 100%;
   margin: auto;
-  padding: 20px 100px;
+  padding: 20px 120px;
   
 }
 .map-con {
@@ -23,7 +23,7 @@
 .nf-pro{
   width: 100%;
   /* background-color: red; */
-  padding: 20px 100px 0px 100px;
+  padding: 20px 120px 0px 120px;
 }
 .nf-pro .desti-count{
  
@@ -96,7 +96,7 @@
   overflow: hidden;
   background: #fff;
   /* box-shadow: 1px 1px 19px rgba(22, 22, 22, 0.058); */
-  padding: 10px;
+  padding: 5px;
 }
 
 .hotel-img-wrapper {
@@ -127,7 +127,7 @@
 
 .hotel-details {
   flex: 1;
-  padding: 15px 20px;
+  padding: 5px 20px;
   display: flex;
   flex-direction: column;
   justify-content: space-between;

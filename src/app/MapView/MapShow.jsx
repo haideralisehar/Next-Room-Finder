@@ -69,7 +69,7 @@ export default function MapWithPrices({
       {showMap && (
         <div style={{ borderRadius: "6px", height: "100%" }}>
           <MapContainer
-            center={[26.2285, 50.586]}
+            center={[hotels[0].position.lat, hotels[0].position.lon]}
             zoom={3}
             style={{ height: "90vh", width: "100%" }}
           >
@@ -81,7 +81,7 @@ export default function MapWithPrices({
             {hotels.map((hotel) => (
               <Marker
                 key={hotel.id}
-                position={hotel.position}
+                position={[hotel.position.lat, hotel.position.lon]}
                 icon={createPriceIcon(convertPrice(hotel.price), currency)}
               >
                 <Popup>
@@ -119,6 +119,8 @@ export default function MapWithPrices({
                             image: hotel.image,
                             from: from,
                             to: to,
+                            lat: hotel.position.lat,
+                            lon: hotel.position.lon,
                             rooms: JSON.stringify(rooms),
                             count: rooms.length,
                             nights: nights,

@@ -9,6 +9,26 @@
   
 
 }
+.choose-room-btn {
+  padding: 10px 20px;
+  background-color: #007bff; /* default blue */
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.choose-room-btn:hover {
+  background-color: #0056b3;
+}
+
+.choose-room-btn.selected {
+  background-color: #28a745 !important; /* green */
+  color: white !important;
+  cursor: default;
+}
+
 .old-new{
   display: flex;
   flex-direction: row;
@@ -103,6 +123,7 @@
   flex-direction: row;
   justify-content: space-between;
   padding-top: 30px;
+  padding-right: 20px;
 }
 
 .room-right h4 {
@@ -163,6 +184,34 @@
   display: none;
 }
 
+
+/* Popup overlay */
+.popup-overlay {
+  position: fixed;       /* Stay fixed on screen */
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0, 0, 0, 0.5); /* Semi-transparent background */
+  display: flex;
+  justify-content: center; /* Horizontally center */
+  align-items: center;     /* Vertically center */
+  z-index: 9999;           /* Ensure it’s above everything */
+}
+
+/* Popup box */
+.popup {
+  background-color: white;
+  padding: 30px 40px;
+  border-radius: 10px;
+  max-width: 400px;
+  width: 90%;
+  text-align: center;
+  border: 2px solid rgb(68, 68, 193);
+  box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.3);
+}
+
+
 @media (max-width:650px){
   .choose-btn-mob {
     width: 100%;
@@ -205,6 +254,7 @@
     border-top: 1px solid #eee;
     padding-left: 0;
     padding-top: 15px;
+    padding-right: 0px;
   }
   .old-new{
   display: flex;

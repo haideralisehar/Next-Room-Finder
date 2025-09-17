@@ -21,6 +21,7 @@ export default function BookingPage() {
     image: searchParams.get("image"),
     from: searchParams.get("from"),
     to: searchParams.get("to"),
+    position: searchParams.get("position"),
     count: searchParams.get("count"),
     nights: searchParams.get("nights"),
     rating: searchParams.get("rating"),
@@ -32,11 +33,19 @@ export default function BookingPage() {
     rooms: searchParams.get("rooms")
       ? JSON.parse(searchParams.get("rooms"))
       : [],
+    SelectedRoom: searchParams.get("selectedRoom")
+      ? JSON.parse(searchParams.get("selectedRoom"))
+      : [],
   };
 
-  
+  const rume = JSON.stringify(hotel.rooms);
 
-  // console.log("Hotel Data:", hotel);
+  console.log("Hotel Data:", hotel.SelectedRoom);
+
+  // Calculate total price of selected rooms
+  const totalPrice = hotel.SelectedRoom.reduce((acc, room) => {
+    return acc + Number(room.price); // Convert price to number just in case
+  }, 0);
 
   const [formData, setFormData] = useState({
     firstName: "",
@@ -307,85 +316,117 @@ export default function BookingPage() {
             <div
               className="selected-rooms"
               style={{
-                margin: "10px 0px",
-                borderTop: "1px solid #ebebebff",
-                borderBottom: "1px solid #ebebebff",
-                padding: "10px 0px",
+                margin: "0px 0px",
+                // borderTop: "1px solid #ebebebff",
+                // borderBottom: "1px solid #ebebebff",
+                padding: "0px 0px",
               }}
             >
               {/* <h4>Selected Rooms:</h4> */}
-              {hotel.rooms && hotel.rooms.length > 0 ? (
-                hotel.rooms.map((r, i) => (
-                  <div key={i} style={{ padding: "5px 0px" }}>
-                    <div
-                      style={{
-                        display: "flex",
-                        flexDirection: "row",
-                        gap: "5px",
-                      }}
-                    >
-                      <div
-                        style={{
-                          backgroundColor: "#dcebecff",
-                          padding: "0.5px 10px",
-                          borderRadius: "30px",
-                        }}
-                      >
-                        <p style={{ color: "black" }}>Room {i + 1}</p>
-                      </div>
-
-                      <p style={{ color: "black" }}>
-                        {r.adults > 1
-                          ? `${r.adults} Adults`
-                          : `${r.adults} Adult`}
-                      </p>
-
-                      {/* <p style={{color:"black"}}>{r.children >= 1? `${r.children} Children(s)`:""} </p> */}
-
-                      {r.children > 0 && (
-                        <ul
+              <div className="selected-rooms">
+                {/* <h4>Selected Rooms:</h4> */}
+                {hotel.rooms.length > 0 && hotel.SelectedRoom.length > 0 ? (
+                  hotel.rooms.map((r, i) => {
+                    const selectedRoomData = hotel.SelectedRoom[i]; // Match by index
+                    return (
+                      <div key={i} style={{ padding: "5px 0px" }}>
+                        <div
                           style={{
                             display: "flex",
-                            gap: "10px",
-                            listStyle: "none",
-                            padding: 0,
-                            margin: 0,
-                            flexWrap: "wrap",
+                            flexDirection: "column",
+                            gap: "5px",
+                            borderTop: "1px solid #ebebeb",
+                            paddingTop: "15px",
+                            paddingBottom: "0px",
                           }}
                         >
-                          {r.childrenAges?.map((age, idx) => (
-                            <p key={idx} style={{ color: "black" }}>
-                              {idx + 1} Child ({age}y)
-                            </p>
-                          ))}
-                        </ul>
-                      )}
-                    </div>
-                  </div>
-                ))
-              ) : (
-                <p>No rooms selected</p>
-              )}
-            </div>
+                          {/* Room number & guest info */}
+                          <div
+                            style={{
+                              display: "flex",
+                              gap: "10px",
+                              alignItems: "center",
+                            }}
+                          >
+                            <div
+                              style={{
+                                backgroundColor: "#dcebecff",
+                                padding: "0.5px 10px",
+                                borderRadius: "30px",
+                              }}
+                            >
+                              <p style={{ color: "black" }}>Room {i + 1}</p>
+                            </div>
 
-            <div>
-              <p
-                style={{
-                  fontWeight: "bold",
-                  color: "black",
-                  paddingBottom: "10px",
-                }}
-              >
-                {hotel.roomTitle}
-              </p>
-              <div style={{ display: "flex", justifyContent: "space-between" }}>
-                <p>
-                  {convertPrice(hotel.roomCost)} {Bhdcurrency} per night
-                </p>
-                <p style={{ fontWeight: "bold", color: "black" }}>
-                  {convertPrice(hotel.roomCost)} {Bhdcurrency}
-                  {/* {hotel.roomprice}</p> */}{" "}
-                </p>
+                            <p style={{ color: "black" }}>
+                              {r.adults > 1
+                                ? `${r.adults} Adults`
+                                : `${r.adults} Adult`}
+                            </p>
+
+                            {r.children > 0 && (
+                              <ul
+                                style={{
+                                  display: "flex",
+                                  gap: "10px",
+                                  listStyle: "none",
+                                  padding: 0,
+                                  margin: 0,
+                                  flexWrap: "wrap",
+                                }}
+                              >
+                                {r.childrenAges?.map((age, idx) => (
+                                  <p key={idx} style={{ color: "black" }}>
+                                    {idx + 1} Child ({age}y)
+                                  </p>
+                                ))}
+                              </ul>
+                            )}
+                          </div>
+
+                          {/* Room title & price */}
+                          {selectedRoomData && (
+                            <div style={{ marginTop: "10px" }}>
+                              <p
+                                style={{
+                                  fontWeight: "bold",
+                                  color: "black",
+                                  paddingBottom: "10px",
+                                  paddingLeft: "10px",
+                                  paddingRight: "10px",
+                                }}
+                              >
+                                {selectedRoomData.title}
+                              </p>
+                              <div
+                                style={{
+                                  display: "flex",
+                                  justifyContent: "space-between",
+                                  paddingLeft: "10px",
+                                  paddingRight: "10px",
+                                }}
+                              >
+                                <p>
+                                  {convertPrice(selectedRoomData.price)}{" "}
+                                  {Bhdcurrency} per night
+                                </p>
+                                <p
+                                  style={{ fontWeight: "bold", color: "black" }}
+                                >
+                                  {convertPrice(selectedRoomData.price)}{" "}
+                                  {Bhdcurrency}
+                                  {/* {hotel.roomprice}</p> */}{" "}
+                                </p>
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    );
+                  })
+                ) : (
+                  <p>No rooms selected</p>
+                )}
               </div>
             </div>
           </div>
@@ -394,18 +435,19 @@ export default function BookingPage() {
             <div className={styles.totalBox}>
               <h5>Total Cal.</h5>
               <p>
-                {convertPrice(hotel.roomCost)} {Bhdcurrency} / Night x{" "}
+                {/* {convertPrice(hotel.roomCost)} {Bhdcurrency} / Night x{" "} */}
                 {hotel.totalRooms} Room(s) x {hotel.nights} Night(s)
               </p>
             </div>
             <div className={styles.totalBoxee}>
               Total Amount
               <h4>
-                {" "}
+                {(convertPrice(totalPrice) * hotel.nights).toFixed(2)} {Bhdcurrency}
+                {/* {" "}
                 {convertPrice(
                   (hotel.roomCost * hotel.nights * hotel.totalRooms).toFixed(2)
                 )}{" "}
-                {Bhdcurrency}
+                {Bhdcurrency} */}
               </h4>
             </div>
           </div>

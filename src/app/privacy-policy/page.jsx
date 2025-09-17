@@ -29,7 +29,7 @@ export default function PrivacyPolicy() {
         </h3>
         <hr style={{ color: "grey" }} />
 
-        <p style={{ padding: "10px 0px 5px 0px", fontSize:"14px" }}>
+        <p style={{ padding: "10px 0px 5px 0px" }}>
           CityIn Booking respects its users and commits itself to educate them
           about how to deal with their personal information. Hence, we created
           CityIn Booking privacy policy to prove our commitment and show our

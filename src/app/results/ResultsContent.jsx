@@ -353,6 +353,8 @@ export default function ResultsContent() {
                             nights: nights,
                             rating: hotel.rating,
                             description: hotel.description,
+                            lat: hotel.position.lat,
+                            lon: hotel.position.lon,
                             facility: JSON.stringify(hotel.facilities),
                             roomImages: JSON.stringify(hotel.roomImages),
                             hotelRooms: JSON.stringify(hotel.rooms),
