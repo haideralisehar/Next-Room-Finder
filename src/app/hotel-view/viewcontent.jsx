@@ -23,7 +23,7 @@ export default function HotelView() {
   const lon = parseFloat(searchParams.get("lon"));
 
   const position = [lat, lon];
-   // pass to ImageViewer
+  // pass to ImageViewer
   const router = useRouter();
 
   let hotelRooms = [];
@@ -43,9 +43,9 @@ export default function HotelView() {
     image: searchParams.get("image"),
     from: searchParams.get("from"),
     to: searchParams.get("to"),
-    lat :parseFloat(searchParams.get("lat")),
-   lon : parseFloat(searchParams.get("lon")),
-    
+    lat: parseFloat(searchParams.get("lat")),
+    lon: parseFloat(searchParams.get("lon")),
+
     rooms: searchParams.get("rooms")
       ? JSON.parse(searchParams.get("rooms"))
       : [],
@@ -63,8 +63,6 @@ export default function HotelView() {
       ? JSON.parse(searchParams.get("totRooms"))
       : [],
   };
-  
- 
 
   const buttonRef = useRef(null);
   const [shake, setShake] = useState(false);
@@ -103,69 +101,72 @@ export default function HotelView() {
   }, [hotelRooms.length, hotel.rooms.length]);
 
   // ✅ Let user click a room card to change active index
-const handleRoomClick = (index) => {
-  setCurrentRoomIndex(index);
+  const handleRoomClick = (index) => {
+    setCurrentRoomIndex(index);
 
-  const chosenIds = selectedRoomsInfo.filter(Boolean).map((r) => r.id);
-  const { adults = 1, children = 0 } = selectedRooms[index];
+    const chosenIds = selectedRoomsInfo.filter(Boolean).map((r) => r.id);
+    const { adults = 1, children = 0 } = selectedRooms[index];
 
-  const matched = hotelRooms.filter(
-    (room) =>
-      Number(room.fitForAdults) === adults &&
-      Number(room.fitForChildren) >= children &&
-      (!chosenIds.includes(room.id) || selectedRoomsInfo[index]?.id === room.id) 
+    const matched = hotelRooms.filter(
+      (room) =>
+        Number(room.fitForAdults) === adults &&
+        Number(room.fitForChildren) >= children &&
+        (!chosenIds.includes(room.id) ||
+          selectedRoomsInfo[index]?.id === room.id)
       // ✅ allow current room's choice to still be visible
-  );
-
-  setBaseFilteredRooms(matched);
-  setFilteredRooms(matched);
-
-  toast.info(
-    `${matched.length} room(s) available for Room ${index + 1} (${adults} adults, ${children} children)`,
-    { autoClose: 3000 }
-  );
-};
-
-  // ✅ When user chooses a room -> move to next index
-  const handleChooseRoom = (roomData) => {
-  const updated = [...selectedRoomsInfo];
-  updated[currentRoomIndex] = roomData;
-  setSelectedRoomsInfo(updated);
-
-  const chosenIds = updated.filter(Boolean).map((r) => r.id);
-
-  if (currentRoomIndex < selectedRooms.length - 1) {
-    const nextIndex = currentRoomIndex + 1;
-    setCurrentRoomIndex(nextIndex);
-
-    const nextRequested = selectedRooms[nextIndex];
-    const { adults = 1, children = 0 } = nextRequested;
-
-    // const matched = hotelRooms.filter(
-    //   (room) =>
-    //     Number(room.fitForAdults) === adults &&
-    //     Number(room.fitForChildren) >= children &&
-    //     !chosenIds.includes(room.id) 
-    // );
-
-    // remove strict exclusion of chosen rooms
-const matched = hotelRooms.filter(
-  (room) =>
-    Number(room.fitForAdults) === adults &&
-    Number(room.fitForChildren) >= children
-);
-
+    );
 
     setBaseFilteredRooms(matched);
     setFilteredRooms(matched);
 
     toast.info(
-      `${matched.length} room(s) available for Room ${nextIndex + 1} (${adults} adults, ${children} children)`,
+      `${matched.length} room(s) available for Room ${
+        index + 1
+      } (${adults} adults, ${children} children)`,
       { autoClose: 3000 }
     );
-  }
-};
+  };
 
+  // ✅ When user chooses a room -> move to next index
+  const handleChooseRoom = (roomData) => {
+    const updated = [...selectedRoomsInfo];
+    updated[currentRoomIndex] = roomData;
+    setSelectedRoomsInfo(updated);
+
+    const chosenIds = updated.filter(Boolean).map((r) => r.id);
+
+    if (currentRoomIndex < selectedRooms.length - 1) {
+      const nextIndex = currentRoomIndex + 1;
+      setCurrentRoomIndex(nextIndex);
+
+      const nextRequested = selectedRooms[nextIndex];
+      const { adults = 1, children = 0 } = nextRequested;
+
+      // const matched = hotelRooms.filter(
+      //   (room) =>
+      //     Number(room.fitForAdults) === adults &&
+      //     Number(room.fitForChildren) >= children &&
+      //     !chosenIds.includes(room.id)
+      // );
+
+      // remove strict exclusion of chosen rooms
+      const matched = hotelRooms.filter(
+        (room) =>
+          Number(room.fitForAdults) === adults &&
+          Number(room.fitForChildren) >= children
+      );
+
+      setBaseFilteredRooms(matched);
+      setFilteredRooms(matched);
+
+      toast.info(
+        `${matched.length} room(s) available for Room ${
+          nextIndex + 1
+        } (${adults} adults, ${children} children)`,
+        { autoClose: 3000 }
+      );
+    }
+  };
 
   // ✅ Optional filter bar for the current room’s available list
   const handleFilterChange = ({ roomType, refund, freeCancel, roomName }) => {
@@ -179,7 +180,8 @@ const matched = hotelRooms.filter(
     if (roomType) {
       filtered = filtered.filter((room) => {
         if (roomType === "Room Only") return room.mealPlan === "Room Only";
-        if (roomType === "Bed and Breakfast") return room.mealPlan === "Bed and Breakfast";
+        if (roomType === "Bed and Breakfast")
+          return room.mealPlan === "Bed and Breakfast";
         if (roomType === "Half Board") return room.mealPlan === "Half Board";
         if (roomType === "Full Board") return room.mealPlan === "Full Board";
         return true;
@@ -250,8 +252,14 @@ const matched = hotelRooms.filter(
           <p>{hotel.location}</p>
         </div>
 
-        <ImageViewer images={hotel.roomImages} location={[hotel.lat, hotel.lon]}  />
-        <HotelTabs description={hotel.description} facility={hotel.facilities} />
+        <ImageViewer
+          images={hotel.roomImages}
+          location={[hotel.lat, hotel.lon]}
+        />
+        <HotelTabs
+          description={hotel.description}
+          facility={hotel.facilities}
+        />
 
         <div style={{ marginTop: "20px" }}>
           <h2
@@ -275,31 +283,28 @@ const matched = hotelRooms.filter(
           {filteredRooms.length > 0 ? (
             filteredRooms.map((room) => (
               <RoomCard
-  key={room.id}
-  room={room}
-  nights={nights}
-  roomCount={selectedRooms.length}
-  id={hotel.id}
-  name={hotel.name}
-  location={hotel.location}
-  price={hotel.price}
-  image={hotel.image}
-  from={checkInDate}
-  to={checkOutDate}
-  rooms={selectedRooms}
-  count={hotel.count}
-  rating={hotel.rating}
-  selectedRoom={selectedRoomsInfo}
-  selectedRooms={selectedRooms}
-  onChooseRoom={() => handleChooseRoom(room)}
-  isSelected={selectedRoomsInfo[currentRoomIndex]?.id === room.id}
-  isTaken={
-    selectedRoomsInfo.some(
-      (r, idx) => r?.id === room.id && idx !== currentRoomIndex
-    )
-  } // ✅ mark if already selected by another slot
-/>
-
+                key={room.id}
+                room={room}
+                nights={nights}
+                roomCount={selectedRooms.length}
+                id={hotel.id}
+                name={hotel.name}
+                location={hotel.location}
+                price={hotel.price}
+                image={hotel.image}
+                from={checkInDate}
+                to={checkOutDate}
+                rooms={selectedRooms}
+                count={hotel.count}
+                rating={hotel.rating}
+                selectedRoom={selectedRoomsInfo}
+                selectedRooms={selectedRooms}
+                onChooseRoom={() => handleChooseRoom(room)}
+                isSelected={selectedRoomsInfo[currentRoomIndex]?.id === room.id}
+                isTaken={selectedRoomsInfo.some(
+                  (r, idx) => r?.id === room.id && idx !== currentRoomIndex
+                )} // ✅ mark if already selected by another slot
+              />
             ))
           ) : (
             <div
@@ -316,57 +321,51 @@ const matched = hotelRooms.filter(
               </p>
             </div>
           )}
-
-          
         </div>
         {selectedRoomsInfo.filter(Boolean).length === selectedRooms.length && (
-        <Link
-          href={{
-            pathname: "/booking",
-            query: {
-              id: hotel.id,
-              name: hotel.name,
-              location: hotel.location,
-              price: hotel.price,
-              image: hotel.image,
-              from: checkInDate,
-              to: checkOutDate,
-              rooms: JSON.stringify(selectedRooms),
-              totalRooms: selectedRooms.length,
-              nights,
-              rating: hotel.rating,
-              selectedRoom: JSON.stringify(selectedRoomsInfo),
-            },
-          }}
-        >
-          <button
-            style={{
-              float:"right",
-              marginTop: "8px",
-              marginRight:"8px",
-
-              padding: "12px 20px",
-              backgroundColor: "#3c7dabff",
-              color: "white",
-              borderRadius: "8px",
-              fontSize: "16px",
-              fontWeight: "600",
-              cursor: "pointer",
+          <Link
+            href={{
+              pathname: "/booking",
+              query: {
+                id: hotel.id,
+                name: hotel.name,
+                location: hotel.location,
+                price: hotel.price,
+                image: hotel.image,
+                from: checkInDate,
+                to: checkOutDate,
+                rooms: JSON.stringify(selectedRooms),
+                totalRooms: selectedRooms.length,
+                nights,
+                rating: hotel.rating,
+                selectedRoom: JSON.stringify(selectedRoomsInfo),
+              },
             }}
-            ref={buttonRef}
-            className={`proceed-btn ${shake ? "shake" : ""}`}
           >
-            Proceed to Booking
-          </button>
-          <br />
-          <br />
-        </Link>
-        
-      )}
-      
-      </div>
+            <button
+              style={{
+                float: "right",
+                marginTop: "8px",
+                marginRight: "8px",
 
-      
+                padding: "12px 20px",
+                backgroundColor: "#3c7dabff",
+                color: "white",
+                borderRadius: "8px",
+                fontSize: "16px",
+                fontWeight: "600",
+                cursor: "pointer",
+              }}
+              ref={buttonRef}
+              className={`proceed-btn ${shake ? "shake" : ""}`}
+            >
+              Proceed to Booking
+            </button>
+            <br />
+            <br />
+          </Link>
+        )}
+      </div>
 
       <Footer />
       <ToastContainer />

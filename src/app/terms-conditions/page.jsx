@@ -221,17 +221,18 @@ export default function TermsAndConditions() {
               Some bookings may be non-refundable, or cancellation fees may apply.
             </li>
             <li style={{ marginBottom: "8px", lineHeight: "1.6" }}>
-              {lange === "en" && (
+               Users should review the cancellation policy of each booking before confirming.
+              {/* {lange === "en" && (
               <div translate="no">
-              Users should review the cancellation policy of each booking before confirming.
+             
               </div>
-              )}
+              )} */}
 
-              {lange === "ar" && (
+              {/* {lange === "ar" && (
               <div translate="no">
               يُرجى من المستخدمين مراجعة سياسة الإلغاء لكل حجز قبل تأكيده
               </div>
-              )}
+              )} */}
             
             </li>
             
