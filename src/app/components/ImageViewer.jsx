@@ -171,7 +171,7 @@ const ImageViewer = ({ images, location }) => {
           </button>
           <MapContainer
             center={position}
-            zoom={3}
+            zoom={17}
             style={{ height: "100%", width: "100%" }}
           >
             <TileLayer

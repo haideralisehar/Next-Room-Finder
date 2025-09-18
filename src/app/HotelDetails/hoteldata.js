@@ -633,7 +633,7 @@ export const hotelsData = {
   Dubai: [
     {
       id: 1,
-      position: { lat: 26.1292, lon: 50.555 }, // ✅ updated
+      position: { lat: 25.244709690096606, lon: 55.29870230158505 }, // ✅ updated
       name: "President Hotel, Dubai",
       location: "Al Karama, Dubai (Bur Dubai)",
       price: 50,
@@ -750,7 +750,7 @@ export const hotelsData = {
     },
     {
       id: 2,
-      position: { lat: 35.1292, lon: 52.555 }, // ✅ updated
+      position: { lat: 25.25934231634163, lon: 55.28748350777487 }, // ✅ updated
       name: "Palm Beach Hotel, Dubai",
       location: "Beach & Coast, Dubai (Bur Dubai)",
       price: 19.99,
@@ -847,7 +847,7 @@ export const hotelsData = {
 
     {
       id: 3,
-      position: { lat: 28.1292, lon: 52.555 }, // ✅ updated
+      position: { lat: 25.259200213916348, lon: 55.289010293179956 }, // ✅ updated
       name: "City Palace Hotel, Dubai",
       location: "Beach & Coast, Dubai (Bur Dubai)",
       price: 10.99,
