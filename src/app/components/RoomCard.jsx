@@ -28,6 +28,7 @@ export default function RoomCard({
   const { currency, convertPrice } = useCurrency(); // ✅ get currency + converter
   const [currents, setCurrents] = useState(0);
   const [showPopup, setShowPopup] = useState(false);
+   const [showAmenitiesPopup, setShowAmenitiesPopup] = useState(false);
   // const handlePopupToggle = () => setShowPopup(!showPopup);
 
   const handleChooseRoom = () => {
@@ -119,7 +120,22 @@ export default function RoomCard({
             ) : (
               <p>No facilities listed</p>
             )}
+
+            
           </div>
+          {room.roomDetails.amenities.length > 0 && (
+            <p
+              style={{
+                paddingTop: "10px",
+                color: "#5e72e0ff",
+                textDecoration: "underline",
+                cursor: "pointer",
+              }}
+              onClick={() => setShowAmenitiesPopup(true)}
+            >
+              See more amenities
+            </p>
+          )}
         </div>
       </div>
 
@@ -297,6 +313,40 @@ export default function RoomCard({
       {/* </Link> */}
 
       {/* Popup */}
+
+      {showAmenitiesPopup && (
+        <div className="popup-overlays">
+          <div className="popup-content">
+            <div className="btn-cls" style={{display:"flex", justifyContent:"space-between"}}>
+            <h1 style={{fontWeight:"600", paddingTop:"10px", fontSize:"18px"}}>Amenities</h1>
+            <button
+              className="close-btns"
+              onClick={() => setShowAmenitiesPopup(false)}
+            >
+              Close
+            </button>
+
+            </div>
+            <hr style={{color:"#eeeeeeff", margin:"5px 0px 10px 0px"}} />
+            <div className="facilities-list">
+            {Array.isArray(room.roomDetails.amenities) &&
+            room.roomDetails.amenities.length > 0 ? (
+              room.roomDetails.amenities.map((item, i) => (
+                <div key={i} className="facility-item">
+                  <span className="icon">i</span>
+                  {item}
+                </div>
+              ))
+            ) : (
+              <p>No facilities listed</p>
+            )}
+
+            
+          </div>
+            
+          </div>
+        </div>
+      )}
     </div>
   );
 }

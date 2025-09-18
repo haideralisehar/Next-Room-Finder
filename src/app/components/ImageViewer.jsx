@@ -133,12 +133,13 @@ const ImageViewer = ({ images, location }) => {
         {images.map((img, index) => (
           <React.Fragment key={index}>
             {/* Empty div for Map */}
-            {index === 0 && (
+            {index === 1 && (
               <div
                 className="empty-thumb"
                 style={{
                   backgroundColor: "#fbfbfbff",
                   borderRadius: "7px",
+                 
                   cursor: "pointer",
                   border:"2px solid #dfdfdfff"
                 }}

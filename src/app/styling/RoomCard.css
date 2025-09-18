@@ -9,6 +9,60 @@
   
 
 }
+
+/* Popup overlay */
+.popup-overlays {
+  
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0,0,0,0.6);
+  
+ 
+  z-index: 2000;
+}
+
+/* Popup content */
+.popup-content {
+  background: #fff;
+  padding: 20px;
+  width: 60%;
+  max-height: 70vh;
+  overflow-y: auto;
+  border-radius: 10px;
+  box-shadow: 0 0 10px rgba(0,0,0,0.3);
+}
+
+.popup-content h3 {
+  margin-top: 0;
+}
+
+.popup-content ul {
+  list-style: none;
+  padding: 0;
+}
+
+.popup-content li {
+  margin-bottom: 8px;
+  font-size: 14px;
+}
+
+.close-btns {
+  margin-top: 0px;
+  padding: 8px 14px;
+  background: #0c0c0c;
+  border: none;
+  color: #fff;
+  border-radius: 50px;
+  cursor: pointer;
+
+}
+
+.close-btn:hover {
+  background: #2d5d82;
+}
+
 .choose-room-btn {
   padding: 10px 20px;
   background-color: #007bff; /* default blue */
@@ -185,8 +239,8 @@
 }
 
 
-/* Popup overlay */
-.popup-overlay {
+
+.popup-overlays {
   position: fixed;       /* Stay fixed on screen */
   top: 0;
   left: 0;
@@ -199,23 +253,16 @@
   z-index: 9999;           /* Ensure it’s above everything */
 }
 
-/* Popup box */
-.popup {
-  background-color: white;
-  padding: 30px 40px;
-  border-radius: 10px;
-  max-width: 400px;
-  width: 90%;
-  text-align: center;
-  border: 2px solid rgb(68, 68, 193);
-  box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.3);
-}
+
 
 
 @media (max-width:650px){
   .choose-btn-mob {
     width: 100%;
     display: block;
+  }
+  .popup-content{
+    width: 90%;
   }
   .choose-btn {
     display: none;
