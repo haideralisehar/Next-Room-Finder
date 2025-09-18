@@ -127,19 +127,43 @@ export default function RoomCard({
       <div className="room-right">
         <div>
           <h4 style={{ fontWeight: "bold" }}>
-            {room.breakFast ? "Breakfast" : "Room Only"} •{" "}
+            {/* {room.breakFast ? "Breakfast" : "Room Only"} •{" "}{room.mealPlan} */}
+            {room.mealPlan} {" - "}
             {room.refund ? "Refundable" : "Non-refundable"}
           </h4>
 
-          {room.breakFast ? (
+          {room.breakFast && (room.mealPlan === "Full Board" || room.mealPlan === "Half Board") ? (
+  <>
+    {room.mealPlan === "Full Board" ? (
+      <p>
+        <span className="green">✔</span> Including Breakfast + Lunch + Dinner
+      </p>
+    ) : (
+      <p>
+        <span className="green">✔</span> Including Breakfast + Lunch (or Dinner)
+      </p>
+    )}
+  </>
+) : (
+  <>
+  {room.breakFast ? (
+    <p>
+    <span className="green">✔</span> Breakfast Included
+  </p>
+
+  ):(<p>
+    <span className="red">✖</span> No Breakfast Included
+  </p>)}
+  
+  </>
+  
+)}
+
+          {room.mealPlan === "Half Board" || room.mealPlan === "Full Board"  ? (
             <p>
-              <span className="green">✔</span> Breakfast Included
+              <span className="green">✔</span> Pay later option available
             </p>
-          ) : (
-            <p>
-              <span className="red">✖</span> No Meal Included
-            </p>
-          )}
+          ):(<p></p>)}
           {room.Cancelation ? (
             <p>
               <span className="green">✔</span> Free Cancelation

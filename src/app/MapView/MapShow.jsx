@@ -70,7 +70,7 @@ export default function MapWithPrices({
         <div style={{ borderRadius: "6px", height: "100%" }}>
           <MapContainer
             center={[hotels[0].position.lat, hotels[0].position.lon]}
-            zoom={3}
+            zoom={8}
             style={{ height: "90vh", width: "100%" }}
           >
             <TileLayer

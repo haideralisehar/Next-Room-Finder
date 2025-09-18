@@ -134,7 +134,8 @@
 }
 
 .hotel-header {
-  margin-bottom: 8px;
+  margin-bottom: 4px;
+  margin-top: 5px;
 }
 
 .stars {
@@ -150,8 +151,8 @@
 
 .location {
   color: #444;
-  font-size: 14px;
-  margin: 0px 0;
+  font-size: 13px;
+  margin: -3px 0px 0px 3px;
 }
 
 .breakfast {

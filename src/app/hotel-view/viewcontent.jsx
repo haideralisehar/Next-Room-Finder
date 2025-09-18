@@ -178,8 +178,8 @@ const matched = hotelRooms.filter(
 
     if (roomType) {
       filtered = filtered.filter((room) => {
-        if (roomType === "Room Only") return !room.breakFast;
-        if (roomType === "Bed and Breakfast") return room.breakFast;
+        if (roomType === "Room Only") return room.mealPlan === "Room Only";
+        if (roomType === "Bed and Breakfast") return room.mealPlan === "Bed and Breakfast";
         if (roomType === "Half Board") return room.mealPlan === "Half Board";
         if (roomType === "Full Board") return room.mealPlan === "Full Board";
         return true;
