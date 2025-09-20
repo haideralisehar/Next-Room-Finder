@@ -40,7 +40,7 @@ export default function BookingPage() {
 
   const rume = JSON.stringify(hotel.rooms);
 
-  console.log("Hotel Data:", hotel.SelectedRoom);
+  // console.log("Hotel Data:", hotel.SelectedRoom);
 
   // Calculate total price of selected rooms
   const totalPrice = hotel.SelectedRoom.reduce((acc, room) => {
@@ -396,7 +396,7 @@ export default function BookingPage() {
                                   paddingRight: "10px",
                                 }}
                               >
-                                {selectedRoomData.title}
+                                {selectedRoomData.roomName}{" "}({selectedRoomData.mealPlan})
                               </p>
                               <div
                                 style={{

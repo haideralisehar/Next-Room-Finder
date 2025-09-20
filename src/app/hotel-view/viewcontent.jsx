@@ -1,30 +1,26 @@
 "use client";
 import React, { useEffect, useState, useRef } from "react";
-import { useSearchParams } from "next/navigation";
+import { useSearchParams, useRouter } from "next/navigation";
 import "../hotel-view/hotel.css";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
 import { IoLocationOutline } from "react-icons/io5";
 import StarRating from "../components/rating";
 import HotelTabs from "../components/tabs";
-import "../styling/ImageViewer.css";
 import ImageViewer from "../components/ImageViewer";
 import RoomCard from "../components/RoomCard";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import HotelFilterBar from "../components/RoomFilter";
 import RoomSelection from "../components/ChooseRoom";
-import { useRouter } from "next/navigation";
 import Link from "next/link";
 
 export default function HotelView() {
   const searchParams = useSearchParams();
-  const lat = parseFloat(searchParams.get("lat"));
-  const lon = parseFloat(searchParams.get("lon"));
-
-  const position = [lat, lon];
-  // pass to ImageViewer
   const router = useRouter();
+  const buttonRef = useRef(null);
+
+  const [shake, setShake] = useState(false);
 
   let hotelRooms = [];
   try {
@@ -45,7 +41,6 @@ export default function HotelView() {
     to: searchParams.get("to"),
     lat: parseFloat(searchParams.get("lat")),
     lon: parseFloat(searchParams.get("lon")),
-
     rooms: searchParams.get("rooms")
       ? JSON.parse(searchParams.get("rooms"))
       : [],
@@ -64,9 +59,6 @@ export default function HotelView() {
       : [],
   };
 
-  const buttonRef = useRef(null);
-  const [shake, setShake] = useState(false);
-
   const [checkInDate, setCheckInDate] = useState(hotel.from);
   const [checkOutDate, setCheckOutDate] = useState(hotel.to);
   const [nights, setNights] = useState(hotel.nights);
@@ -78,7 +70,7 @@ export default function HotelView() {
   const [selectedRoomsInfo, setSelectedRoomsInfo] = useState([]);
   const [currentRoomIndex, setCurrentRoomIndex] = useState(0);
 
-  // ✅ Show rooms only for the first room on initial load
+  // ✅ Initial load
   useEffect(() => {
     if (hotelRooms.length > 0 && hotel.rooms.length > 0) {
       const firstRequested = hotel.rooms[0];
@@ -100,111 +92,59 @@ export default function HotelView() {
     }
   }, [hotelRooms.length, hotel.rooms.length]);
 
-  // ✅ Let user click a room card to change active index
-  const handleRoomClick = (index) => {
-    setCurrentRoomIndex(index);
-
-    const chosenIds = selectedRoomsInfo.filter(Boolean).map((r) => r.id);
-    const { adults = 1, children = 0 } = selectedRooms[index];
-
-    const matched = hotelRooms.filter(
-      (room) =>
-        Number(room.fitForAdults) === adults &&
-        Number(room.fitForChildren) >= children &&
-        (!chosenIds.includes(room.id) ||
-          selectedRoomsInfo[index]?.id === room.id)
-      // ✅ allow current room's choice to still be visible
-    );
-
-    setBaseFilteredRooms(matched);
-    setFilteredRooms(matched);
-
-    toast.info(
-      `${matched.length} room(s) available for Room ${
-        index + 1
-      } (${adults} adults, ${children} children)`,
-      { autoClose: 3000 }
-    );
-  };
-
-  // ✅ When user chooses a room -> move to next index
-  const handleChooseRoom = (roomData) => {
+  // ✅ When user clicks "Choose"
+  const handleChooseRoom = (roomId, variation) => {
     const updated = [...selectedRoomsInfo];
-    updated[currentRoomIndex] = roomData;
+    updated[currentRoomIndex] = { ...variation, parentRoomId: roomId };
     setSelectedRoomsInfo(updated);
 
-    const chosenIds = updated.filter(Boolean).map((r) => r.id);
-
     if (currentRoomIndex < selectedRooms.length - 1) {
-      const nextIndex = currentRoomIndex + 1;
-      setCurrentRoomIndex(nextIndex);
-
-      const nextRequested = selectedRooms[nextIndex];
-      const { adults = 1, children = 0 } = nextRequested;
-
-      // const matched = hotelRooms.filter(
-      //   (room) =>
-      //     Number(room.fitForAdults) === adults &&
-      //     Number(room.fitForChildren) >= children &&
-      //     !chosenIds.includes(room.id)
-      // );
-
-      // remove strict exclusion of chosen rooms
-      const matched = hotelRooms.filter(
-        (room) =>
-          Number(room.fitForAdults) === adults &&
-          Number(room.fitForChildren) >= children
-      );
-
-      setBaseFilteredRooms(matched);
-      setFilteredRooms(matched);
-
-      toast.info(
-        `${matched.length} room(s) available for Room ${
-          nextIndex + 1
-        } (${adults} adults, ${children} children)`,
-        { autoClose: 3000 }
-      );
+      setCurrentRoomIndex(currentRoomIndex + 1);
     }
   };
 
-  // ✅ Optional filter bar for the current room’s available list
+  // ✅ Filter logic
   const handleFilterChange = ({ roomType, refund, freeCancel, roomName }) => {
     if (!baseFilteredRooms || baseFilteredRooms.length === 0) {
       setFilteredRooms([]);
       return;
     }
 
-    let filtered = [...baseFilteredRooms];
-
-    if (roomType) {
-      filtered = filtered.filter((room) => {
-        if (roomType === "Room Only") return room.mealPlan === "Room Only";
-        if (roomType === "Bed and Breakfast")
-          return room.mealPlan === "Bed and Breakfast";
-        if (roomType === "Half Board") return room.mealPlan === "Half Board";
-        if (roomType === "Full Board") return room.mealPlan === "Full Board";
-        return true;
+    let filtered = [];
+    baseFilteredRooms.forEach((room) => {
+      let matchedVariations = room.variations.filter((variation) => {
+        let isMatch = true;
+        if (roomType) {
+          isMatch =
+            isMatch &&
+            variation.mealPlan.toLowerCase().trim() ===
+              roomType.toLowerCase().trim();
+        }
+        if (refund) {
+          isMatch =
+            isMatch &&
+            (refund.toLowerCase() === "refundable"
+              ? variation.refund === true
+              : variation.refund === false);
+        }
+        if (freeCancel) {
+          isMatch =
+            isMatch &&
+            (freeCancel.toLowerCase() === "free cancelation"
+              ? variation.cancellation === true
+              : variation.cancellation === false);
+        }
+        return isMatch;
       });
-    }
 
-    if (refund) {
-      filtered = filtered.filter((room) =>
-        refund === "Refundable" ? room.refund === true : room.refund === false
-      );
-    }
-
-    if (freeCancel) {
-      filtered = filtered.filter((room) =>
-        freeCancel === "Free Cancelation"
-          ? room.Cancelation === true
-          : room.Cancelation === false
-      );
-    }
+      if (matchedVariations.length > 0) {
+        filtered.push({ ...room, variations: matchedVariations });
+      }
+    });
 
     if (roomName) {
       filtered = filtered.filter((room) =>
-        room.title.toLowerCase().includes(roomName.toLowerCase())
+        room.title?.toLowerCase().includes(roomName.toLowerCase().trim())
       );
     }
 
@@ -217,6 +157,7 @@ export default function HotelView() {
     }
   };
 
+  // ✅ Scroll to "Proceed" when all selected
   useEffect(() => {
     if (
       selectedRoomsInfo.length === selectedRooms.length &&
@@ -252,14 +193,8 @@ export default function HotelView() {
           <p>{hotel.location}</p>
         </div>
 
-        <ImageViewer
-          images={hotel.roomImages}
-          location={[hotel.lat, hotel.lon]}
-        />
-        <HotelTabs
-          description={hotel.description}
-          facility={hotel.facilities}
-        />
+        <ImageViewer images={hotel.roomImages} location={[hotel.lat, hotel.lon]} />
+        <HotelTabs description={hotel.description} facility={hotel.facilities} />
 
         <div style={{ marginTop: "20px" }}>
           <h2
@@ -275,53 +210,34 @@ export default function HotelView() {
           <RoomSelection
             rooms={selectedRooms}
             currentRoomIndex={currentRoomIndex}
-            onRoomClick={handleRoomClick}
+            onRoomClick={setCurrentRoomIndex}
           />
 
           <HotelFilterBar onFilterChange={handleFilterChange} />
 
           {filteredRooms.length > 0 ? (
-            filteredRooms.map((room) => (
-              <RoomCard
-                key={room.id}
-                room={room}
-                nights={nights}
-                roomCount={selectedRooms.length}
-                id={hotel.id}
-                name={hotel.name}
-                location={hotel.location}
-                price={hotel.price}
-                image={hotel.image}
-                from={checkInDate}
-                to={checkOutDate}
-                rooms={selectedRooms}
-                count={hotel.count}
-                rating={hotel.rating}
-                selectedRoom={selectedRoomsInfo}
-                selectedRooms={selectedRooms}
-                onChooseRoom={() => handleChooseRoom(room)}
-                isSelected={selectedRoomsInfo[currentRoomIndex]?.id === room.id}
-                isTaken={selectedRoomsInfo.some(
-                  (r, idx) => r?.id === room.id && idx !== currentRoomIndex
-                )} // ✅ mark if already selected by another slot
-              />
-            ))
-          ) : (
-            <div
-              style={{
-                fontSize: "20px",
-                color: "#ec4141ff",
-                display: "flex",
-                padding: "15px 5px 15px 5px",
-              }}
-            >
-              <p style={{ padding: "5px 10px" }}>
-                😔 No rooms are available for this selection. Try changing your
-                filters or dates.
-              </p>
-            </div>
-          )}
+  filteredRooms.map((room) => (
+    <RoomCard
+      key={room.id}
+      room={room}
+      nights={nights}
+      roomCount={selectedRooms.length}
+      onChooseRoom={(variation) => handleChooseRoom(room.id, variation)}
+      isSelected={
+        selectedRoomsInfo[currentRoomIndex]?.parentRoomId === room.id
+      }
+      selectedVariation={selectedRoomsInfo[currentRoomIndex]}
+      isTaken={selectedRoomsInfo.some(
+        (r, idx) => r?.parentRoomId === room.id && idx !== currentRoomIndex
+      )} // ✅ prevent duplicate selection
+    />
+  ))
+) : (
+  <p className="no-rooms-msg">😔 No rooms are available for this selection.</p>
+)}
+
         </div>
+
         {selectedRoomsInfo.filter(Boolean).length === selectedRooms.length && (
           <Link
             href={{
@@ -342,7 +258,7 @@ export default function HotelView() {
               },
             }}
           >
-            <button
+           <button
               style={{
                 float: "right",
                 marginTop: "8px",
@@ -361,12 +277,10 @@ export default function HotelView() {
             >
               Proceed to Booking
             </button>
-            <br />
-            <br />
+            <br /><br />
           </Link>
         )}
       </div>
-
       <Footer />
       <ToastContainer />
     </>
