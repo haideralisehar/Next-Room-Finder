@@ -13,6 +13,8 @@ export default function RoomCard({
 }) {
   const { currency, convertPrice } = useCurrency();
   const [current, setCurrent] = useState(0);
+   const [showPopup, setShowPopup] = useState(false);
+   const [showAmenitiesPopup, setShowAmenitiesPopup] = useState(false);
 
   const images =
     room.roomPhotos?.length > 0
@@ -175,6 +177,41 @@ export default function RoomCard({
         ) : (
           <p>No room variations available</p>
         )}
+{showAmenitiesPopup && (
+  <div className="popup-overlays">
+    <div className="popup-content">
+      {/* Header with title + close button */}
+      <div className="btn-cls" style={{ display: "flex", justifyContent: "space-between" }}>
+        <h1 style={{ fontWeight: "600", paddingTop: "10px", fontSize: "18px" }}>
+          Amenities
+        </h1>
+        <button
+          className="close-btns"
+          onClick={() => setShowAmenitiesPopup(false)}
+        >
+          Close
+        </button>
+      </div>
+
+      <hr style={{ color: "#eeeeeeff", margin: "5px 0px 10px 0px" }} />
+
+      {/* Facilities List */}
+      <div className="facilities-list">
+        {Array.isArray(room.roomDetails?.amenities) &&
+        room.roomDetails.amenities.length > 0 ? (
+          room.roomDetails.amenities.map((item, i) => (
+            <div key={i} className="facility-item">
+              <span className="icon">i</span>
+              {item}
+            </div>
+          ))
+        ) : (
+          <p>No facilities listed</p>
+        )}
+      </div>
+    </div>
+  </div>
+)}
 
         
       </div>
