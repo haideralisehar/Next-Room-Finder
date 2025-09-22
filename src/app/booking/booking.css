@@ -1,0 +1,133 @@
+/* Popup */
+.popup-overlays {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.4);
+  justify-content: center;
+  align-items: center;
+  
+   overflow: scroll;
+  z-index: 4000;
+}
+
+.popup-content {
+  background: #fff;
+
+  /* border-radius: 10px; */
+  max-width: 100%;
+  margin: 0px 0px;
+  width: 100%;
+  overflow: scroll;
+}
+
+/* .popup-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+} */
+
+.close-btns {
+  background-color: rgb(234, 66, 47);
+                        color: white;
+                        padding: 5px 10px;
+                        border-radius: 8px;
+                        float: right;
+                        cursor: pointer;
+                        margin-right: 6px;
+}
+
+/* Overlay */
+.warning-popup-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.4);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 2000;
+}
+
+/* Popup Box */
+.warning-popup-box {
+  background: #fff;
+  padding: 20px 25px;
+  border-radius: 7px;
+  width: auto;
+  max-width: 90%;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.25);
+  text-align: center;
+  animation: fadeIn 0.2s ease-in-out;
+}
+
+/* Header */
+.warning-popup-header {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 12px;
+}
+
+.warning-icon {
+  font-size: 24px;
+  margin-right: 8px;
+}
+
+/* Text */
+.warning-text {
+  font-size: 14px;
+  color: #333;
+  margin-bottom: 15px;
+}
+
+/* Buttons */
+.warning-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+}
+
+.warning-btn {
+  padding: 6px 12px;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 13px;
+  border: none;
+  transition: 0.2s;
+}
+
+.terms-btn {
+  background: #3378c2;
+  color: white;
+}
+
+.terms-btn:hover {
+  background: #245b94;
+}
+
+.close-btn {
+  background: #e0e0e0;
+  color: #333;
+}
+
+.close-btn:hover {
+  background: #c7c7c7;
+}
+
+/* Animation */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
