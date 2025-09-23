@@ -14,6 +14,9 @@ import { FaFilter } from "react-icons/fa";
 import StarRating from "../components/rating";
 import { useCurrency } from "../Context/CurrencyContext";
 import dynamic from "next/dynamic";
+import ImageViewer from "../components/ImageViewer";
+import HotelTabs from "../components/tabs";
+
 
 const MapWithPrices = dynamic(() => import("../MapView/MapShow"), {
   ssr: false,
@@ -22,6 +25,7 @@ export default function ResultsContent() {
   const searchParams = useSearchParams();
 
   const { currency, convertPrice } = useCurrency();
+  const [showRoomPopup, setShowRoomPopup] = useState(false);
 
   const [loading, setLoading] = useState(true);
   const [results, setResults] = useState([]);
@@ -35,7 +39,6 @@ export default function ResultsContent() {
   const [facilities, setFacility] = useState([]);
   const handlePopupToggle = () => setShowPopup(!showPopup);
   const [showMap, setShowMap] = useState(true); // map show
-  
 
   // ✅ Filters state
   const [filters, setFilters] = useState({
@@ -112,16 +115,12 @@ export default function ResultsContent() {
             return a.price - b.price;
           case "price-high":
             return b.price - a.price;
-          case "rating-low":
-            return parseFloat(a.rating) - parseFloat(b.rating);
-          case "rating-high":
-            return parseFloat(b.rating) - parseFloat(a.rating);
-          case "stars-low":
-            return a.stars - b.stars;
-          case "stars-high":
-            return b.stars - a.stars;
-          default:
-            return 0;
+          case "az":
+        return a.name.localeCompare(b.name);
+      case "za":
+        return b.name.localeCompare(a.name);
+      default:
+        return 0;
         }
       });
     }
@@ -247,18 +246,17 @@ export default function ResultsContent() {
           </div>
           {/* ✅ Sort Dropdown (aligned right) */}
           <select
-            className="sort-dropdown"
-            value={sortOption}
-            onChange={(e) => setSortOption(e.target.value)}
-          >
-            <option value="">Sort By</option>
-            <option value="price-low">Price: Low to High</option>
-            <option value="price-high">Price: High to Low</option>
-            <option value="rating-low">Rating: Low to High</option>
-            <option value="rating-high">Rating: High to Low</option>
-            <option value="stars-low">Stars: Low to High</option>
-            <option value="stars-high">Stars: High to Low</option>
-          </select>
+  className="sort-dropdown"
+  value={sortOption}
+  onChange={(e) => setSortOption(e.target.value)}
+>
+  <option value="">Sort By</option>
+  <option value="price-low">Price: Low to High</option>
+  <option value="price-high">Price: High to Low</option>
+  <option value="az">Alphabetical (A → Z)</option>
+  <option value="za">Alphabetical (Z → A)</option>
+</select>
+
         </div>
       </div>
 
@@ -336,7 +334,68 @@ export default function ResultsContent() {
                     </p>
                   ) : (
                     filteredResults.map((hotel) => (
-                      <Link
+                     
+                      <div className="hotel-card" key={hotel.id}>
+                        {/* Left: Image */}
+
+                        <div className="hotel-img-wrapper">
+                          <img
+                            src={hotel.image}
+                            alt={hotel.name}
+                            className="hotel-img"
+                          />
+                          <div className="favorite-icon">❤</div>
+                        </div>
+
+                        {/* Right: Details */}
+                        <div className="hotel-details">
+                          <div className="hotel-header">
+                            <StarRating rating={hotel.rating} />
+                            <h3>{hotel.name}</h3>
+                          </div>
+
+                          <div
+                            className="m-xtx-set"
+                            style={{ display: "flex" }}
+                          >
+                            <IoLocationOutline />
+                            <p className="location">{hotel.location}</p>
+                          </div>
+
+                          <p
+                            style={{
+                              fontSize: "12px",
+                              color: "red",
+                              paddingBottom: "0px",
+                            }}
+                          >
+                            🚫 Non-Refundable
+                          </p>
+                          <span>
+                            {/* {hotel.rating >= 3 ? "Very Good" : "Good"} */}
+                            <p
+                              style={{
+                                color: "#1c8bd0ff",
+                                cursor: "pointer",
+                                textDecoration: "underline",
+                                fontSize: "13px",
+                                paddingLeft: "3px",
+                              }}
+                              onClick={() => setShowRoomPopup(true)}
+                            >
+                              See More
+                            </p>
+                          </span>
+
+                          <div className="price-info top-right">
+                            <p className="price">
+                              {convertPrice(hotel.price)} {currency}
+                            </p>
+                            <p className="price-sub">
+                              {rooms.length} room(s) <br /> {nights} night(s)
+                              incl. taxes
+                            </p>
+                             <Link
                         key={hotel.id}
                         href={{
                           pathname: "/hotel-view",
@@ -364,68 +423,77 @@ export default function ResultsContent() {
                         target="_blank"
                         rel="noopener noreferrer"
                       >
-                        <div className="hotel-card">
-                          {/* Left: Image */}
-                          <div className="hotel-img-wrapper">
-                            <img
-                              src={hotel.image}
-                              alt={hotel.name}
-                              className="hotel-img"
-                            />
-                            <div className="favorite-icon">❤</div>
-                          </div>
-
-                          {/* Right: Details */}
-                          <div className="hotel-details">
-                            <div className="hotel-header">
-                              <StarRating rating={hotel.rating} />
-                              <h3>{hotel.name}</h3>
-                            </div>
-
-                            <div
-                              className="m-xtx-set"
-                              style={{ display: "flex" }}
-                            >
-                              <IoLocationOutline />
-                              <p className="location">{hotel.location}</p>
-                            </div>
-
-                            <p className="breakfast">🥗 Breakfast included</p>
-                            <p
+                            <button
+                            className="bok-btn"
                               style={{
                                 fontSize: "14px",
-                                color: "red",
-                                paddingBottom: "10px",
+                                backgroundColor: "#f74a06ff",
+                                padding: "3px 14px",
+                                color: "white",
+                                borderRadius: "20px",
+                                marginTop: "10px",
+                                cursor:"pointer"
                               }}
                             >
-                              🚫 Non-Refundable
-                            </p>
-
-                            <div className="hotel-footer">
-                              <div className="rating">
-                                <span className="rating-badge">
-                                  {hotel.rating}
-                                </span>
-                                <span>
-                                  {hotel.rating >= 3 ? "Very Good" : "Good"}
-                                </span>
-                              </div>
-
-                              <div className="price-info">
-                                <p className="price">
-                                  {convertPrice(hotel.price)} {currency}
-                                </p>
-                                <p className="price-sub">
-                                  {rooms.length} room(s) <br /> {nights}{" "}
-                                  night(s) incl. taxes
-                                </p>
-                              </div>
-                            </div>
+                              Book Now
+                            </button>
+                            </Link>
                           </div>
                         </div>
-                      </Link>
+                        {showRoomPopup && (
+                          <div className="popup-overlay-room">
+                            <div className="popup-content-room">
+                              <button
+                                className="popup-close"
+                                onClick={() => setShowRoomPopup(false)}
+                              >
+                                ✕
+                              </button>
+                              {/* <h2>{hotel.name}</h2> */}
+                              {/*<p>{hotel.description}</p>
+            <p><strong>Location:</strong> {hotel.location}</p>
+            <p><strong>Price:</strong> ${hotel.price} / night</p> */}
+                              {/* <button className="book-btn">Book Now</button> */}
+                              {/* <p>{hotel.position.lat}{hotel.position.lon}</p> */}
+                              <div className="RatingPlusTitle">
+                                <h1
+                                  className="hotel-title"
+                                  style={{ padding: "0px 12px 0px 20px" }}
+                                >
+                                  {hotel.name}
+                                </h1>
+                                <div className="StartManage">
+                                  <StarRating rating={hotel.rating} />
+                                </div>
+                              </div>
+
+                              <div
+                                className="tit-mng"
+                                style={{ padding: "0px 12px 0px 20px" }}
+                              >
+                                <IoLocationOutline />
+                                <p>{hotel.location}</p>
+                              </div>
+                              <ImageViewer
+                                images={hotel.roomImages}
+                                location={[
+                                  hotel.position.lat,
+                                  hotel.position.lon,
+                                ]}
+                              />
+
+                             
+
+                               <HotelTabs description={hotel.description} facility={hotel.facilities} />
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                      // </Link>
                     ))
                   )}
+
+                  {/* --- Popup Modal --- */}
                 </div>
               </main>
             )}

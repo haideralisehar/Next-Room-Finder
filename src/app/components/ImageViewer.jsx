@@ -130,6 +130,7 @@ const ImageViewer = ({ images, location }) => {
 
       {/* THUMBNAILS */}
       <div className="thumbnail-section">
+        
         {images.map((img, index) => (
           <React.Fragment key={index}>
             {/* Empty div for Map */}

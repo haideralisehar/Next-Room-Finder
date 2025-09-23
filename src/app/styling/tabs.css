@@ -12,7 +12,7 @@
 
 .tab-btn {
   padding: 10px 20px;
-  font-size: 16px;
+  font-size: 14px;
   background: none;
   border: none;
   outline: none;
@@ -44,7 +44,7 @@
 }
 
 .tab-text {
-  font-size: 15px;
+  font-size: 14px;
   color: #444;
 }
 
@@ -57,7 +57,7 @@
 .facility-item {
   display: flex;
   align-items: center;
-  font-size: 15px;
+  font-size: 14px;
   color: #333;
 }
 

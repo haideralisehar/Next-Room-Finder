@@ -179,7 +179,7 @@ export default function HotelView() {
     <>
       <Header />
       <div className="hotel-view-container">
-        <div className="RatingPlusTitle">
+        {/* <div className="RatingPlusTitle">
           <h1 className="hotel-title" style={{ padding: "0px 12px 0px 20px" }}>
             {hotel.name}
           </h1>
@@ -191,17 +191,17 @@ export default function HotelView() {
         <div className="tit-mng" style={{ padding: "0px 12px 0px 20px" }}>
           <IoLocationOutline />
           <p>{hotel.location}</p>
-        </div>
+        </div> */}
 
-        <ImageViewer images={hotel.roomImages} location={[hotel.lat, hotel.lon]} />
-        <HotelTabs description={hotel.description} facility={hotel.facilities} />
+        {/* <ImageViewer images={hotel.roomImages} location={[hotel.lat, hotel.lon]} />
+        <HotelTabs description={hotel.description} facility={hotel.facilities} /> */}
 
-        <div style={{ marginTop: "20px" }}>
+        <div style={{ marginTop: "10px" }}>
           <h2
             style={{
               fontWeight: "bold",
               fontSize: "20px",
-              padding: "15px 15px",
+              padding: "1px 15px",
             }}
           >
             Room Choice

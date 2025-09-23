@@ -13,8 +13,8 @@ export default function RoomCard({
 }) {
   const { currency, convertPrice } = useCurrency();
   const [current, setCurrent] = useState(0);
-   const [showPopup, setShowPopup] = useState(false);
-   const [showAmenitiesPopup, setShowAmenitiesPopup] = useState(false);
+  const [showPopup, setShowPopup] = useState(false);
+  const [showAmenitiesPopup, setShowAmenitiesPopup] = useState(false);
 
   const images =
     room.roomPhotos?.length > 0
@@ -43,7 +43,9 @@ export default function RoomCard({
           </div>
 
           <button
-            onClick={() => setCurrent((p) => (p - 1 + images.length) % images.length)}
+            onClick={() =>
+              setCurrent((p) => (p - 1 + images.length) % images.length)
+            }
             className="nav-btn left"
           >
             ‹
@@ -58,18 +60,18 @@ export default function RoomCard({
 
         {/* Room Details */}
         <div className="room-details">
-          <h4>Room Details</h4>
-          <p>
+          <h4 style={{fontSize:"14px"}}>Room Details</h4>
+          <p style={{fontSize:"12px"}}>
             🛏 Sleeps {room.fitForAdults} | 📐 {room.roomDetails.size}
           </p>
 
-          <h4>Amenities</h4>
+          <h4 style={{fontSize:"14px"}}>Amenities</h4>
           <div className="facilities-list">
             {room.roomDetails.amenities?.length > 0 ? (
               room.roomDetails.amenities.map((item, i) => (
                 <div key={i} className="facility-item">
-                  <span className="icon">i</span>
-                  {item}
+                  <span className="icon" >i</span>
+                  <p style={{fontSize:"12px"}}>{item}</p>
                 </div>
               ))
             ) : (
@@ -83,6 +85,7 @@ export default function RoomCard({
                 color: "#5e72e0ff",
                 textDecoration: "underline",
                 cursor: "pointer",
+                fontSize:"13px"
               }}
               onClick={() => setShowAmenitiesPopup(true)}
             >
@@ -103,9 +106,54 @@ export default function RoomCard({
             return (
               <div key={idx} className="room-type-box">
                 <div className="variation-info">
-                  <h4 style={{fontWeight:"600"}}>{variation.mealPlan} - {variation.refund? "Refundable" : "Non-refundable"}</h4>
+                  <h4 style={{ fontWeight: "600", fontSize: "14px" }}>
+                    {variation.mealPlan} -{" "}
+                    {variation.refund ? "Refundable" : "Non-refundable"}
+                  </h4>
                   {/* <p>{variation.refund ? "Refundable" : "Non-refundable"}</p> */}
-                  {variation.breakfast && variation.mealPlan === "Full Board" && ( <p><span className="green">✔</span> Including Breakfast + Lunch + Dinner</p> )} {variation.breakfast && variation.mealPlan === "Half Board" && ( <p><span className="green">✔</span> Including Breakfast + Lunch (or Dinner)</p> )} {variation.breakfast && variation.mealPlan === "Bed and Breakfast" && ( <p><span className="green">✔</span> Breakfast Included</p> )} {!variation.breakfast && ( <p><span className="red">✖</span> No Breakfast Included</p> )} {variation.cancellation ? ( <p><span className="green">✔</span> Free Cancellation</p> ) : ( <p><span className="red">✖</span> No Cancellation</p> )} {variation.refund ? ( <p><span className="green">✔</span> Refundable</p> ) : ( <p><span className="red">✖</span> No-Refundable</p> )}
+                  {variation.breakfast &&
+                    variation.mealPlan === "Full Board" && (
+                      <p  className="txt-rsiz">
+                        <span className="green">✔</span> Including Breakfast +
+                        Lunch + Dinner
+                      </p>
+                    )}{" "}
+                  {variation.breakfast &&
+                    variation.mealPlan === "Half Board" && (
+                      <p className="txt-rsiz">
+                        <span className="green">✔</span> Including Breakfast +
+                        Lunch (or Dinner)
+                      </p>
+                    )}{" "}
+                  {variation.breakfast &&
+                    variation.mealPlan === "Bed and Breakfast" && (
+                      <p className="txt-rsiz">
+                        <span className="green">✔</span> Breakfast Included
+                      </p>
+                    )}{" "}
+                  {!variation.breakfast && (
+                    <p className="txt-rsiz">
+                      <span className="red">✖</span> No Breakfast Included
+                    </p>
+                  )}{" "}
+                  {variation.cancellation ? (
+                    <p className="txt-rsiz">
+                      <span className="green">✔</span> Free Cancellation
+                    </p>
+                  ) : (
+                    <p className="txt-rsiz">
+                      <span className="red">✖</span> No Cancellation
+                    </p>
+                  )}{" "}
+                  {variation.refund ? (
+                    <p className="txt-rsiz">
+                      <span className="green">✔</span> Refundable
+                    </p>
+                  ) : (
+                    <p className="txt-rsiz">
+                      <span className="red">✖</span> No-Refundable
+                    </p>
+                  )}
                 </div>
 
                 <div className="price-box">
@@ -116,8 +164,10 @@ export default function RoomCard({
                   <h2 className="new-price">
                     {convertPrice(variation.price)} {currency}
                   </h2>
-                  <p className="small-text">{roomCount} room(s)</p>
-                  <p className="small-text">{nights} night(s)</p>
+                  <p className="small-text">
+                    {roomCount} room(s) - {nights} night(s)
+                  </p>
+                  {/* <p className="small-text"></p> */}
 
                   <button
                     className={`choose-btn 
@@ -177,43 +227,50 @@ export default function RoomCard({
         ) : (
           <p>No room variations available</p>
         )}
-{showAmenitiesPopup && (
-  <div className="popup-overlays">
-    <div className="popup-content">
-      {/* Header with title + close button */}
-      <div className="btn-cls" style={{ display: "flex", justifyContent: "space-between" }}>
-        <h1 style={{ fontWeight: "600", paddingTop: "10px", fontSize: "18px" }}>
-          Amenities
-        </h1>
-        <button
-          className="close-btns"
-          onClick={() => setShowAmenitiesPopup(false)}
-        >
-          Close
-        </button>
-      </div>
+        {showAmenitiesPopup && (
+          <div className="popup-overlays">
+            <div className="popup-content">
+              {/* Header with title + close button */}
+              <div
+                className="btn-cls"
+                style={{ display: "flex", justifyContent: "space-between" }}
+              >
+                <h1
+                  style={{
+                    fontWeight: "600",
+                    paddingTop: "10px",
+                    fontSize: "18px",
+                  }}
+                >
+                  Amenities
+                </h1>
+                <button
+                  className="close-btns"
+                  onClick={() => setShowAmenitiesPopup(false)}
+                >
+                  Close
+                </button>
+              </div>
 
-      <hr style={{ color: "#eeeeeeff", margin: "5px 0px 10px 0px" }} />
+              <hr style={{ color: "#eeeeeeff", margin: "5px 0px 10px 0px" }} />
 
-      {/* Facilities List */}
-      <div className="facilities-list">
-        {Array.isArray(room.roomDetails?.amenities) &&
-        room.roomDetails.amenities.length > 0 ? (
-          room.roomDetails.amenities.map((item, i) => (
-            <div key={i} className="facility-item">
-              <span className="icon">i</span>
-              {item}
+              {/* Facilities List */}
+              <div className="facilities-list">
+                {Array.isArray(room.roomDetails?.amenities) &&
+                room.roomDetails.amenities.length > 0 ? (
+                  room.roomDetails.amenities.map((item, i) => (
+                    <div key={i} className="facility-item">
+                      <span className="icon">i</span>
+                      {item}
+                    </div>
+                  ))
+                ) : (
+                  <p>No facilities listed</p>
+                )}
+              </div>
             </div>
-          ))
-        ) : (
-          <p>No facilities listed</p>
+          </div>
         )}
-      </div>
-    </div>
-  </div>
-)}
-
-        
       </div>
     </div>
   );

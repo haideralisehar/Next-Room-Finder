@@ -6,7 +6,7 @@
   gap: 20px;
   width: 100%;
   margin: auto;
-  padding: 20px 120px;
+  padding: 10px 120px;
   
 }
 .map-con {
@@ -98,18 +98,35 @@
   /* box-shadow: 1px 1px 19px rgba(22, 22, 22, 0.058); */
   padding: 5px;
 }
+.price-info.top-right {
+  position: absolute;
+  top: 10px;
+  right: 15px;
+  text-align: right;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+}
+
+.hotel-details {
+  position: relative; /* needed for absolute positioning */
+}
+
 
 .hotel-img-wrapper {
-  position: relative;
+  width: 160px;
+  
+  overflow: hidden;
+  
 }
 
 .hotel-img {
-  width: 160px;
+  width: 100%;
   height: 100%;
-  object-fit: cover;
-  display: block;
-  border-radius: 6px;
+  object-fit: cover; /* keep proportions without stretching */
+  border-radius: 10px;
 }
+
 
 .favorite-icon {
   position: absolute;
@@ -130,12 +147,14 @@
   padding: 5px 20px;
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
+  justify-content: space-between; /* distributes content evenly */
+  min-height: 120px; /* match image height */
 }
 
+
 .hotel-header {
-  margin-bottom: 4px;
-  margin-top: 5px;
+  margin-bottom: 0px;
+  margin-top: 0px;
 }
 
 .stars {
@@ -146,7 +165,7 @@
 .hotel-details h3 {
   margin: 0px 0;
   font-weight: bold;
-  font-size: 18px;
+  font-size: 15px;
 }
 
 .location {
@@ -183,15 +202,11 @@
   font-weight: bold;
 }
 
-.price-info {
-  display: flex;
-  flex-direction: column; /* ✅ stack price and sub text */
-  align-items: flex-end;  /* ✅ align right */
-  text-align: right;
-}
+
+
 
 .price {
-  font-size: 20px;
+  font-size: 15px;
   font-weight: bold;
   color: #000;
   margin: 0;   /* remove extra spacing */
@@ -267,15 +282,112 @@
   padding: 6px 8px;
   border: 1px solid silver;
   border-radius: 4px;
-  font-size: 14px;
+  font-size: 13px;
   background: white;
   cursor: pointer;
 }
+
 .btn-filter{
   display: none;
 
 }
+
+/* --- Popup Overlay --- */
+.popup-overlay-room {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 4000;
+  animation: fadeIn 0.3s ease-in-out;
+}
+/* Title */
+.hotel-title {
+  font-size: 20px;
+  font-weight: 700;
+  margin-bottom: 0px;
+  color: #222;
+}
+.RatingPlusTitle{
+  display: flex;
+  padding: -5px 0px 0px 0px;
+}
+.StartManage{
+  margin-top:10px;
+}
+
+.tit-mng {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #555;
+  margin-bottom: 5px;
+  font-size: 15px;
+}
+
+/* --- Popup Box --- */
+.popup-content-room {
+  background: #fff;
+  border-radius: 10px;
+  padding: 20px 20px 30px 20px;
+  width: calc(100% - 40px); /* 20px margin from all sides */
+  height: calc(100% - 40px);
+  overflow-y: auto;
+  position: relative;
+  animation: slideUp 0.35s ease;
+}
+
+
+/* Close Button */
+.popup-close {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  border: none;
+  background: #ffffff;
+  color: #1f1e1e;
+  border: 1px solid silver;
+  font-size: 16px;
+  padding: 6px 10px;
+  border-radius: 50%;
+  cursor: pointer;
+}
+
+/* --- Animations --- */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideUp {
+  from { transform: translateY(50px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+/* See More Button */
+.see-more-btn {
+  margin-top: 8px;
+  padding: 6px 12px;
+  border: none;
+  border-radius: 6px;
+  background: #0070f3;
+  color: white;
+  cursor: pointer;
+}
+
+.see-more-btn:hover {
+  background: #005bb5;
+}
+
 @media (max-width: 1010px) {
+  .hotel-img-wrapper{
+    width: 100%;
+  }
   .hotel-card {
     flex-direction: column;
     justify-content: space-between;
@@ -294,7 +406,7 @@
 
 
   .hotel-img {
-    width: 100vw;
+    width: 100%;
     height: 200px;
   }
   .price-info{
