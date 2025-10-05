@@ -3,10 +3,10 @@ import React, { useState } from "react";
 import "../styling/Head.css";
 import Link from "next/link";
 import DropdownAlt from "./Dropdown";
-import { BsDisplay } from "react-icons/bs";
 import LanguageSwitcher from "./LanguageSwitcher";
+import WalletPopup from "../Wallet/myWallet"
 
-const Header = () => {
+const Header = ({ isLoggedIn, setIsLoggedIn }) => {
   const [menuOpen, setMenuOpen] = useState(false);
 
   const toggleMenu = () => setMenuOpen(!menuOpen);
@@ -36,24 +36,42 @@ const Header = () => {
               <Link href="/About">About Us</Link>
             </li>
             <li>
-              <LanguageSwitcher/>
+              <LanguageSwitcher />
             </li>
             <DropdownAlt />
-            <button className="login-btn-1">
-              <Link href="/authentication/login">Login</Link>
-            </button>
+
+            {!isLoggedIn ? (
+              <button className="login-btn-1">
+                <Link href="/authentication/login">Login</Link>
+              </button>
+            ) : (
+              <>
+                
+                  
+                  {/* <Link href="/wallet">Wallet</Link> */}
+                
+                <button className="login-btn">
+                  <Link href="/dsr">DSR</Link>
+                </button>
+                <button className="login-btn">
+                  <Link href="/bookingPage">Bookings</Link>
+                </button>
+                <button
+                  className="login-btn"
+                  onClick={() => setIsLoggedIn(false)}
+                >
+                  Logout
+                </button>
+                <WalletPopup/>
+              </>
+            )}
           </ul>
         </nav>
 
-        {/* Hamburger (mobile only) */}
-
+        {/* Mobile Actions */}
         <div className="mobile-actions">
-          {/* <a href="/ar" className="mobile-lang">
-            العربية
-          </a> */}
-          <LanguageSwitcher/>
+          <LanguageSwitcher />
           <DropdownAlt />
-
           <button
             className={`hamburger ${menuOpen ? "open" : ""}`}
             onClick={toggleMenu}
@@ -65,7 +83,7 @@ const Header = () => {
         </div>
       </div>
 
-      {/* Mobile Nav (always mounted) */}
+      {/* Mobile Nav */}
       <nav
         id="mobileMenu"
         className={`nav mobile-nav ${menuOpen ? "open" : ""}`}
@@ -81,9 +99,27 @@ const Header = () => {
             <Link href="/About">About Us</Link>
           </li>
 
-          <Link href="/authentication/login">
-            <button className="login-btn-1">Login</button>
-          </Link>
+          {!isLoggedIn ? (
+            <Link href="/authentication/login">
+              <button className="login-btn-1">Login</button>
+            </Link>
+          ) : (
+            <>
+              <WalletPopup/>
+              <button className="login-btn-1">
+                <Link href="/dsr">DSR</Link>
+              </button>
+              <button className="login-btn-1">
+                <Link href="/books">Bookings</Link>
+              </button>
+              <button
+                className="login-btn-1"
+                onClick={() => setIsLoggedIn(false)}
+              >
+                Logout
+              </button>
+            </>
+          )}
         </ul>
       </nav>
     </header>
