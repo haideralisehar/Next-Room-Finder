@@ -8,7 +8,7 @@ const SAMPLE_ROWS = Array.from({ length: 50 }).map((_, i) => ({
   id: i + 1,
   superPnr: 129900 + i,
   service: "Flight",
-  customer: ["High Sky Travels", "LINNAS TRAVEL", "AL MADINA TRAVEL"][i % 3],
+  customer: ["High Sky Travels", "LINNAS TRAVELs", "AL MADINA TRAVELs"][i % 3],
   pnr: ["YZNBDG", "DMJN3P", "DMJJ20", "QLEOVV", "DMJ5H8"][i % 5],
   paxName: ["Faisal Hasan", "Abdur Rahim", "Jehen Akbar"][i % 3],
   bookedDate: `0${(i % 30) + 1}-Oct-2025`,
