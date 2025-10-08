@@ -1,11 +1,13 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { useRouter } from "next/navigation"; // ✅ Import router
 import Header from "../../components/Header";
 import Footer from "../../components/Footer";
-import "./login.css"; // Import CSS file
+import "./login.css";
 
 const Login = () => {
-  const [isLoggedIn, setIsLoggedIn] = useState(false); // track login
+  const router = useRouter(); // ✅ Initialize router
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
 
   const [formData, setFormData] = useState({
     email: "",
@@ -13,6 +15,17 @@ const Login = () => {
     remember: false,
     language: "English",
   });
+
+  // 👉 Load login state from localStorage on mount
+  useEffect(() => {
+    const storedLogin = localStorage.getItem("isLoggedIn");
+    const storedUser = localStorage.getItem("userEmail");
+    if (storedLogin === "true" && storedUser) {
+      setIsLoggedIn(true);
+      setFormData((prev) => ({ ...prev, email: storedUser }));
+       router.push("/");
+    }
+  }, []);
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -24,18 +37,34 @@ const Login = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    // 👉 yahan real login API call hogi
+
     if (formData.email && formData.password) {
+      // 👉 Simulate successful login
       setIsLoggedIn(true);
+
+      // ✅ Save login state in storage
+      localStorage.setItem("isLoggedIn", "true");
+      localStorage.setItem("userEmail", formData.email);
+
       alert("Login Successful!");
+
+      // ✅ Redirect to homepage after login
+      router.push("/");
     }
+  };
+
+  // 👉 Handle Logout (optional helper)
+  const handleLogout = () => {
+    setIsLoggedIn(false);
+    localStorage.removeItem("isLoggedIn");
+    localStorage.removeItem("userEmail");
   };
 
   return (
     <>
       <Header isLoggedIn={isLoggedIn} setIsLoggedIn={setIsLoggedIn} />
 
-      {!isLoggedIn ? (
+      
         <div className="login-container">
           <form className="login-box" onSubmit={handleSubmit}>
             <h2 className="login-title">Please login</h2>
@@ -98,12 +127,9 @@ const Login = () => {
             </a>
           </form>
         </div>
-      ) : (
-        <div className="login-container">
-          <h2>Welcome, {formData.email}!</h2>
-          <p>You are logged in.</p>
-        </div>
-      )}
+     
+       
+      
 
       <Footer />
     </>

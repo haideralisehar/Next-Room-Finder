@@ -1,15 +1,28 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import "../styling/Head.css";
 import Link from "next/link";
 import DropdownAlt from "./Dropdown";
 import LanguageSwitcher from "./LanguageSwitcher";
-import WalletPopup from "../Wallet/myWallet"
+import WalletPopup from "../Wallet/myWallet";
 
-const Header = ({ isLoggedIn, setIsLoggedIn }) => {
+const Header = () => {
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
 
+  // ✅ Load login status from localStorage on component mount
+  useEffect(() => {
+    const storedLogin = localStorage.getItem("isLoggedIn");
+    setIsLoggedIn(storedLogin === "true");
+  }, []);
+
   const toggleMenu = () => setMenuOpen(!menuOpen);
+
+  const handleLogout = () => {
+    setIsLoggedIn(false);
+    localStorage.removeItem("isLoggedIn");
+    localStorage.removeItem("userEmail");
+  };
 
   return (
     <header className="header">
@@ -26,18 +39,10 @@ const Header = ({ isLoggedIn, setIsLoggedIn }) => {
         {/* Desktop Nav */}
         <nav className="nav desktop-nav">
           <ul>
-            <li>
-              <a href="/">Home</a>
-            </li>
-            <li>
-              <Link href="/results">Search</Link>
-            </li>
-            <li>
-              <Link href="/About">About Us</Link>
-            </li>
-            <li>
-              <LanguageSwitcher />
-            </li>
+            <li><a href="/">Home</a></li>
+            <li><Link href="/results">Search</Link></li>
+            <li><Link href="/About">About Us</Link></li>
+            <li><LanguageSwitcher /></li>
             <DropdownAlt />
 
             {!isLoggedIn ? (
@@ -47,22 +52,10 @@ const Header = ({ isLoggedIn, setIsLoggedIn }) => {
             ) : (
               <>
                 
-                  
-                  {/* <Link href="/wallet">Wallet</Link> */}
-                
-                <button className="login-btn">
-                  <Link href="/dsr">DSR</Link>
-                </button>
-                <button className="login-btn">
-                  <Link href="/bookingPage">Bookings</Link>
-                </button>
-                <button
-                  className="login-btn"
-                  onClick={() => setIsLoggedIn(false)}
-                >
-                  Logout
-                </button>
-                <WalletPopup/>
+                <button className="login-btn"><Link href="/dsr">DSR</Link></button>
+                <button className="login-btn"><Link href="/bookingPage">Bookings</Link></button>
+                <button className="login-btn" onClick={handleLogout}>Logout</button>
+              <WalletPopup />
               </>
             )}
           </ul>
@@ -84,20 +77,11 @@ const Header = ({ isLoggedIn, setIsLoggedIn }) => {
       </div>
 
       {/* Mobile Nav */}
-      <nav
-        id="mobileMenu"
-        className={`nav mobile-nav ${menuOpen ? "open" : ""}`}
-      >
+      <nav id="mobileMenu" className={`nav mobile-nav ${menuOpen ? "open" : ""}`}>
         <ul>
-          <li>
-            <a href="/">Home</a>
-          </li>
-          <li>
-            <Link href="/results">Search</Link>
-          </li>
-          <li>
-            <Link href="/About">About Us</Link>
-          </li>
+          <li><a href="/">Home</a></li>
+          <li><Link href="/results">Search</Link></li>
+          <li><Link href="/About">About Us</Link></li>
 
           {!isLoggedIn ? (
             <Link href="/authentication/login">
@@ -105,19 +89,11 @@ const Header = ({ isLoggedIn, setIsLoggedIn }) => {
             </Link>
           ) : (
             <>
-              <WalletPopup/>
-              <button className="login-btn-1">
-                <Link href="/dsr">DSR</Link>
-              </button>
-              <button className="login-btn-1">
-                <Link href="/books">Bookings</Link>
-              </button>
-              <button
-                className="login-btn-1"
-                onClick={() => setIsLoggedIn(false)}
-              >
-                Logout
-              </button>
+              <WalletPopup />
+              <button className="login-btn-1"><Link href="/dsr">DSR</Link></button>
+              <button className="login-btn-1"><Link href="/bookingPage">Bookings</Link></button>
+              <button className="login-btn-1" onClick={handleLogout}>Logout</button>
+            <WalletPopup />
             </>
           )}
         </ul>

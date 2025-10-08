@@ -1,6 +1,7 @@
 "use client";
 import React, { useEffect, useState } from "react";
 import "../styling/DSRPage.css";
+import Header from "../components/Header"
 
 const initialData = [
   {
@@ -271,6 +272,9 @@ export default function DSRPage() {
   }
 
   return (
+    <>
+    <Header/>
+    
     <div className="dsr-container">
       <div className="dsr-topbar">Daily Sales Report(Contains Confirmed And Issued Services)</div>
 
@@ -606,5 +610,6 @@ export default function DSRPage() {
         </table>
       </div>
     </div>
+    </>
   );
 }

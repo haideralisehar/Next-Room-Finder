@@ -214,6 +214,7 @@ export default function HotelView() {
           />
 
           <HotelFilterBar onFilterChange={handleFilterChange} />
+          <br />
 
           {filteredRooms.length > 0 ? (
   filteredRooms.map((room) => (

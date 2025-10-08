@@ -32,7 +32,7 @@ export default function RoomCard({
         <h3 className="room-title">{room.title}</h3>
 
         {/* Slider */}
-        <div className="slider">
+        {/* <div className="slider">
           <div
             className="slider-wrapper"
             style={{ transform: `translateX(-${current * 100}%)` }}
@@ -56,11 +56,11 @@ export default function RoomCard({
           >
             ›
           </button>
-        </div>
+        </div> */}
 
         {/* Room Details */}
         <div className="room-details">
-          <h4 style={{fontSize:"14px"}}>Room Details</h4>
+          <h4 style={{fontSize:"14px", borderTop:"1px solid #cfcfcfff", paddingTop:"6px"}}>Room Details</h4>
           <p style={{fontSize:"12px"}}>
             🛏 Sleeps {room.fitForAdults} | 📐 {room.roomDetails.size}
           </p>

@@ -2,6 +2,7 @@
 "use client"
 import React, { useMemo, useState } from "react";
 import styles from "./Bookings.module.css";
+import Header from "../components/Header"
 
 // Sample data (replace with real data later)
 const SAMPLE_ROWS = Array.from({ length: 50 }).map((_, i) => ({
@@ -99,6 +100,8 @@ export default function BookingsPage() {
   };
 
   return (
+    <>
+    <Header/>
     <div className={styles.page}>
       <header className={styles.header}>
         <h2>Bookings</h2>
@@ -316,5 +319,6 @@ export default function BookingsPage() {
         </div>
       </section>
     </div>
+    </>
   );
 }
