@@ -183,7 +183,7 @@ const ImageViewer = ({ images, location }) => {
             />
             <Marker position={position}>
               <Popup>
-                <div className="pop-content">📍 Hotels Location</div>
+                <div className="pop-content">📍 Hotel Locations</div>
               </Popup>
             </Marker>
           </MapContainer>
