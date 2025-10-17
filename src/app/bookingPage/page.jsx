@@ -1,324 +1,312 @@
-// components/BookingsPage.jsx
-"use client"
-import React, { useMemo, useState } from "react";
-import styles from "./Bookings.module.css";
+
+
+"use client";
+import React, { useState } from "react";
+import "./mybooking.css";
 import Header from "../components/Header"
+export default function MyBookingsPage() {
+  const [filters, setFilters] = useState({
+    bookingId: "",
+    leaderName: "",
+    reservationStatus: "",
+    serviceType: "All",
+    subType: "subAgent",
+    platform: [],
+    showBookingDate: false,
+    showServiceDate: false,
+    showDeadlineDate: false,
+    showStatusDate: false,
+    showPastBookings: false,
+  });
 
-// Sample data (replace with real data later)
-const SAMPLE_ROWS = Array.from({ length: 50 }).map((_, i) => ({
-  id: i + 1,
-  superPnr: 129900 + i,
-  service: "Flight",
-  customer: ["High Sky Travels", "LINNAS TRAVELs", "AL MADINA TRAVELs"][i % 3],
-  pnr: ["YZNBDG", "DMJN3P", "DMJJ20", "QLEOVV", "DMJ5H8"][i % 5],
-  paxName: ["Faisal Hasan", "Abdur Rahim", "Jehen Akbar"][i % 3],
-  bookedDate: `0${(i % 30) + 1}-Oct-2025`,
-  user: ["FAYYAZHS", "RAFIQ", "ALMADINA", "TALHAK"][i % 4],
-  amendment: "",
-  searchId: 2523872 + i,
-  pgStatus: "",
-  trackId: "",
-}));
+  const [results, setResults] = useState([]);
 
-export default function BookingsPage() {
-  // UI state
-  const [fromDate, setFromDate] = useState("");
-  const [toDate, setToDate] = useState("");
-  const [status, setStatus] = useState("");
-  const [query, setQuery] = useState("");
-  const [rowsPerPage, setRowsPerPage] = useState(10);
-  const [page, setPage] = useState(1);
-  const [selectedRows, setSelectedRows] = useState(new Set());
-  const [highlightId, setHighlightId] = useState(12); // example highlighted row
+  // Dummy booking data
+  const dummyBookings = [
+    {
+      id: "B001",
+      leader: "John Smith",
+      status: "Confirmed",
+      service: "Hotel",
+      platform: "Web",
+      date: "2025-10-10",
+    },
+    {
+      id: "B002",
+      leader: "Alice Johnson",
+      status: "Pending",
+      service: "Flight",
+      platform: "Mobile",
+      date: "2025-09-28",
+    },
+    {
+      id: "B003",
+      leader: "David Lee",
+      status: "Cancelled",
+      service: "Hotel",
+      platform: "Android",
+      date: "2025-08-10",
+    },
+    {
+      id: "B004",
+      leader: "Michael Brown",
+      status: "Confirmed",
+      service: "Tour",
+      platform: "IOS",
+      date: "2025-10-05",
+    },
+  ];
 
-  // Filtered rows (simple text filter + status + date stubs)
-  const filtered = useMemo(() => {
-    let data = SAMPLE_ROWS;
+  const handleChange = (e) => {
+    const { name, value, type, checked } = e.target;
 
-    if (query.trim()) {
-      const q = query.toLowerCase();
-      data = data.filter(
-        (r) =>
-          String(r.superPnr).includes(q) ||
-          r.customer.toLowerCase().includes(q) ||
-          r.paxName.toLowerCase().includes(q) ||
-          (r.pnr && r.pnr.toLowerCase().includes(q))
-      );
-    }
-
-    if (status) {
-      // Example: this just filters by 'Flight' as a demo
-      data = data.filter((r) => r.service.toLowerCase() === status.toLowerCase());
-    }
-
-    // Date filters could be applied here when you wire real bookedDate values
-    return data;
-  }, [query, status]);
-
-  const totalPages = Math.ceil(filtered.length / rowsPerPage);
-  const pagedRows = filtered.slice((page - 1) * rowsPerPage, page * rowsPerPage);
-
-  // Handlers
-  const toggleSelectAll = (checked) => {
-    if (checked) {
-      setSelectedRows(new Set(pagedRows.map((r) => r.id)));
+    if (type === "checkbox") {
+      if (name === "platform") {
+        setFilters((prev) => {
+          const updated = checked
+            ? [...prev.platform, value]
+            : prev.platform.filter((p) => p !== value);
+          return { ...prev, platform: updated };
+        });
+      } else {
+        setFilters((prev) => ({ ...prev, [name]: checked }));
+      }
     } else {
-      setSelectedRows(new Set());
+      setFilters((prev) => ({ ...prev, [name]: value }));
     }
   };
 
-  const toggleRow = (id) => {
-    setSelectedRows((prev) => {
-      const n = new Set(prev);
-      if (n.has(id)) n.delete(id);
-      else n.add(id);
-      return n;
+  const handleSearch = () => {
+    let filtered = dummyBookings.filter((b) => {
+      return (
+        (!filters.bookingId ||
+          b.id.toLowerCase().includes(filters.bookingId.toLowerCase())) &&
+        (!filters.leaderName ||
+          b.leader.toLowerCase().includes(filters.leaderName.toLowerCase())) &&
+        (!filters.reservationStatus ||
+          b.status.toLowerCase() === filters.reservationStatus.toLowerCase()) &&
+        (filters.serviceType === "All" || b.service === filters.serviceType) &&
+        (filters.platform.length === 0 ||
+          filters.platform.includes(b.platform))
+      );
     });
+    setResults(filtered);
   };
 
-  const onSearch = (e) => {
-    e?.preventDefault();
-    setPage(1);
-    // we already filter on query & status
-  };
-
-  const onExport = () => {
-    // stub: you can create CSV from `filtered`
-    const csv = filtered
-      .map(
-        (r) =>
-          `"${r.superPnr}","${r.service}","${r.customer}","${r.pnr}","${r.paxName}","${r.bookedDate}","${r.user}"`
-      )
-      .join("\n");
-    const blob = new Blob([csv], { type: "text/csv" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = "bookings_export.csv";
-    a.click();
-    URL.revokeObjectURL(url);
+  const handleReset = () => {
+    setFilters({
+      bookingId: "",
+      leaderName: "",
+      reservationStatus: "",
+      serviceType: "All",
+      subType: "subAgent",
+      platform: [],
+      showBookingDate: false,
+      showServiceDate: false,
+      showDeadlineDate: false,
+      showStatusDate: false,
+      showPastBookings: false,
+    });
+    setResults([]);
   };
 
   return (
     <>
     <Header/>
-    <div className={styles.page}>
-      <header className={styles.header}>
-        <h2>Bookings</h2>
-      </header>
-
-      <section className={styles.controls}>
-        <form className={styles.filterRow} onSubmit={onSearch}>
-          <div className={styles.dateGroup}>
-            <label>
-              Start date
-              <input
-                type="date"
-                value={fromDate}
-                onChange={(e) => setFromDate(e.target.value)}
-                className={styles.input}
-              />
-            </label>
-            <label>
-              End date
-              <input
-                type="date"
-                value={toDate}
-                onChange={(e) => setToDate(e.target.value)}
-                className={styles.input}
-              />
-            </label>
-          </div>
-
-          <div className={styles.selectGroup}>
-            <label>
-              Status
-              <select value={status} onChange={(e) => setStatus(e.target.value)} className={styles.input}>
-                <option value="">All</option>
-                <option value="Flight">Flight</option>
-                <option value="Hotel">Hotel</option>
-                <option value="Cancel">Cancel</option>
-              </select>
-            </label>
-          </div>
-
-          <div className={styles.actionGroup}>
+    
+    <div className="rprt">My Bookings</div>
+    <div className="booki">
+      <div className="filter-section">
+        <div className="top-row">
+          <div className="input-box">
+            <label>Booking ID</label>
             <input
               type="text"
-              placeholder="Search by PNR, name or agent..."
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
-              className={styles.searchInput}
+              name="bookingId"
+              value={filters.bookingId}
+              onChange={handleChange}
+              placeholder="Enter your Booking ID"
             />
-            <div className={styles.buttons}>
-              <button type="submit" className={styles.btnPrimary}>
-                Search
-              </button>
-              <button type="button" className={styles.btnGhost} onClick={onExport}>
-                Export Unattempted Transactions
-              </button>
-              <button type="button" className={styles.btnGhost}>
-                Visa document download
-              </button>
-            </div>
           </div>
-        </form>
-      </section>
 
-      <section className={styles.tableWrap}>
-        <div className={styles.tableActions}>
-          <div>
+          <div className="checkboxes">
             <label>
-              Show
-              <select
-                value={rowsPerPage}
-                onChange={(e) => {
-                  setRowsPerPage(Number(e.target.value));
-                  setPage(1);
-                }}
-                className={styles.smallSelect}
-              >
-                <option value={10}>10</option>
-                <option value={25}>25</option>
-                <option value={50}>50</option>
-              </select>
-              entries
+              <input
+                type="checkbox"
+                name="showBookingDate"
+                checked={filters.showBookingDate}
+                onChange={handleChange}
+              />{" "}
+              Show Booking Date
+            </label>
+            <label>
+              <input
+                type="checkbox"
+                name="showServiceDate"
+                checked={filters.showServiceDate}
+                onChange={handleChange}
+              />{" "}
+              Show Service Date
+            </label>
+            <label>
+              <input
+                type="checkbox"
+                name="showDeadlineDate"
+                checked={filters.showDeadlineDate}
+                onChange={handleChange}
+              />{" "}
+              Show Deadline Date
+            </label>
+            <label>
+              <input
+                type="checkbox"
+                name="showStatusDate"
+                checked={filters.showStatusDate}
+                onChange={handleChange}
+              />{" "}
+              Show Status Date
             </label>
           </div>
+        </div>
 
-          <div className={styles.pageInfo}>
-            <small>
-              View { (page - 1) * rowsPerPage + 1 } - { Math.min(page * rowsPerPage, filtered.length) } of { filtered.length }
-            </small>
+        <div className="past-booking">
+          <label>
+            <input
+              type="checkbox"
+              name="showPastBookings"
+              checked={filters.showPastBookings}
+              onChange={handleChange}
+            />{" "}
+            Show Past Bookings
+          </label>
+        </div>
+
+        <hr className="divider" />
+
+        <div className="middle-row">
+          <div className="select-box">
+            <label>Reservation Status</label>
+            <select
+              name="reservationStatus"
+              value={filters.reservationStatus}
+              onChange={handleChange}
+            >
+              <option value="">- Select -</option>
+              <option>Confirmed</option>
+              <option>Pending</option>
+              <option>Cancelled</option>
+            </select>
+          </div>
+
+          <div className="select-box">
+            <label>Service Type</label>
+            <select
+              name="serviceType"
+              value={filters.serviceType}
+              onChange={handleChange}
+            >
+              <option>All</option>
+              <option>Hotel</option>
+              <option>Flight</option>
+              <option>Tour</option>
+            </select>
+          </div>
+
+          <div className="input-box">
+            <label>Leader Name</label>
+            <input
+              type="text"
+              name="leaderName"
+              value={filters.leaderName}
+              onChange={handleChange}
+              placeholder="Enter Leader Name Here"
+            />
+          </div>
+
+          <div className="radio-group">
+            <label>
+              <input
+                type="radio"
+                name="subType"
+                value="subAgent"
+                checked={filters.subType === "subAgent"}
+                onChange={handleChange}
+              />{" "}
+              Sub Agent
+            </label>
+            <label>
+              <input
+                type="radio"
+                name="subType"
+                value="subUser"
+                checked={filters.subType === "subUser"}
+                onChange={handleChange}
+              />{" "}
+              Sub Users
+            </label>
           </div>
         </div>
 
-        <div className={styles.tableContainer}>
-          <table className={styles.table}>
+        {/* <div className="platform-section">
+          <label>Platform</label>
+          <div className="platform-options">
+            {["Web", "Mobile", "Android", "IOS"].map((p) => (
+              <label key={p}>
+                <input
+                  type="checkbox"
+                  name="platform"
+                  value={p}
+                  checked={filters.platform.includes(p)}
+                  onChange={handleChange}
+                />{" "}
+                {p}
+              </label>
+            ))}
+          </div>
+        </div> */}
+
+        <div className="buttons">
+          <button className="search-btn" onClick={handleSearch}>
+            SEARCH
+          </button>
+          <button className="reset-btn" onClick={handleReset}>
+            RESET
+          </button>
+        </div>
+      </div>
+
+      <div className="results">
+        {results.length > 0 ? (
+          <table>
             <thead>
               <tr>
-                <th className={styles.checkboxCell}>
-                  <input
-                    type="checkbox"
-                    onChange={(e) => toggleSelectAll(e.target.checked)}
-                    checked={pagedRows.length > 0 && pagedRows.every((r) => selectedRows.has(r.id))}
-                  />
-                </th>
-                <th>Action</th>
-                <th>Super PNR</th>
-                <th>Services</th>
-                <th>Customer</th>
-                <th>PNR no</th>
-                <th>Pax Name</th>
-                <th>Booked date</th>
-                <th>User</th>
-                <th>Amendment</th>
-                <th>Search id</th>
-                <th>Pg Status</th>
-                <th>Trackid</th>
+                <th>Booking ID</th>
+                <th>Leader Name</th>
+                <th>Status</th>
+                <th>Service</th>
+                <th>Platform</th>
+                <th>Date</th>
               </tr>
             </thead>
-
             <tbody>
-              {pagedRows.map((r) => {
-                const highlighted = r.id === highlightId;
-                return (
-                  <tr key={r.id} className={`${highlighted ? styles.highlightRow : ""}`}>
-                    <td className={styles.checkboxCell}>
-                      <input
-                        type="checkbox"
-                        checked={selectedRows.has(r.id)}
-                        onChange={() => toggleRow(r.id)}
-                      />
-                    </td>
-
-                    <td>
-                      <div className={styles.actionBtnWrap}>
-                        <button className={styles.actionBtn}>Action ▾</button>
-                      </div>
-                    </td>
-
-                    <td>{r.superPnr}</td>
-                    <td>{r.service}</td>
-                    <td>{r.customer}</td>
-                    <td>{r.pnr}</td>
-                    <td>{r.paxName}</td>
-                    <td>{r.bookedDate}</td>
-                    <td>{r.user}</td>
-                    <td>{r.amendment}</td>
-                    <td>{r.searchId}</td>
-                    <td>{r.pgStatus}</td>
-                    <td>{r.trackId}</td>
-                  </tr>
-                );
-              })}
-
-              {pagedRows.length === 0 && (
-                <tr>
-                  <td colSpan={13} className={styles.emptyRow}>
-                    No records found.
-                  </td>
+              {results.map((r) => (
+                <tr key={r.id}>
+                  <td>{r.id}</td>
+                  <td>{r.leader}</td>
+                  <td>{r.status}</td>
+                  <td>{r.service}</td>
+                  <td>{r.platform}</td>
+                  <td>{r.date}</td>
                 </tr>
-              )}
+              ))}
             </tbody>
           </table>
-        </div>
-
-        <div className={styles.pagination}>
-          <div>
-            <button
-              onClick={() => setPage(1)}
-              disabled={page === 1}
-              className={styles.pageBtn}
-            >
-              « First
-            </button>
-            <button
-              onClick={() => setPage((p) => Math.max(1, p - 1))}
-              disabled={page === 1}
-              className={styles.pageBtn}
-            >
-              ‹ Prev
-            </button>
-          </div>
-
-          <div className={styles.pageCenter}>
-            <span>Page</span>
-            <input
-              type="number"
-              min={1}
-              max={totalPages || 1}
-              value={page}
-              onChange={(e) => {
-                let v = Number(e.target.value || 1);
-                if (v < 1) v = 1;
-                if (v > totalPages) v = totalPages;
-                setPage(v);
-              }}
-              className={styles.pageInput}
-            />
-            <span>of {totalPages || 1}</span>
-          </div>
-
-          <div>
-            <button
-              onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-              disabled={page >= totalPages}
-              className={styles.pageBtn}
-            >
-              Next ›
-            </button>
-            <button
-              onClick={() => setPage(totalPages)}
-              disabled={page >= totalPages}
-              className={styles.pageBtn}
-            >
-              Last »
-            </button>
-          </div>
-        </div>
-      </section>
-    </div>
+        ) : (
+          <p className="no-results">No bookings found.</p>
+        )}
+      </div>
+      </div>
+    
     </>
   );
 }

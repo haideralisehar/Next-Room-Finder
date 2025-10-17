@@ -400,8 +400,8 @@ export const hotelsData = {
         "Sheraton Bahrain Hotel offers luxury accommodation in the heart of Manama, close to shopping malls and cultural attractions.",
       facilities: ["Free WiFi", "Pool", "Spa", "Gym", "Restaurant"],
       roomImages: [
-        "https://static.cupid.travel/hotels/508614426.jpg",
-        "https://static.cupid.travel/hotels/518527047.jpg",
+        "https://images.pexels.com/photos/260922/pexels-photo-260922.jpeg",
+        
       ],
       rooms: [
         {
@@ -716,7 +716,7 @@ export const hotelsData = {
       facilities: ["Private Beach", "Helipad", "Spa", "Gym", "Multiple Restaurants"],
       roomImages: [
         "https://static.cupid.travel/hotels/508614426.jpg",
-        "https://static.cupid.travel/hotels/518527047.jpg",
+        "https://cf.bstatic.com/xdata/images/hotel/square600/347666974.webp?k=7720fdb6cefe4845c347ef31dc6808ebfabf7c3e34589dc540a17d86489887fb&o=",
       ],
       rooms: [
         {

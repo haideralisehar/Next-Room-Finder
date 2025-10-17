@@ -1,0 +1,163 @@
+.booking-page {
+  background: linear-gradient(to bottom right, #b8c5d3, #5073b8);
+  padding: 30px;
+  border-radius: 10px;
+  color: #1f2b3a;
+  font-family: "Segoe UI", sans-serif;
+}
+
+.filter-section {
+  background: linear-gradient(to right, #00384d, #33739a);
+  padding: 25px;
+
+  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+.booki{
+margin: 10px 110px;
+}
+.rprt{
+  background-color: #f1f1f1ff;
+  padding: 10px 10px;
+  margin: 10px 110px 0px 110px;
+  font-weight: 500;
+}
+
+.top-row {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  flex-wrap: wrap;
+}
+
+.input-box {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 10px;
+  width: 220px;
+}
+
+.input-box input {
+  padding: 8px;
+  border-radius: 4px;
+  border: 1px solid #ccc;
+  background: #f0f0f0;
+  
+}
+
+.checkboxes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.checkboxes label {
+  font-size: 14px;
+  
+}
+
+label{
+    color: rgb(244, 244, 244);
+    
+}
+.past-booking {
+  margin-top: 10px;
+}
+
+.divider {
+  margin: 15px 0;
+  border: 1px solid #a5b4c3;
+}
+
+.middle-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 15px;
+}
+
+.select-box {
+  display: flex;
+  flex-direction: column;
+  width: 220px;
+}
+
+.select-box select {
+  padding: 6px;
+  border-radius: 4px;
+  border: 1px solid #ccc;
+  background-color: white;
+}
+
+.radio-group {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.platform-section {
+  margin-top: 15px;
+}
+
+.platform-options {
+  display: flex;
+  gap: 15px;
+  margin-top: 5px;
+}
+
+.buttons {
+  margin-top: 20px;
+  display: flex;
+  gap: 15px;
+}
+
+.search-btn,
+.reset-btn {
+  padding: 8px 25px;
+  border: none;
+  border-radius: 20px;
+  font-weight: bold;
+  cursor: pointer;
+  background: linear-gradient(to bottom, #e2e7ed, #a5b4c3);
+}
+
+.search-btn:hover {
+  background: #5b82c3;
+  color: #fff;
+}
+
+.results {
+  margin-top: 30px;
+  background: #fff;
+  border-radius: 8px;
+  /* padding: 15px; */
+  overflow-x: auto;
+}
+
+.results table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.results th,
+.results td {
+  border: 1px solid #ddd;
+  padding: 8px;
+  text-align: center;
+}
+
+.results th {
+  background: #efefef;
+}
+
+.no-results {
+  text-align: center;
+  font-style: italic;
+  margin-top: 10px;
+}
+@media (max-width: 780px) {
+
+.rprt{
+  margin: 10px 30px;
+}
+}

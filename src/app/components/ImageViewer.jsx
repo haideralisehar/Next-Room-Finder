@@ -130,6 +130,7 @@ const ImageViewer = ({ images, location }) => {
 
       {/* THUMBNAILS */}
       <div className="thumbnail-section">
+        <img src={images} alt="" />
         
         {images.map((img, index) => (
           <React.Fragment key={index}>
@@ -183,7 +184,7 @@ const ImageViewer = ({ images, location }) => {
             />
             <Marker position={position}>
               <Popup>
-                <div className="pop-content">📍 Hotel Locations</div>
+                <div className="pop-content">📍 Hotel Location</div>
               </Popup>
             </Marker>
           </MapContainer>

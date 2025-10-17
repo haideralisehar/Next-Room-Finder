@@ -1,27 +1,45 @@
 "use client";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import "../styling/Head.css";
 import Link from "next/link";
 import DropdownAlt from "./Dropdown";
 import LanguageSwitcher from "./LanguageSwitcher";
 import WalletPopup from "../Wallet/myWallet";
+import Image from "next/image";
+import { FaChartBar, FaUserCircle, FaSuitcaseRolling, FaSignOutAlt } from "react-icons/fa";
+
 
 const Header = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
+  const [showPopup, setShowPopup] = useState(false);
+  const popupRef = useRef(null);
 
-  // ✅ Load login status from localStorage on component mount
+  // ✅ Close popup when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (popupRef.current && !popupRef.current.contains(event.target)) {
+        setShowPopup(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  // ✅ Load login status
   useEffect(() => {
     const storedLogin = localStorage.getItem("isLoggedIn");
     setIsLoggedIn(storedLogin === "true");
   }, []);
 
   const toggleMenu = () => setMenuOpen(!menuOpen);
+  const togglePopup = () => setShowPopup((prev) => !prev);
 
   const handleLogout = () => {
     setIsLoggedIn(false);
     localStorage.removeItem("isLoggedIn");
     localStorage.removeItem("userEmail");
+    setShowPopup(false);
   };
 
   return (
@@ -41,7 +59,11 @@ const Header = () => {
           <ul>
             <li><a href="/">Home</a></li>
             <li><Link href="/results">Search</Link></li>
-            <li><Link href="/About">About Us</Link></li>
+            {!isLoggedIn ? (
+              <li><Link href="/about">About Us</Link></li>
+
+            ):""}
+            
             <li><LanguageSwitcher /></li>
             <DropdownAlt />
 
@@ -51,11 +73,32 @@ const Header = () => {
               </button>
             ) : (
               <>
-                
-                <button className="login-btn"><Link href="/dsr">DSR</Link></button>
-                <button className="login-btn"><Link href="/bookingPage">Bookings</Link></button>
-                <button className="login-btn" onClick={handleLogout}>Logout</button>
-              <WalletPopup />
+              
+                <WalletPopup />
+
+                {/* 🔹 Menu Image + Popup */}
+                <div className="menu-container" ref={popupRef}>
+                  <Image
+                    src="/menu.png"
+                    alt="Menu"
+                    width={25}
+                    height={25}
+                    style={{ cursor: "pointer" }}
+                    onClick={togglePopup}
+                  />
+
+                  {showPopup && (
+                    <div className="menu-popup">
+                      <div className="popup-arrow"></div>
+                      <Link href="/profile" className="menu-item"><FaUserCircle className="menu-icon" />My Profile</Link>
+                      <Link href="/dsr" className="menu-item"><FaChartBar className="menu-icon" /> DSR</Link>
+                      <Link href="/bookingPage" className="menu-item"><FaSuitcaseRolling className="menu-icon" />My Bookings</Link>
+                      <div className="menu-item logout" onClick={handleLogout}>
+                        <FaSignOutAlt className="menu-icon" />Logout
+                      </div>
+                    </div>
+                  )}
+                </div>
               </>
             )}
           </ul>
@@ -93,7 +136,6 @@ const Header = () => {
               <button className="login-btn-1"><Link href="/dsr">DSR</Link></button>
               <button className="login-btn-1"><Link href="/bookingPage">Bookings</Link></button>
               <button className="login-btn-1" onClick={handleLogout}>Logout</button>
-            <WalletPopup />
             </>
           )}
         </ul>

@@ -9,6 +9,7 @@ class WalletPopup extends Component {
       showPopup: false,
       availableBalance: 45.99,
       creditBalance: 23.87,
+      debitBalance:20.78
     };
     this.wrapperRef = React.createRef();
   }
@@ -39,7 +40,7 @@ class WalletPopup extends Component {
       <div className="wallet-header" ref={this.wrapperRef}>
         {/* Wallet Button aligned right */}
         <button className="wallet-btn" onClick={this.togglePopup}>
-          💳 Wallet
+          Wallet
         </button>
 
         {/* Dropdown Popup */}
@@ -60,6 +61,13 @@ class WalletPopup extends Component {
                 <div className="wallet-info">
                   <p>Credit Balance</p>
                   <h3>${this.state.creditBalance || "0.00"}</h3>
+                </div>
+              </div>
+              <div className="wallet-balance credit">
+                <span className="wallet-icon">💸</span>
+                <div className="wallet-info">
+                  <p>Debit Balance</p>
+                  <h3 style={{color:"green"}}>${this.state.debitBalance || "0.00"}</h3>
                 </div>
               </div>
             </div>
