@@ -114,7 +114,7 @@ export default function MyBookingsPage() {
     <>
     <Header/>
     
-    <div className="rprt">My Bookings</div>
+    <div className="rprt">My Booking</div>
     <div className="booki">
       <div className="filter-section">
         <div className="top-row">
