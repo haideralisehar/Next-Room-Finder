@@ -60,7 +60,7 @@ const Header = () => {
             <li><a href="/">Home</a></li>
             <li><Link href="/results">Search</Link></li>
             {!isLoggedIn ? (
-              <li><Link href="/about">About Us</Link></li>
+              <li><Link href="/About">About Us</Link></li>
 
             ):""}
             
