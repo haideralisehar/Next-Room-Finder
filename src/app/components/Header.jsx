@@ -91,7 +91,7 @@ const Header = () => {
                   {showPopup && (
                     <div className="menu-popup">
                       <div className="popup-arrow"></div>
-                      <Link href="/profile" className="menu-item"><FaUserCircle className="menu-icon" />My Profile</Link>
+                      <Link href="/profile" className="menu-item"><FaUserCircle className="menu-icon" />My Account</Link>
                       <Link href="/dsr" className="menu-item"><FaChartBar className="menu-icon" /> DSR</Link>
                       <Link href="/bookingPage" className="menu-item"><FaSuitcaseRolling className="menu-icon" />My Bookings</Link>
                       <div className="menu-item logout" onClick={handleLogout}>

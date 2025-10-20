@@ -1,7 +1,7 @@
 .dsr-container {
   padding: 10px 20px 20px 20px;
   font-family: Jost, Arial, sans-serif;
-  margin: 0 90px;
+  margin: 0 100px;
 }
 
 .tab-header {
@@ -63,6 +63,7 @@
   margin-top: 15px;
   display: flex;
   gap: 15px;
+  
 }
 
 .search-btn,
@@ -71,21 +72,36 @@
   border: none;
   cursor: pointer;
   border-radius: 20px;
+  border: 1px solid #002534;
+  transition: background 0.3s ease, transform 0.2s ease;
   /* font-weight: bold; */
 }
 
 .search-btn {
-  background: #022735;
+  background: #163c4c;
   color: white;
+}
+.search-btn:hover{
+  background: #082532;
+  transform: scale(1.03);
+
+
 }
 
 .reset-btn {
-  background: #b9b9b9;
+  background: #dedede;
   color: black;
+  border: 1px solid #f4f4f4;
+}
+.reset-btn:hover{
+  background: #ffffff;
+  transform: scale(1.03);
+
+
 }
 
 .result-section {
-  margin-top: 25px;
+  margin-top: 0px;
   overflow-x: auto;
 }
 
@@ -111,11 +127,20 @@
   color: gray;
 }
 .rprt{
-  background-color: #f1f1f1ff;
+  background-color: rgb(245, 245, 245);
   padding: 10px 10px;
-  margin: 10px 110px 0px 110px;
+  margin: 10px 120px 0px 120px;
   font-weight: 500;
 }
+.rprt-rslt{
+  background-color: rgb(248, 248, 248);
+  padding: 10px 10px;
+  font-weight: 500;
+  margin: 10px 0px 0px 0px;
+  color: rgb(0, 0, 0);
+  width: 100%d;
+}
+
 @media (max-width: 780px) {
 .dsr-container {
   margin: 0px 10px;

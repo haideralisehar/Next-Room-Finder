@@ -1,142 +1,121 @@
-.booking-page {
-  background: linear-gradient(to bottom right, #b8c5d3, #5073b8);
-  padding: 30px;
-  border-radius: 10px;
+.booki {
+  margin: 10px 120px;
+}
+
+.rprt {
+  background-color: #f1f1f1;
+  padding: 8px 12px;
+  margin: 10px 120px 0 120px;
+  font-weight: 500;
+  font-size: 16px;
   color: #1f2b3a;
-  font-family: "Segoe UI", sans-serif;
+}
+.rprt-rslt{
+  background-color: rgb(248, 248, 248);
+  padding: 10px 10px;
+  font-weight: 500;
+  margin: 10px 0px 0px 0px;
+  color: rgb(0, 0, 0);
+  width: 100%d;
 }
 
 .filter-section {
   background: linear-gradient(to right, #00384d, #33739a);
-  padding: 25px;
-
-  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-}
-.booki{
-margin: 10px 110px;
-}
-.rprt{
-  background-color: #f1f1f1ff;
-  padding: 10px 10px;
-  margin: 10px 110px 0px 110px;
-  font-weight: 500;
+  padding: 20px;
+  /* border-radius: 6px; */
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
 }
 
-.top-row {
+.filter-row {
   display: flex;
   align-items: flex-end;
-  justify-content: space-between;
   flex-wrap: wrap;
-}
-
-.input-box {
-  display: flex;
-  flex-direction: column;
-  margin-bottom: 10px;
-  width: 220px;
-}
-
-.input-box input {
-  padding: 8px;
-  border-radius: 4px;
-  border: 1px solid #ccc;
-  background: #f0f0f0;
-  
-}
-
-.checkboxes {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-}
-
-.checkboxes label {
-  font-size: 14px;
-  
-}
-
-label{
-    color: rgb(244, 244, 244);
-    
-}
-.past-booking {
-  margin-top: 10px;
-}
-
-.divider {
-  margin: 15px 0;
-  border: 1px solid #a5b4c3;
-}
-
-.middle-row {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: flex-end;
-  justify-content: space-between;
   gap: 15px;
+  justify-content: space-between;
 }
 
+/* Inputs & Selects */
+.input-box,
 .select-box {
   display: flex;
   flex-direction: column;
-  width: 220px;
+  width: 200px;
 }
 
+.input-box label,
+.select-box label {
+  color: #fff;
+  font-size: 13px;
+  margin-bottom: 4px;
+}
+
+.input-box input,
 .select-box select {
-  padding: 6px;
-  border-radius: 4px;
+  padding: 7px 10px;
   border: 1px solid #ccc;
-  background-color: white;
+  border-radius: 4px;
+  font-size: 13px;
+  background: #f8f8f8;
+  outline: none;
 }
 
-.radio-group {
-  display: flex;
-  gap: 10px;
-  align-items: center;
-}
-
-.platform-section {
-  margin-top: 15px;
-}
-
-.platform-options {
-  display: flex;
-  gap: 15px;
-  margin-top: 5px;
-}
-
+/* Buttons */
 .buttons {
-  margin-top: 20px;
   display: flex;
-  gap: 15px;
+  gap: 8px;
 }
 
 .search-btn,
 .reset-btn {
-  padding: 8px 25px;
+  padding: 8px 20px;
   border: none;
-  border-radius: 20px;
-  font-weight: bold;
+  border-radius: 18px;
+  font-size: 13px;
+  font-weight: 500;
   cursor: pointer;
-  background: linear-gradient(to bottom, #e2e7ed, #a5b4c3);
+  /* background: linear-gradient(to bottom, #dfe5eb, #a5b4c3); */
+  transition: background 0.3s ease, transform 0.2s ease;
 }
 
-.search-btn:hover {
-  background: #5b82c3;
-  color: #fff;
+.search-btn{
+  background: #163c4c;
+  color: white;
+  border: 1px solid #002534;
 }
 
+.search-btn:hover{
+  background: #082532;
+  transform: scale(1.03);
+
+
+}
+
+.reset-btn {
+  background: #dedede;
+  color: black;
+  border: 1px solid #f4f4f4;
+}
+.reset-btn:hover{
+  background: #ffffff;
+  transform: scale(1.03);
+
+
+}
+
+/* Results */
 .results {
-  margin-top: 30px;
+  margin-top: 0px;
+  
   background: #fff;
-  border-radius: 8px;
-  /* padding: 15px; */
+  /* border-radius: 8px; */
   overflow-x: auto;
+  /* box-shadow: 0 1px 5px rgba(0, 0, 0, 0.1); */
 }
 
 .results table {
   width: 100%;
   border-collapse: collapse;
+  font-size: 14px;
 }
 
 .results th,
@@ -148,16 +127,45 @@ label{
 
 .results th {
   background: #efefef;
+  font-weight: 600;
+}
+
+.results tr:nth-child(even) {
+  background: #f9f9f9;
 }
 
 .no-results {
   text-align: center;
   font-style: italic;
   margin-top: 10px;
+  font-size: 14px;
+  color: #333;
 }
-@media (max-width: 780px) {
 
-.rprt{
-  margin: 10px 30px;
-}
+/* Responsive */
+@media (max-width: 780px) {
+  .booki,
+  .rprt {
+    margin: 10px 25px;
+  }
+
+  .filter-row {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .input-box,
+  .select-box {
+    width: 100%;
+  }
+
+  .buttons {
+    flex-direction: row;
+    justify-content: center;
+  }
+
+  .search-btn,
+  .reset-btn {
+    width: 120px;
+  }
 }
