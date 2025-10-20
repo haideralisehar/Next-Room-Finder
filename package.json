@@ -8,9 +8,9 @@
     "start": "next start"
   },
   "dependencies": {
+    "@emailjs/browser": "^4.4.1",
     "axios": "^1.12.2",
     "date-fns": "^4.1.0",
-    "emailjs-com": "^3.2.0",
     "leaflet": "^1.9.4",
     "next": "15.5.2",
     "next-intl": "^4.3.6",

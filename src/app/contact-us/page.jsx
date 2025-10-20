@@ -2,7 +2,7 @@
 import React, { useState } from "react";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
-// import emailjs from "emailjs-com";
+import emailjs from "@emailjs/browser";
 import "../contact-us/contact.css"; // styles
 
 const ContactUs = () => {
@@ -27,29 +27,29 @@ const ContactUs = () => {
     setStatus("");
     setLoading(true); // start loading
 
-    // emailjs
-    //   .send(
-    //     "service_wnvcqb7", // Service ID
-    //     "template_2glvvph", // Template ID
-    //     {
-    //       title: formData.contactFor,
-    //       name: formData.fullName,
-    //       fullName: formData.fullName,
-    //       email: formData.email,
-    //       message: formData.message,
-    //     },
-    //     "kDbLa3cKzHZoklBLc" // Public Key
-    //   )
-    //   .then(
-    //     () => {
-    //       setStatus("✅ Message sent successfully!");
-    //       setLoading(false);
-    //     },
-    //     () => {
-    //       setStatus("❌ Failed to send. Try again later.");
-    //       setLoading(false);
-    //     }
-    //   );
+    emailjs
+      .send(
+        "service_wnvcqb7", // Service ID
+        "template_2glvvph", // Template ID
+        {
+          title: formData.contactFor,
+          name: formData.fullName,
+          fullName: formData.fullName,
+          email: formData.email,
+          message: formData.message,
+        },
+        "kDbLa3cKzHZoklBLc" // Public Key
+      )
+      .then(
+        () => {
+          setStatus("✅ Message sent successfully!");
+          setLoading(false);
+        },
+        () => {
+          setStatus("❌ Failed to send. Try again later.");
+          setLoading(false);
+        }
+      );
   };
 
   return (
