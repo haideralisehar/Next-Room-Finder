@@ -18,7 +18,7 @@ export default function MyBookingsPage() {
     { id: "B002", leader: "Alice Johnson", status: "Pending", service: "Flight", date: "2025-09-28" },
     { id: "B003", leader: "David Lee", status: "Cancelled", service: "Hotel", date: "2025-08-10" },
     { id: "B004", leader: "Lee", status: "Confirmed", service: "Hotel", date: "2025-08-10" },
-    { id: "B005", leader: "King Sultan", status: "Pending", service: "Hotel", date: "2025-08-10" },
+    { id: "B005", leader: "King Sultan", status: "Pending", service: "Hotel", date: "2025-09-10" },
     { id: "B006", leader: "Line Stone", status: "Cancelled", service: "Hotel", date: "2025-08-10" },
   ];
 
