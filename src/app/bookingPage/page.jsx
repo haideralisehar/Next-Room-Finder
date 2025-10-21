@@ -87,13 +87,34 @@ export default function MyBookingsPage() {
   const currentRecords = results.slice(indexOfFirstRecord, indexOfLastRecord);
   const totalPages = Math.ceil(results.length / recordsPerPage);
 
-  const nextPage = () => {
-    if (currentPage < totalPages) setCurrentPage((prev) => prev + 1);
-  };
+  
+// ✅ Pagination logic with smooth scroll to "rprt-rslt"
+const nextPage = () => {
+  if (currentPage < totalPages) {
+    setCurrentPage((prev) => prev + 1);
+    scrollToResultsTop();
+  }
+};
 
-  const prevPage = () => {
-    if (currentPage > 1) setCurrentPage((prev) => prev - 1);
-  };
+const prevPage = () => {
+  if (currentPage > 1) {
+    setCurrentPage((prev) => prev - 1);
+    scrollToResultsTop();
+  }
+};
+
+// ✅ Smooth scroll to ".rprt-rslt"
+const scrollToResultsTop = () => {
+  const resultElement = document.querySelector(".buttons");
+  if (resultElement) {
+    resultElement.scrollIntoView({
+      behavior: "smooth",
+      block: "start",
+    });
+  }
+};
+
+
 
   return (
     <>
@@ -163,11 +184,21 @@ export default function MyBookingsPage() {
           </div>
         </div>
 
-        {results.length > 0 && (
+       
+          {results.length > 0 && (
           <div className="rprt-rslt">
             {results.length} - Result(s) Found
+
+             <span className="page-info">
+                    Page {currentPage} of {totalPages}
+                  </span>
           </div>
         )}
+
+          
+      
+
+        
 
         <div className="results">
           {results.length > 0 ? (
@@ -203,7 +234,7 @@ export default function MyBookingsPage() {
                     disabled={currentPage === 1}
                     className="page-btn"
                   >
-                    Previous
+                   ◀ Previous
                   </button>
                   <span className="page-info">
                     Page {currentPage} of {totalPages}
@@ -213,7 +244,7 @@ export default function MyBookingsPage() {
                     disabled={currentPage === totalPages}
                     className="page-btn"
                   >
-                    Next
+                   Next ▶
                   </button>
                 </div>
               )}

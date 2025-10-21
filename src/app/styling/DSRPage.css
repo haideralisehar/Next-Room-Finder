@@ -141,6 +141,10 @@
   color: rgb(0, 0, 0);
   width: 100%d;
 }
+.rprt-rslt{
+  display: flex;
+  justify-content: space-between;
+}
 
 .pagination {
   display: flex;

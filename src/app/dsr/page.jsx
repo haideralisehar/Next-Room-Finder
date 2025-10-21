@@ -25,6 +25,8 @@ const fakeData = {
     { id: 16, agency: "Elite Vacations", status: "Paid", date: new Date("2025-09-28"), amount: 180, currency: "BHD" },
     { id: 17, agency: "Majestic Tours", status: "Unpaid", date: new Date("2025-10-09"), amount: 340, currency: "USD" },
     { id: 18, agency: "Blue Lagoon", status: "Partially Paid", date: new Date("2025-09-15"), amount: 120, currency: "SAR" },
+    { id: 19, agency: "Blue Horizon", status: "Paid", date: new Date("2025-10-09"), amount: 30, currency: "BHD" },
+    { id: 20, agency: "Lagoon John", status: "Paid", date: new Date("2025-09-15"), amount: 10, currency: "USD" },
   ],
 };
 
@@ -95,13 +97,29 @@ export default function DSRPage() {
   const currentItems = filteredData.slice(indexOfFirstItem, indexOfLastItem);
   const totalPages = Math.ceil(filteredData.length / itemsPerPage);
 
-  const goToNextPage = () => {
+  
+
+  // ✅ Pagination logic with smooth scroll to "rprt-rslt"
+const goToNextPage = () => {
     if (currentPage < totalPages) setCurrentPage((prev) => prev + 1);
+    scrollToResultsTop();
   };
 
   const goToPrevPage = () => {
     if (currentPage > 1) setCurrentPage((prev) => prev - 1);
+    scrollToResultsTop();
   };
+
+// ✅ Smooth scroll to ".rprt-rslt"
+const scrollToResultsTop = () => {
+  const resultElement = document.querySelector(".action-buttons");
+  if (resultElement) {
+    resultElement.scrollIntoView({
+      behavior: "smooth",
+      block: "start",
+    });
+  }
+};
 
   return (
     <>
@@ -168,7 +186,11 @@ export default function DSRPage() {
         </div>
 
         {filteredData.length > 0 && (
-          <div className="rprt-rslt">{filteredData.length} - Result(s) Found</div>
+          <div className="rprt-rslt">{filteredData.length} - Result(s) Found
+          <span className="page-info">
+                    Page {currentPage} of {totalPages}
+                  </span>
+          </div>
         )}
 
         <div className="result-section">
