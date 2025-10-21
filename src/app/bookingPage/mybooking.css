@@ -45,6 +45,7 @@
 .input-box label,
 .select-box label {
   color: #fff;
+  font-weight: 500;
   font-size: 13px;
   margin-bottom: 4px;
 }
@@ -115,7 +116,7 @@
 .results table {
   width: 100%;
   border-collapse: collapse;
-  font-size: 14px;
+  margin-bottom: 10px;
 }
 
 .results th,
@@ -128,6 +129,7 @@
 .results th {
   background: #efefef;
   font-weight: 600;
+  
 }
 
 .results tr:nth-child(even) {
@@ -141,6 +143,41 @@
   font-size: 14px;
   color: #333;
 }
+.pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 20px;
+  margin-bottom: 20px;
+  gap: 10px;
+}
+
+.page-btn {
+  background-color: #163c4c;
+  color: white;
+  border: none;
+  padding: 6px 14px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.page-btn:hover:not(:disabled) {
+  background-color: #021f2b;
+  transform: translateY(-1px);
+}
+
+.page-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.page-info {
+  font-size: 14px;
+  color: #333;
+  font-weight: 500;
+}
+
 
 /* Responsive */
 @media (max-width: 780px) {

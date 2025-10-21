@@ -108,6 +108,7 @@
 .result-section table {
   width: 100%;
   border-collapse: collapse;
+  /* margin-bottom: 10px; */
 }
 
 .result-section th,
@@ -140,6 +141,42 @@
   color: rgb(0, 0, 0);
   width: 100%d;
 }
+
+.pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 15px;
+  /* margin-bottom: 20px; */
+  gap: 12px;
+}
+
+.pagination button {
+  background: #163c4c;
+  color: white;
+  border: none;
+  padding: 6px 14px;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.pagination button:hover:not(:disabled) {
+  background: #021f2b;
+  transform: scale(1.05);
+}
+
+.pagination button:disabled {
+  background: #ccc;
+  cursor: not-allowed;
+}
+
+.pagination span {
+  font-size: 15px;
+  color: #163c4c;
+  font-weight: 500;
+}
+
 
 @media (max-width: 780px) {
 .dsr-container {
