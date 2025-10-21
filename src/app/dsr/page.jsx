@@ -43,7 +43,7 @@ export default function DSRPage() {
 
   // ✅ Pagination state
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 10;
+  const itemsPerPage = 8;
 
   // ✅ Trigger search on Enter key press
   useEffect(() => {
