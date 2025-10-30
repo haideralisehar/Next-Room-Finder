@@ -1,12 +1,12 @@
 import React from "react";
-import Header from "../components/Header";
+// import Header from "../components/Header";
 import Footer from "../components/Footer";
 import "../privacy-policy/privacy.css"
 
 export default function PrivacyPolicy() {
   return (
     <div>
-      <Header />
+      {/* <Header /> */}
 
       <div
         className="term-txt"

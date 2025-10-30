@@ -69,9 +69,15 @@ const Header = () => {
             <DropdownAlt />
 
             {!isLoggedIn ? (
+              <>
               <button className="login-btn-1">
                 <Link href="/authentication/login">Login</Link>
               </button>
+
+              <button>
+                 <Link href="/authentication/Register" className="login-btn-1">Register </Link>
+              </button>
+              </>
             ) : (
               <>
               

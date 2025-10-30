@@ -4,22 +4,25 @@ import Header from "../components/Header";
 import Footer from "../components/Footer";
 import emailjs from "@emailjs/browser";
 import "../contact-us/contact.css"; // styles
+import CountrySelector from "../components/CountrySelector"
 
 const ContactUs = () => {
-  const [formData, setFormData] = useState({
+  const [contactformData, setcontactFormData] = useState({
     fullName: "",
-    countryCode: "+973 Bahrain",
+    countryCode: "",
     mobile: "",
     email: "",
     contactFor: "",
     message: "",
   });
 
+  console.log(contactformData)
+
   const [status, setStatus] = useState("");
   const [loading, setLoading] = useState(false); // NEW
 
   const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+    setcontactFormData({ ...contactformData, [e.target.name]: e.target.value });
   };
 
   const handleSubmit = (e) => {
@@ -32,11 +35,11 @@ const ContactUs = () => {
         "service_wnvcqb7", // Service ID
         "template_2glvvph", // Template ID
         {
-          title: formData.contactFor,
-          name: formData.fullName,
-          fullName: formData.fullName,
-          email: formData.email,
-          message: formData.message,
+          title: contactformData.contactFor,
+          name: contactformData.fullName,
+          fullName: contactformData.fullName,
+          email: contactformData.email,
+          message: contactformData.message,
         },
         "kDbLa3cKzHZoklBLc" // Public Key
       )
@@ -52,6 +55,13 @@ const ContactUs = () => {
       );
   };
 
+  const handleCountrySelect = (countryName) => {
+    setcontactFormData((prev) => ({
+      ...prev,
+      countryCode: countryName,
+    }));
+  };
+
   return (
     <>
       <Header />
@@ -65,7 +75,7 @@ const ContactUs = () => {
               <input
                 type="text"
                 name="fullName"
-                value={formData.fullName}
+                value={contactformData.fullName}
                 onChange={handleChange}
                 required
               />
@@ -73,7 +83,7 @@ const ContactUs = () => {
 
             <div className="row">
               <div className="form-group">
-                <label>Country Code</label>
+                {/* <label>Country Code</label>
                 <select
                   name="countryCode"
                   value={formData.countryCode}
@@ -82,14 +92,19 @@ const ContactUs = () => {
                   <option value="+973 Bahrain">+973 Bahrain</option>
                   <option value="+92 Pakistan">+92 Pakistan</option>
                   <option value="+91 India">+91 India</option>
-                </select>
+                </select> */}
+
+                <CountrySelector
+                        selectedCountry={contactformData.countryCode}
+                        onCountrySelect={handleCountrySelect}
+                      />
               </div>
               <div className="form-group">
                 <label>Mobile</label>
                 <input
                   type="text"
                   name="mobile"
-                  value={formData.mobile}
+                  value={contactformData.mobile}
                   onChange={handleChange}
                   required
                 />
@@ -101,7 +116,7 @@ const ContactUs = () => {
               <input
                 type="email"
                 name="email"
-                value={formData.email}
+                value={contactformData.email}
                 onChange={handleChange}
                 required
               />
@@ -111,7 +126,7 @@ const ContactUs = () => {
               <label>Contact for</label>
               <select
                 name="contactFor"
-                value={formData.contactFor}
+                value={contactformData.contactFor}
                 onChange={handleChange}
                 required
               >
@@ -126,7 +141,7 @@ const ContactUs = () => {
               <label>Message</label>
               <textarea
                 name="message"
-                value={formData.message}
+                value={contactformData.message}
                 onChange={handleChange}
                 required
               />

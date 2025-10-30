@@ -1,0 +1,75 @@
+.inputGroup {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+/*   
+  width: 100%;
+  max-width: 400px; */
+
+
+/* background-color: red; */
+}
+
+.searchInput {
+  padding: 7px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font-size: 14px;
+}
+
+.suggestionList {
+  position: absolute;
+  top: 85%;
+  left: 0;
+  right: 0;
+  background: white;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  margin-top: 4px;
+  max-height: 200px;
+  overflow-y: auto;
+  z-index: 10;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+
+
+.suggestionItem,
+.noResultsItem {
+  padding: 8px 12px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.suggestionItem:hover {
+  background-color: #f5f5f5;
+}
+
+.noResultsItem {
+  text-align: center;
+  color: #a33;
+  cursor: default;
+}
+
+/* ✅ Circular loader */
+.loaderWrapper {
+  display: flex;
+  justify-content: center;
+  padding: 12px 0;
+}
+
+.loader {
+  width: 22px;
+  height: 22px;
+  border: 3px solid #ddd;
+  border-top: 3px solid #007bff;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}

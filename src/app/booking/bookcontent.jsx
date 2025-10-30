@@ -10,6 +10,7 @@ import { useSearchParams } from "next/navigation";
 import StarRating from "../components/rating";
 import { useBhdCurrency } from "../Context/BHDCurrency";
 import TermsAndConditions from "../terms-conditions/page";
+import CountrySelector from "../components/CountrySelector"
 
 export default function BookingPage() {
   const { Bhdcurrency, convertPrice } = useBhdCurrency();
@@ -82,7 +83,7 @@ export default function BookingPage() {
   const [formData, setFormData] = useState({
     firstName: "",
     lastName: "",
-    countryCode: "+973 Bahrain",
+    countryCode: "",
     phone: "",
     email: "",
     guestType: "Myself",
@@ -90,6 +91,15 @@ export default function BookingPage() {
     termsAccepted: false,
     paymentMethod: "card",
   });
+
+  const handleCountrySelect = (countryName) => {
+    setFormData((prev) => ({
+      ...prev,
+      countryCode: countryName,
+    }));
+  };
+
+  console.log(formData);
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -103,6 +113,8 @@ export default function BookingPage() {
     e.preventDefault();
 
     // API call here
+
+    
   };
 
   const parseDate = (str) => {
@@ -170,19 +182,10 @@ export default function BookingPage() {
           </div>
 
           <div className={styles.row}>
-            <div className={styles.inputGroup}>
-              <label>Country Code *</label>
-              <select
-                name="countryCode"
-                value={formData.countryCode}
-                onChange={handleChange}
-              >
-                <option value="+973 Bahrain">+973 Bahrain</option>
-                <option value="+92 Pakistan">+92 Pakistan</option>
-                <option value="+91 India">+91 India</option>
-                <option value="+1 USA">+1 USA</option>
-              </select>
-            </div>
+            <CountrySelector
+        selectedCountry={formData.countryCode}
+        onCountrySelect={handleCountrySelect}
+      />
             <div className={styles.inputGroup}>
               <label>Phone Number *</label>
               <input
