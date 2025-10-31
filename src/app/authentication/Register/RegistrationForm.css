@@ -133,7 +133,7 @@
 }
 
 /* Success Popup */
-.popup-overlay {
+/* .popup-overlay {
   position: fixed;
   inset: 0;
   background: rgba(0, 0, 0, 0.4);
@@ -179,6 +179,61 @@
     opacity: 1;
     transform: scale(1);
   }
+} */
+
+.loading-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center; /* center horizontally */
+  align-items: center;     /* center vertically */
+  background: rgba(0, 0, 0, 0.4); /* optional dim background */
+  z-index: 9999;
+}
+
+/* The centered box */
+.loading-box {
+  width: auto;
+  height: auto; 
+  
+  background: #cecece;
+  border-radius: 0px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  /* box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2); */
+}
+.loading-box-1{
+  
+ padding: 20px 30px;
+  background: #d1d1d1;
+  border-radius: 12px;
+  border: 1px solid silver;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  /* box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2); */
+}
+.loty{
+  width: 130px;
+  height: 130px;
+}
+.loty-1{
+  width: 160px;
+  height: 160px;
+}
+.cls-err-btn{
+  background-color: rgb(218, 218, 218);
+  padding: 4px 10px;
+  border: 1px solid silver;
+  border-radius: 10px;
+  margin-top: 10px;
+  cursor: pointer;
 }
 
 /* Responsive */

@@ -4,6 +4,9 @@ import React, { useState } from "react";
 import '../Register/RegistrationForm.css'
 import Header from "../../components/Header";
 import { useRouter } from "next/navigation";
+import Lottie from "lottie-react";
+import SuccessSvg from "../../../lotti-img/upload.json"; 
+import ErrorSvg from "../../../lotti-img/error.json";
 export default function RegistrationForm() {
   const [form, setForm] = useState({
     username: "",
@@ -20,6 +23,7 @@ export default function RegistrationForm() {
   const [submitting, setSubmitting] = useState(false);
   const [successPopup, setSuccessPopup] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [isShowError, setIsShowError] = useState(false);
 
   const router = useRouter();
 
@@ -62,33 +66,43 @@ export default function RegistrationForm() {
         body: JSON.stringify(form),
       });
 
-      if (!res.ok) throw new Error("Server error");
       const data = await res.json();
 
-      // Show success popup
-      setSuccessPopup(true);
+      if (res.ok) {
+        // ✅ Success
+        setSuccessPopup(true);
+        setForm({
+          username: "",
+          password: "",
+          agencyName: "",
+          agencyEmail: "",
+          agencyPhone: "",
+          agencyAddress: "",
+          agencyCR: "",
+          agencyCRExpiry: "",
+        });
 
-      // Reset form
-      setForm({
-        username: "",
-        password: "",
-        agencyName: "",
-        agencyEmail: "",
-        agencyPhone: "",
-        agencyAddress: "",
-        agencyCR: "",
-        agencyCRExpiry: "",
-      });
+        // Hide popup and redirect
+        setTimeout(() => {
+          setSuccessPopup(false);
+          router.push("/authentication/login");
+        }, 5000);
+      } else {
+        // ❌ Server error response
+        console.log("Server error:", data?.message || "Unknown error");
 
-      // Automatically close popup after 3 seconds
-      setTimeout(() => setSuccessPopup(false), 130000);
-      router.push("/");
-
-    } catch (err) {
-      alert("Failed to register: " + (err.message || "Unknown error"));
+        setIsShowError(true);
+        setTimeout(() => setIsShowError(false), 5000);
+      }
+    } catch (error) {
+      // ❌ Network or connection issue
+      console.error("Network error:", error);
+      setIsShowError(true);
+      setTimeout(() => setIsShowError(false), 5000);
     } finally {
       setSubmitting(false);
     }
+
   };
 
   return (
@@ -97,14 +111,27 @@ export default function RegistrationForm() {
     <div className="min-h-screen flex items-center justify-center bg-gray-50 p-6 relative">
       {/* Success Popup */}
       {successPopup && (
-        <div className="popup-overlay">
-          <div className="popup-box">
-            <h2>✅ Success!</h2>
-            <p>Your agency has been registered successfully.</p>
-            <button onClick={() => {
-                  setSuccessPopup(false);
-                  router.push("/"); // ✅ Redirect when "OK" clicked
-                }}>OK</button>
+         <div className="loading-overlay">
+          <div className="loading-box-1">
+            <Lottie className="loty-1" animationData={SuccessSvg} />
+            <h4 style={{ fontWeight: "600" }}>Agency Created. </h4>
+          </div>
+        </div>
+      )}
+
+      {/* ❌ Error Popup */}
+      {isShowError && (
+        <div className="loading-overlay">
+          <div className="loading-box-1">
+            <Lottie className="loty" animationData={ErrorSvg} />
+            <h4 style={{ fontWeight: "600" }}>Error Raised</h4>
+            {errors && <p className="error-text">{errors}</p>}
+            <button
+              className="cls-err-btn"
+              onClick={() => setIsShowError(false)}
+            >
+              Close
+            </button>
           </div>
         </div>
       )}
