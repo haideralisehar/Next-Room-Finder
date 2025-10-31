@@ -4,8 +4,7 @@
   justify-content: center;
   align-items: center;
   height: 100vh;
-  background: #f9fbfd;
-  background-color: #e3e3e3;
+  background: #f9fafb;
   padding: 20px;
 }
 
@@ -64,7 +63,7 @@
 .login-btns {
   width: 100%;
   padding: 10px 12px;
-  background: #2563eb;
+  background: #085b7a;
   color: white;
   border: none;
   border-radius: 8px;
@@ -74,7 +73,7 @@
 }
 
 .login-btns:hover {
-  background: #1d4ed8;
+  background: #00384d;
 }
 
 /* Forgot Password */
@@ -90,7 +89,88 @@
 .forgot-link:hover {
   text-decoration: underline;
 }
+.loading-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center; /* center horizontally */
+  align-items: center;     /* center vertically */
+  background: rgba(0, 0, 0, 0.4); /* optional dim background */
+  z-index: 9999;
+}
 
+/* The centered box */
+.loading-box {
+  width: auto;
+  height: auto; 
+  
+  background: #cecece;
+  border-radius: 0px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  /* box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2); */
+}
+.loading-box-1{
+  
+ padding: 20px 30px;
+  background: #d1d1d1;
+  border-radius: 12px;
+  border: 1px solid silver;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  /* box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2); */
+}
+.loty{
+  width: 130px;
+  height: 130px;
+}
+.loty-1{
+  width: 160px;
+  height: 160px;
+}
+.cls-err-btn{
+  background-color: rgb(218, 218, 218);
+  padding: 4px 10px;
+  border: 1px solid silver;
+  border-radius: 10px;
+  margin-top: 10px;
+  cursor: pointer;
+}
+
+
+
+/* Optional spinner inside */
+.spinner {
+  width: 30px;
+  height: 30px;
+  border: 2px solid rgba(0, 0, 0, 0.1);
+  border-top: 6px solid #2d2d2d; /* your brand color */
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+ 
+  margin: 30px;
+ 
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.loading-text {
+  margin-top: 15px;
+  font-size: 1.2rem;
+  color: #333;
+  font-weight: 600;
+}
 /* Responsive */
 @media (max-width: 780px) {
   .login-container {

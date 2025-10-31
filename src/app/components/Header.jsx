@@ -7,6 +7,10 @@ import LanguageSwitcher from "./LanguageSwitcher";
 import WalletPopup from "../Wallet/myWallet";
 import Image from "next/image";
 import { FaChartBar, FaUserCircle, FaSuitcaseRolling, FaSignOutAlt } from "react-icons/fa";
+import Cookies from "js-cookie";
+import { useRouter } from "next/navigation";
+import Lottie from "lottie-react"
+import ErrorSvg from "../../lotti-img/error.json"
 
 
 const Header = () => {
@@ -14,6 +18,8 @@ const Header = () => {
   const [menuOpen, setMenuOpen] = useState(false);
   const [showPopup, setShowPopup] = useState(false);
   const popupRef = useRef(null);
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
+  const router = useRouter();
 
   // ✅ Close popup when clicking outside
   useEffect(() => {
@@ -26,23 +32,60 @@ const Header = () => {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
+  
+
+  const token = Cookies.get("token");
+      const userId = Cookies.get("userId");
+
   // ✅ Load login status
   useEffect(() => {
-    const storedLogin = localStorage.getItem("isLoggedIn");
-    setIsLoggedIn(storedLogin === "true");
-  }, []);
+      const token = Cookies.get("token");
+      const userId = Cookies.get("userId");
+      if (token && userId) {
+        setIsLoggedIn(true);
+        router.push("/");
+      }
+    }, [router]);
+
+    async function handleLogout() {
+    setIsLoggingOut(true); // Show loader
+    try {
+      const res = await fetch("/api/logout", { method: "POST" });
+      const data = await res.json();
+
+      if (data.success) {
+        setTimeout(() => {
+          window.location.href = "/authentication/login";
+        }, 1500); // small delay for visual smoothness
+      } else {
+        alert("Logout failed, please try again.");
+        setIsLoggingOut(false);
+      }
+    } catch (error) {
+      console.error("Logout failed:", error);
+      setIsLoggingOut(false);
+    }
+  }
 
   const toggleMenu = () => setMenuOpen(!menuOpen);
   const togglePopup = () => setShowPopup((prev) => !prev);
 
-  const handleLogout = () => {
-    setIsLoggedIn(false);
-    localStorage.removeItem("isLoggedIn");
-    localStorage.removeItem("userEmail");
-    setShowPopup(false);
-  };
+  
 
   return (
+
+    <>
+    {isLoggingOut && (
+        <div className="loading-overlay">
+  <div className="loading-box">
+    <div className="spinner"></div>
+      {/* <Lottie animationData={ErrorSvg} /> */}
+    {/* <p className="loading-text">Logging Out...</p> */}
+  </div>
+</div>
+
+      )}
+    
     <header className="header">
       <div className="header-container">
         {/* Logo */}
@@ -68,7 +111,7 @@ const Header = () => {
             <li><LanguageSwitcher /></li>
             <DropdownAlt />
 
-            {!isLoggedIn ? (
+            {!token && !userId ? (
               <>
               <button className="login-btn-1">
                 <Link href="/authentication/login">Login</Link>
@@ -133,7 +176,7 @@ const Header = () => {
           <li><Link href="/results">Search</Link></li>
           <li><Link href="/About">About Us</Link></li>
 
-          {!isLoggedIn ? (
+          {!token && !userId ? (
             <Link href="/authentication/login">
               <button className="login-btn-1">Login</button>
             </Link>
@@ -148,6 +191,8 @@ const Header = () => {
         </ul>
       </nav>
     </header>
+
+    </>
   );
 };
 

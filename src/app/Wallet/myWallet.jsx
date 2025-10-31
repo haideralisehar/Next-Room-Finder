@@ -9,12 +9,14 @@ class WalletPopup extends Component {
       showPopup: false,
       availableBalance: 45.99,
       creditBalance: 23.87,
-      debitBalance:20.78
+      debitBalance: 20.78,
+      isMounted: false, // ✅ add this
     };
     this.wrapperRef = React.createRef();
   }
 
   componentDidMount() {
+    this.setState({ isMounted: true }); // ✅ render only after hydration
     document.addEventListener("mousedown", this.handleClickOutside);
   }
 
@@ -36,14 +38,15 @@ class WalletPopup extends Component {
   };
 
   render() {
+    // ✅ Prevent hydration mismatch
+    if (!this.state.isMounted) return null;
+
     return (
       <div className="wallet-header" ref={this.wrapperRef}>
-        {/* Wallet Button aligned right */}
         <button className="wallet-btn" onClick={this.togglePopup}>
           Wallet
         </button>
 
-        {/* Dropdown Popup */}
         {this.state.showPopup && (
           <div className="wallet-dropdown">
             <h2>My Wallet</h2>
@@ -52,7 +55,7 @@ class WalletPopup extends Component {
                 <span className="wallet-icon">💰</span>
                 <div className="wallet-info">
                   <p>Available Balance</p>
-                  <h3>${this.state.availableBalance || "0.00"}</h3>
+                  <h3>${this.state.availableBalance}</h3>
                 </div>
               </div>
 
@@ -60,14 +63,17 @@ class WalletPopup extends Component {
                 <span className="wallet-icon">🏛️</span>
                 <div className="wallet-info">
                   <p>Credit Balance</p>
-                  <h3>${this.state.creditBalance || "0.00"}</h3>
+                  <h3>${this.state.creditBalance}</h3>
                 </div>
               </div>
+
               <div className="wallet-balance credit">
                 <span className="wallet-icon">💸</span>
                 <div className="wallet-info">
                   <p>Debit Balance</p>
-                  <h3 style={{color:"green"}}>${this.state.debitBalance || "0.00"}</h3>
+                  <h3 style={{ color: "green" }}>
+                    ${this.state.debitBalance}
+                  </h3>
                 </div>
               </div>
             </div>
