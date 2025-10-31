@@ -7,7 +7,7 @@ export function middleware(req) {
 
   const isLoggedIn = token && userId;
   const isLoginPage = url.pathname.startsWith("/authentication/login");
-  const isProtectedRoute = url.pathname.startsWith("/profile") || url.pathname.startsWith("/dsr");
+  const isProtectedRoute = url.pathname.startsWith("/profile") || url.pathname.startsWith("/dsr") || url.pathname.startsWith("/bookingPage");
   
 
   // ✅ Case 1: Not logged in and trying to access protected route
@@ -31,5 +31,5 @@ export function middleware(req) {
 }
 
 export const config = {
-  matcher: ["/profile", "/authentication/login", "/dsr"],
+  matcher: ["/profile", "/authentication/login", "/dsr", "/bookingPage"],
 };
