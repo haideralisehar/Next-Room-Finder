@@ -28,7 +28,7 @@ export default function RegistrationForm() {
   const router = useRouter();
 
   const validate = () => {
-    const e = {};
+    const e = [];
     if (!form.agencyName.trim()) e.agencyName = "Agency name is required.";
     if (!form.agencyEmail.trim()) e.agencyEmail = "Agency email is required.";
     else if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(form.agencyEmail))
@@ -89,6 +89,7 @@ export default function RegistrationForm() {
         }, 5000);
       } else {
         // ❌ Server error response
+        setErrors("Network Connectivity Error!")
         console.log("Server error:", data?.message || "Unknown error");
 
         setIsShowError(true);
