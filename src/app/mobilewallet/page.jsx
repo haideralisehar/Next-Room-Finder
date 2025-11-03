@@ -2,6 +2,7 @@
 import React, { Component } from "react";
 import "./mobilewallet.css"; // ✅ new CSS file
 import Header from "../components/Header";
+import Footer from "../components/Footer";
 
 class WalletPage extends Component {
   constructor(props) {
@@ -49,6 +50,7 @@ class WalletPage extends Component {
           </div>
         </div>
       </div>
+      <Footer/>
       </>
     );
   }
