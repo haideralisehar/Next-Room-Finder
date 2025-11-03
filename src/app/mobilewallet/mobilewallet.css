@@ -2,6 +2,102 @@
 body{
     background: rgb(234, 234, 234);
 }
+/* ===== Tabs ===== */
+.wallet-tabs {
+  display: flex;
+  justify-content: space-around;
+  background: #f3f4f6;
+  border-radius: 10px;
+  margin-bottom: 16px;
+  padding: 5px;
+}
+
+.tab-btn {
+  flex: 1;
+  background: transparent;
+  border: none;
+  border-radius: 8px;
+  font-size: 15px;
+  font-weight: 500;
+  color: #555;
+  padding: 10px 0;
+  cursor: pointer;
+  transition: background 0.3s ease, color 0.3s ease;
+}
+
+.tab-btn.active {
+  background: linear-gradient(135deg, #007aff, #4a90e2);
+  color: white;
+  font-weight: 600;
+}
+
+/* ===== Transactions ===== */
+.transactions-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.transaction-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #fafafa;
+  border: 1px solid #ececec;
+  border-radius: 10px;
+  padding: 10px 14px;
+}
+
+.transaction-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.tx-title {
+  font-size: 14px;
+  font-weight: 500;
+  color: #333;
+  margin: 0;
+}
+
+.tx-date {
+  font-size: 12px;
+  color: #777;
+}
+
+.tx-amount {
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.tx-amount.credit {
+  color: #27ae60;
+}
+
+.tx-amount.debit {
+  color: #e74c3c;
+}
+
+/* ===== Responsive Adjustments ===== */
+@media (max-width: 768px) {
+  .tab-btn {
+    font-size: 14px;
+    padding: 8px 0;
+  }
+
+  .tx-title {
+    font-size: 13px;
+  }
+
+  .tx-date {
+    font-size: 11px;
+  }
+
+  .tx-amount {
+    font-size: 13px;
+  }
+}
+
 .wallet-page {
   display: flex;
   justify-content: center;
@@ -10,7 +106,7 @@ body{
   
   background: rgb(234, 234, 234);
   font-family: "Jost", sans-serif;
-  padding: 20px 20px 0px 20px;
+  padding: 20px 15px 0px 15px;
 }
 
 /* Wallet Card */
@@ -25,16 +121,18 @@ body{
   border: 1px solid rgb(208, 208, 208);
 }
 
-.wallet-card h2 {
+.wallet-card h2  {
   font-size: 20px;
   font-weight: 600;
   color: #333;
-  border-bottom: 1px solid #eee;
-  padding-bottom: 8px;
+  /* border-bottom: 1px solid #eee; */
+  padding-bottom: 0px;
   /* margin-bottom: 16px; */
   text-align: center;
 }
-
+.transaction-head{
+margin-bottom: 10px;
+}
 /* Balances container */
 .wallet-balance-container {
   display: flex;
