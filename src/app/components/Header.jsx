@@ -182,7 +182,10 @@ const Header = () => {
             </Link>
           ) : (
             <>
-              <WalletPopup />
+              {/* <WalletPopup /> */}
+
+              <Link className="login-btn-1" href="/mobilewallet">
+              <button >Wallet</button></Link>
               <button className="login-btn-1"><Link href="/dsr">DSR</Link></button>
               <button className="login-btn-1"><Link href="/bookingPage">Bookings</Link></button>
               <button className="login-btn-1" onClick={handleLogout}>Logout</button>

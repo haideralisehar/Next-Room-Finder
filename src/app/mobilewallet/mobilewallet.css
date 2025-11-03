@@ -1,0 +1,151 @@
+/* Page container */
+body{
+    background: rgb(234, 234, 234);
+}
+.wallet-page {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  /* min-height: 100vh; */
+  
+  background: rgb(234, 234, 234);
+  font-family: "Jost", sans-serif;
+  padding: 20px;
+}
+
+/* Wallet Card */
+.wallet-card {
+  background: #fff;
+  border-radius: 16px;
+  /* box-shadow: 0px 8px 20px rgba(0, 0, 0, 0.15); */
+  padding: 20px;
+  width: 100%;
+  max-width: 420px;
+  animation: fadeIn 0.4s ease-in-out;
+  border: 1px solid rgb(208, 208, 208);
+}
+
+.wallet-card h2 {
+  font-size: 20px;
+  font-weight: 600;
+  color: #333;
+  border-bottom: 1px solid #eee;
+  padding-bottom: 8px;
+  /* margin-bottom: 16px; */
+  text-align: center;
+}
+
+/* Balances container */
+.wallet-balance-container {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+/* Each balance block */
+.wallet-balance {
+  background: #fafafa;
+  border: 1px solid #ececec;
+  border-radius: 10px;
+  padding: 12px 16px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.wallet-balance:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.08);
+}
+
+/* Icon */
+.wallet-icon {
+  font-size: 26px;
+  flex-shrink: 0;
+}
+
+/* Info text */
+.wallet-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.wallet-info p {
+  margin: 0;
+  font-size: 13px;
+  color: #666;
+}
+
+.wallet-info h3 {
+  margin: 2px 0 0 0;
+  font-size: 18px;
+  font-weight: 600;
+  color: #007aff;
+}
+
+/* Credit & Debit styling */
+.wallet-balance.credit .wallet-icon,
+.wallet-balance.credit h3 {
+  color: #e67e22;
+}
+
+.wallet-balance.debit .wallet-icon,
+.wallet-balance.debit h3 {
+  color: #27ae60;
+}
+
+/* Animation */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ✅ Responsive design */
+@media (max-width: 768px) {
+  .wallet-card {
+    max-width: 90%;
+    padding: 24px;
+  }
+
+  .wallet-card h2 {
+    font-size: 18px;
+  }
+
+  .wallet-info h3 {
+    font-size: 16px;
+  }
+
+  .wallet-icon {
+    font-size: 22px;
+  }
+}
+
+@media (max-width: 480px) {
+  .wallet-card {
+    max-width: 100%;
+    padding: 20px;
+  }
+
+  .wallet-card h2 {
+    font-size: 17px;
+  }
+
+  .wallet-info p {
+    font-size: 12px;
+  }
+
+  .wallet-info h3 {
+    font-size: 15px;
+  }
+
+  .wallet-icon {
+    font-size: 20px;
+  }
+}
