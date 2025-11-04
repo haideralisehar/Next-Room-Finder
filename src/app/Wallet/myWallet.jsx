@@ -7,17 +7,20 @@ class WalletPopup extends Component {
     super(props);
     this.state = {
       showPopup: false,
-      availableBalance: 45.99,
-      creditBalance: 23.87,
-      debitBalance: 20.78,
-      isMounted: false, // ✅ add this
+      availableBalance: 0,
+      creditBalance: 0,
+      debitBalance: 0,
+      isMounted: false,
+      loading: false,
+      error: null,
     };
     this.wrapperRef = React.createRef();
   }
 
   componentDidMount() {
-    this.setState({ isMounted: true }); // ✅ render only after hydration
+    this.setState({ isMounted: true });
     document.addEventListener("mousedown", this.handleClickOutside);
+    this.fetchWalletData("eade81a7-ead9-4879-9cb3-3d8ce82fb7ee"); // ✅ Replace with actual agencyId
   }
 
   componentWillUnmount() {
@@ -37,9 +40,39 @@ class WalletPopup extends Component {
     this.setState((prev) => ({ showPopup: !prev.showPopup }));
   };
 
+  fetchWalletData = async (agencyId) => {
+    this.setState({ loading: true, error: null });
+    try {
+      const res = await fetch(`/api/wallet?agencyId=${agencyId}`);
+      if (!res.ok) {
+        console.log("Failed to fetch wallet balances");
+      }
+
+      const data = await res.json();
+      this.setState({
+        availableBalance: data.availableBalance,
+        creditBalance: data.creditBalance,
+        debitBalance: data.debitBalance,
+      });
+    } catch (err) {
+      console.error("Error fetching wallet:", err);
+      this.setState({ error: err.message });
+    } finally {
+      this.setState({ loading: false });
+    }
+  };
+
   render() {
-    // ✅ Prevent hydration mismatch
     if (!this.state.isMounted) return null;
+
+    const {
+      showPopup,
+      availableBalance,
+      creditBalance,
+      debitBalance,
+      loading,
+      error,
+    } = this.state;
 
     return (
       <div className="wallet-header" ref={this.wrapperRef}>
@@ -47,36 +80,44 @@ class WalletPopup extends Component {
           Wallet
         </button>
 
-        {this.state.showPopup && (
+        {showPopup && (
           <div className="wallet-dropdown">
             <h2>My Wallet</h2>
-            <div className="wallet-balance-container">
-              <div className="wallet-balance">
-                <span className="wallet-icon">💰</span>
-                <div className="wallet-info">
-                  <p>Available Balance</p>
-                  <h3>${this.state.availableBalance}</h3>
-                </div>
-              </div>
 
-              <div className="wallet-balance credit">
-                <span className="wallet-icon">🏛️</span>
-                <div className="wallet-info">
-                  <p>Credit Balance</p>
-                  <h3>${this.state.creditBalance}</h3>
-                </div>
+            {loading ? (
+              <div className="wallet-loader">
+                <div className="spinner-w"></div>
+                <p>Please Wait...</p>
               </div>
+            ) : error ? (
+              <p className="error-text">Error: {error}</p>
+            ) : (
+              <div className="wallet-balance-container">
+                <div className="wallet-balance">
+                  <span className="wallet-icon">💰</span>
+                  <div className="wallet-info">
+                    <p>Available Balance</p>
+                    <h3>${availableBalance}</h3>
+                  </div>
+                </div>
 
-              <div className="wallet-balance credit">
-                <span className="wallet-icon">💸</span>
-                <div className="wallet-info">
-                  <p>Debit Balance</p>
-                  <h3 style={{ color: "green" }}>
-                    ${this.state.debitBalance}
-                  </h3>
+                <div className="wallet-balance credit">
+                  <span className="wallet-icon">🏛️</span>
+                  <div className="wallet-info">
+                    <p>Credit Balance</p>
+                    <h3>${creditBalance}</h3>
+                  </div>
+                </div>
+
+                <div className="wallet-balance credit">
+                  <span className="wallet-icon">💸</span>
+                  <div className="wallet-info">
+                    <p>Debit Balance</p>
+                    <h3 style={{ color: "green" }}>${debitBalance}</h3>
+                  </div>
                 </div>
               </div>
-            </div>
+            )}
           </div>
         )}
       </div>

@@ -205,6 +205,45 @@ margin-bottom: 10px;
   }
 }
 
+/* ✅ Loader Styles */
+.wallet-loader {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 180px;
+  text-align: center;
+  color: #444;
+}
+
+.spinner {
+  width: 40px;
+  height: 40px;
+  border: 4px solid #ddd;
+  border-top: 4px solid #007bff;
+  border-radius: 50%;
+  animation: spin 0.9s linear infinite;
+  margin-bottom: 10px;
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+/* Optional styling for error message */
+.error-text {
+  text-align: center;
+  color: red;
+  font-weight: 500;
+  padding: 10px 0;
+}
+
+
 /* ✅ Responsive design */
 @media (max-width: 768px) {
   .wallet-card {

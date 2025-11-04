@@ -6,20 +6,20 @@ export async function POST(req) {
 
     // Map form data to match backend API fields
     const payload = {
-      id: 0,
-      username: body.username,
+      
+      userName: body.username,
       password: body.password,
       agencyName: body.agencyName,
       agencyEmail: body.agencyEmail,
-      agencyPhone: body.agencyPhone,
+      agencyPhoneNumber: body.agencyPhone,
       agencyCRNumber: body.agencyCR,
-      crExpiryDate: new Date(body.agencyCRExpiry).toISOString(),
+      agencyCRExpiryDate: new Date(body.agencyCRExpiry).toISOString(),
       agencyAddress: body.agencyAddress,
     };
 
     // Send to your actual backend API
     const response = await fetch(
-      "https://cityinbookingapi20251018160614-fxgqdkc6d4hwgjf8.canadacentral-01.azurewebsites.net/api/Agency/register",
+      "https://cityinbookingapi20251018160614-fxgqdkc6d4hwgjf8.canadacentral-01.azurewebsites.net/api/SubAgencies",
       {
         method: "POST",
         headers: { "Content-Type": "application/json" },
