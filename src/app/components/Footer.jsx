@@ -76,13 +76,13 @@ const Footer = () => {
         </div>
       </div>
 
-      <div className="support-item">
+      {/* <div className="support-item">
         <FaWhatsapp className="icon" />
         <div>
           <p>Get support via WhatsApp:</p>
           <p className="number">+966 5540 88227</p>
         </div>
-      </div>
+      </div> */}
 
       <div className="support-item">
         <MdEmail className="icon" />
