@@ -19,6 +19,7 @@ export default function BookingPage() {
 
   const [acknowledged, setAcknowledged] = useState(false);
   const [showWarningPopup, setShowWarningPopup] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   // Load from localStorage on mount
   useEffect(() => {
@@ -109,12 +110,56 @@ export default function BookingPage() {
     }));
   };
 
-  const handleSubmit = (e) => {
+  // ✅ Handle form submit safely
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // API call here
+    if (!formData.termsAccepted) {
+      alert("Please accept the terms and conditions before proceeding.");
+      return;
+    }
 
-    
+    setLoading(true);
+
+    try {
+      const amount = (convertPrice(totalPrice) * hotel.nights).toFixed(2);
+
+      const response = await fetch("/api/tap/create", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          studentId: 101,
+          logId: 5001,
+          amount,
+          customer: {
+            firstName: formData.firstName,
+            lastName: formData.lastName,
+            email: formData.email,
+            phone: formData.phone,
+            country_Code: formData.countryCode
+          },
+        }),
+      });
+
+      const data = await response.json();
+
+      // ✅ Handle Tap API response clearly
+      if (response.ok && data?.url) {
+        window.location.href = data.url;
+      } else {
+        console.error("Payment Error:", data);
+        const message =
+          typeof data.error === "object"
+            ? JSON.stringify(data.error)
+            : data.error || "Unable to process payment.";
+        alert("Error: " + message);
+      }
+    } catch (err) {
+      console.error("Payment Exception:", err);
+      alert("Payment failed: " + err.message);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const parseDate = (str) => {
@@ -303,9 +348,10 @@ export default function BookingPage() {
             </div>
           </div>
 
-          <button type="submit" className={styles.submitBtn}>
-            Proceed To Pay
+           <button type="submit" className={styles.submitBtn} disabled={loading}>
+            {loading ? "Redirecting to Payment..." : "Proceed To Pay"}
           </button>
+        
         </form>
 
         {/* Right Summary */}

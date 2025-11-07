@@ -1,10 +1,13 @@
 "use client";
 import React, { Component } from "react";
+import { useEffect } from "react";
 import "./mobilewallet.css";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
+import Cookies from "js-cookie";
 
 class WalletPage extends Component {
+
   constructor(props) {
     super(props);
     this.state = {
@@ -22,8 +25,12 @@ class WalletPage extends Component {
     };
   }
 
+  
+
   componentDidMount() {
-    this.fetchWalletData("eade81a7-ead9-4879-9cb3-3d8ce82fb7ee"); // ✅ Replace "any" with actual agencyId when ready
+    const agencyId = Cookies.get("agencyId");
+    this.fetchWalletData(agencyId); 
+    
   }
 
   fetchWalletData = async (agencyId) => {

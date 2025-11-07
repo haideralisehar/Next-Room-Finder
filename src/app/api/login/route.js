@@ -19,13 +19,16 @@ export async function POST(req) {
     // 🟥 Handle invalid credentials or backend 400/401 errors
     if (!response.ok) {
       const errorMessage =
-        data.message || data.error || "Invalid username or password";
+        data.message;
       return NextResponse.json({ error: errorMessage }, { status: 401 });
     }
 
     // ✅ Extract userId and token from API response
     const userId = data.user?.id;
     const token = data.token;
+    const agId = data.user?.agencyId;
+
+    
 
     if (!userId || !token) {
       return NextResponse.json(
@@ -56,6 +59,15 @@ export async function POST(req) {
       sameSite: "strict",
       path: "/",
       maxAge: 60 * 60 * 24,
+    });
+
+    res.cookies.set("agencyId", agId,{
+      httpOnly: false,
+      secure: true,
+      sameSite: "strict",
+      path: "/",
+      maxAge: 60 * 60 * 24,
+
     });
 
     console.log("✅ Login successful, cookies set");

@@ -1,6 +1,7 @@
 "use client";
 import React, { Component } from "react";
 import "../Wallet/WalletPopup.css";
+import Cookies from "js-cookie";
 
 class WalletPopup extends Component {
   constructor(props) {
@@ -20,7 +21,8 @@ class WalletPopup extends Component {
   componentDidMount() {
     this.setState({ isMounted: true });
     document.addEventListener("mousedown", this.handleClickOutside);
-    this.fetchWalletData("eade81a7-ead9-4879-9cb3-3d8ce82fb7ee"); // ✅ Replace with actual agencyId
+     const agencyId = Cookies.get("agencyId");
+    this.fetchWalletData(agencyId); 
   }
 
   componentWillUnmount() {
