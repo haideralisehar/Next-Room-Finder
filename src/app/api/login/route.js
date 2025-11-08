@@ -16,7 +16,7 @@ export async function POST(req) {
     // Try parsing response safely
     const data = await response.json().catch(() => ({}));
 
-    // 🟥 Handle invalid credentials or backend 400/401 errors
+    // 🟥 Handle invalid credentials or backend 400/401 errors a
     if (!response.ok) {
       const errorMessage =
         data.message;
