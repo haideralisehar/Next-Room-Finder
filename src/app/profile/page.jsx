@@ -15,7 +15,7 @@ export default function ProfilePage() {
     roleName: "",
     agencyName: "",
     companyPhone: "",
-    profileImage: "",
+    profileImage: "https://thumbs.dreamstime.com/b/gmail-logo-google-product-icon-logotype-editorial-vector-illustration-vinnitsa-ukraine-october-199405574.jpg",
   });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -46,7 +46,7 @@ export default function ProfilePage() {
           roleName: data.user.roleName || "",
           agencyName: data.user.agencyName || "",
           companyPhone: data.user.companyPhone || "",
-          profileImage: data.user.profileImage || "",
+          // profileImage: data.user.profileImage || "",
         });
       } catch (err) {
         console.error("Profile fetch error:", err);
@@ -74,7 +74,7 @@ export default function ProfilePage() {
 
   const handleUpdate = async () => {
     try {
-      setLoading(true);
+      // setLoading(true);
       setSuccess(null);
       setError(null);
 
@@ -127,7 +127,7 @@ export default function ProfilePage() {
               <div className="profile-avatar-section">
                 <div className="avatar-wrapper">
                   <img
-                    src={preview || user.profileImage || "/default-avatar.png"}
+                    src={"https://thumbs.dreamstime.com/b/gmail-logo-google-product-icon-logotype-editorial-vector-illustration-vinnitsa-ukraine-october-199405574.jpg"}
                     alt=""
                     className="avatar-img"
                   />
