@@ -10,14 +10,18 @@ export default function ProfilePage() {
   const router = useRouter();
   const [user, setUser] = useState({
     fullName: "",
+    firstName: "",
+    lastName: "",
     userName: "",
     email: "",
     roleName: "",
     agencyName: "",
     companyPhone: "",
-    profileImage: "https://thumbs.dreamstime.com/b/gmail-logo-google-product-icon-logotype-editorial-vector-illustration-vinnitsa-ukraine-october-199405574.jpg",
+    profileImage: "",
+    timezone: "",
   });
   const [loading, setLoading] = useState(true);
+  const [loadings, setLoadings] = useState(false);
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(null);
   const [selectedFile, setSelectedFile] = useState(null);
@@ -41,11 +45,15 @@ export default function ProfilePage() {
 
         setUser({
           fullName: data.user.fullName || "",
+          firstName: data.user.firstName || "",
+          lastName: data.user.lastName || "",
           userName: data.user.userName || "",
           email: data.user.email || "",
           roleName: data.user.roleName || "",
           agencyName: data.user.agencyName || "",
           companyPhone: data.user.companyPhone || "",
+          timezone: data.user.timezone || "",
+
           // profileImage: data.user.profileImage || "",
         });
       } catch (err) {
@@ -74,7 +82,8 @@ export default function ProfilePage() {
 
   const handleUpdate = async () => {
     try {
-      // setLoading(true);
+      
+      setLoadings(true);
       setSuccess(null);
       setError(null);
 
@@ -99,7 +108,7 @@ export default function ProfilePage() {
       console.error("Update failed:", err);
       setError(err.message);
     } finally {
-      setLoading(false);
+      setLoadings(false);
     }
   };
 
@@ -115,104 +124,169 @@ export default function ProfilePage() {
           <p className="loading-text">Loading your profile...</p>
         </div>
       )}
+      {loadings && (
+  <div className="update-overlay">
+    <div className="update-box">
+      <div className="spinner"></div>
+      <p className="loading-text">Updating...</p>
+    </div>
+  </div>
+)}
 
-      {!loading && (
-        <div className="profile-container">
-          {error && <p className="error-text">{error}</p>}
-          {success && <p className="success-text">{success}</p>}
+ {!loading ? (
+  user && user.email ? (
+    <div className="profile-container">
+      {error && <p className="error-text">{error}</p>}
+      {success && <p className="success-text">{success}</p>}
 
-          <form className="profile-grid">
-            {/* Left column */}
-            <div className="profile-column">
-              <div className="profile-avatar-section">
-                <div className="avatar-wrapper">
-                  <img
-                    src={"https://thumbs.dreamstime.com/b/gmail-logo-google-product-icon-logotype-editorial-vector-illustration-vinnitsa-ukraine-october-199405574.jpg"}
-                    alt=""
-                    className="avatar-img"
-                  />
-                  <label htmlFor="profile-upload" className="edit-icon">
-                    ✎
-                  </label>
-                  <input
-                    id="profile-upload"
-                    type="file"
-                    accept="image/*"
-                    onChange={handleFileChange}
-                    style={{ display: "none" }}
-                  />
-                </div>
-              </div>
-
-              <label>Full Name</label>
-              <input
-                type="text"
-                name="fullName"
-                value={user.fullName}
-                onChange={handleChange}
-                className="profile-input"
+      <form className="profile-grid">
+        {/* Left column */}
+        <div className="profile-column">
+          <h2 style={{ fontWeight: "bold" }}>Personal Information</h2>
+          <div className="profile-avatar-section">
+            <div className="avatar-wrapper">
+              <img
+                src={
+                  preview ||
+                  "https://thumbs.dreamstime.com/b/gmail-logo-google-product-icon-logotype-editorial-vector-illustration-vinnitsa-ukraine-october-199405574.jpg"
+                }
+                alt=""
+                className="avatar-img"
               />
-
-              <label>Username</label>
+              <label htmlFor="profile-upload" className="edit-icon">
+                ✎
+              </label>
               <input
-                type="text"
-                name="userName"
-                value={user.userName}
-                disabled
-                className="profile-input"
+                id="profile-upload"
+                type="file"
+                accept="image/*"
+                onChange={handleFileChange}
+                disabled={loadings}
+                style={{ display: "none" }}
               />
             </div>
+          </div>
 
-            {/* Right column */}
-            <div className="profile-column">
-              <label>Agency Name</label>
-              <input
-                type="text"
-                name="agencyName"
-                value={user.agencyName}
-                onChange={handleChange}
-                className="profile-input"
-              />
+          <label>Full Name</label>
+          <input
+            type="text"
+            name="fullName"
+            value={user.fullName}
+            onChange={handleChange}
+            disabled={loadings}
+            className="profile-input"
+          />
 
-              <label>Company Phone</label>
-              <input
-                type="text"
-                name="companyPhone"
-                value={user.companyPhone}
-                onChange={handleChange}
-                className="profile-input"
-              />
+          <label>First Name</label>
+          <input
+            type="text"
+            name="firstName"
+            value={user.firstName}
+            onChange={handleChange}
+            disabled={loadings}
+            className="profile-input"
+          />
 
-              <label>Role Name</label>
-              <input
-                type="text"
-                name="roleName"
-                value={user.roleName}
-                disabled
-                className="profile-input"
-              />
-
-              <label>Email</label>
-              <input
-                type="email"
-                name="email"
-                value={user.email}
-                onChange={handleChange}
-                className="profile-input"
-              />
-
-              <button
-                type="button"
-                onClick={handleUpdate}
-                disabled={loading}
-                className="update-btn"
-              >
-                {loading ? "Updating..." : "Update Profile"}
-              </button>
-            </div>
-          </form>
+          <label>Last Name</label>
+          <input
+            type="text"
+            name="lastName"
+            value={user.lastName}
+            onChange={handleChange}
+            disabled={loadings}
+            className="profile-input"
+          />
         </div>
-      )}
+
+        {/* Middle Section */}
+        <div className="middle-section">
+          <h2 style={{ fontWeight: "bold" }}>Company Details</h2>
+
+          <label>Username</label>
+          <input
+            type="text"
+            name="userName"
+            value={user.userName}
+            disabled
+            className="profile-input"
+          />
+
+          <label>Agency Name</label>
+          <input
+            type="text"
+            name="agencyName"
+            value={user.agencyName}
+            onChange={handleChange}
+            disabled={loadings}
+            className="profile-input"
+          />
+
+          <label>Email</label>
+          <input
+            type="email"
+            name="email"
+            value={user.email}
+            onChange={handleChange}
+            disabled={loadings}
+            className="profile-input"
+          />
+
+          <label>Timezone</label>
+          <input
+            type="text"
+            name="timezone"
+            value={user.timezone}
+            disabled
+            className="profile-input"
+          />
+        </div>
+
+        {/* Right Column */}
+        <div className="profile-column">
+          <h2 style={{ fontWeight: "bold" }}>Contact Details</h2>
+
+          <label>Company Phone</label>
+          <input
+            type="text"
+            name="companyPhone"
+            value={user.companyPhone}
+            onChange={handleChange}
+            disabled={loadings}
+            className="profile-input"
+          />
+
+          <label>Role Name</label>
+          <input
+            type="text"
+            name="roleName"
+            value={user.roleName}
+            disabled
+            className="profile-input"
+          />
+        </div>
+
+        <div className="update-btn-container">
+          <button
+            type="button"
+            onClick={handleUpdate}
+            disabled={loadings}
+            className="update-btn"
+          >
+            {loadings ? "Updating..." : "Update Profile"}
+          </button>
+        </div>
+      </form>
+    </div>
+  ) : (
+    <div className="no-data-message">
+      <p style={{textAlign:"center", padding:"30px 0px"}}>No profile data found. Please try again.</p>
+    </div>
+  )
+) : null}
+
+      
+
+    
     </>
   );
 }
