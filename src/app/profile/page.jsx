@@ -5,28 +5,48 @@ import Cookies from "js-cookie";
 import Header from "../components/Header";
 import "../bookingPage/mybooking.css";
 import "../profile/profile.css";
+import CountryCodeSelector from "../components/countryCode"
 
 export default function ProfilePage() {
   const router = useRouter();
-  const [user, setUser] = useState({
-    fullName: "",
-    firstName: "",
-    lastName: "",
+
+  const [agency, setAgency] = useState({
     userName: "",
-    email: "",
-    roleName: "",
     agencyName: "",
-    companyPhone: "",
-    profileImage: "",
-    timezone: "",
+    agencyAddress: "",
+    agencyEmail: "",
+    agencyPhoneNumber: "",
+    agencyCRNumber: "",
+    agencyCRExpiryDate: "",
+    
+    status: '',
+    createdAt: "",
   });
+
   const [loading, setLoading] = useState(true);
   const [loadings, setLoadings] = useState(false);
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(null);
   const [selectedFile, setSelectedFile] = useState(null);
   const [preview, setPreview] = useState(null);
+  const [countryCode, setCountryCode] = useState("");
 
+  // ✅ Handle input change
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setAgency((prev) => ({ ...prev, [name]: value }));
+  };
+
+  // ✅ Handle file upload preview
+  const handleFileChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setSelectedFile(file);
+      setPreview(URL.createObjectURL(file));
+    }
+  };
+
+  // ✅ Fetch agency profile on load
   useEffect(() => {
     const userId = Cookies.get("userId");
     if (!userId) {
@@ -36,26 +56,31 @@ export default function ProfilePage() {
 
     async function fetchProfile() {
       try {
-        const res = await fetch("/api/profile");
+        const res = await fetch("/api/getAgency");
         const data = await res.json();
 
-        if (!res.ok || !data.user) {
-          setError(data.error || "Failed to load profile");
+        if (!res.ok || !data.agency?.data) {
+          throw new Error(data.error || "Failed to load profile");
         }
 
-        setUser({
-          fullName: data.user.fullName || "",
-          firstName: data.user.firstName || "",
-          lastName: data.user.lastName || "",
-          userName: data.user.userName || "",
-          email: data.user.email || "",
-          roleName: data.user.roleName || "",
-          agencyName: data.user.agencyName || "",
-          companyPhone: data.user.companyPhone || "",
-          timezone: data.user.timezone || "",
+        const ag = data.agency.data;
+        console.log(ag.password);
 
-          // profileImage: data.user.profileImage || "",
+        setAgency({
+          userName: ag.userName || "",
+          agencyName: ag.agencyName || "",
+          agencyAddress: ag.agencyAddress || "",
+          agencyEmail: ag.agencyEmail || "",
+          agencyPhoneNumber: ag.agencyPhoneNumber || "",
+          agencyCRNumber: ag.agencyCRNumber || "",
+          agencyCRExpiryDate: ag.agencyCRExpiryDate?.split("T")[0] || "",
+          createdAt: ag.createdAt || "",
+          status: ag.status || false,
+          countryCodes: countryCode,
+         
         });
+
+        
       } catch (err) {
         console.error("Profile fetch error:", err);
         setError("Failed to load profile details.");
@@ -67,19 +92,6 @@ export default function ProfilePage() {
     fetchProfile();
   }, [router]);
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setUser((prev) => ({ ...prev, [name]: value }));
-  };
-
-  const handleFileChange = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      setSelectedFile(file);
-      setPreview(URL.createObjectURL(file));
-    }
-  };
-
   const handleUpdate = async () => {
     try {
       
@@ -88,11 +100,14 @@ export default function ProfilePage() {
       setError(null);
 
       const formData = new FormData();
-      formData.append("fullName", user.fullName);
-      formData.append("userName", user.userName);
-      formData.append("email", user.email);
-      formData.append("agencyName", user.agencyName);
-      formData.append("companyPhone", user.companyPhone);
+      formData.append("userName", agency.userName);
+      formData.append("agencyName", agency.agencyName);
+      formData.append("agencyEmail", agency.agencyEmail);
+      formData.append("agencyAddress", agency.agencyAddress);
+      formData.append("agencyCRExpiryDate", agency.agencyCRExpiryDate);
+      formData.append("agencyCRNumber", agency.agencyCRNumber);
+      formData.append("agencyPhoneNumber", agency.agencyPhoneNumber);
+      formData.append("status", agency.status);
       if (selectedFile) formData.append("profileImage", selectedFile);
 
       const res = await fetch("/api/updateProfile", {
@@ -100,6 +115,7 @@ export default function ProfilePage() {
         body: formData,
       });
 
+      // console.log(ag.status);
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Profile update failed");
 
@@ -124,169 +140,169 @@ export default function ProfilePage() {
           <p className="loading-text">Loading your profile...</p>
         </div>
       )}
+
       {loadings && (
-  <div className="update-overlay">
-    <div className="update-box">
-      <div className="spinner"></div>
-      <p className="loading-text">Updating...</p>
-    </div>
-  </div>
-)}
-
- {!loading ? (
-  user && user.email ? (
-    <div className="profile-container">
-      {error && <p className="error-text">{error}</p>}
-      {success && <p className="success-text">{success}</p>}
-
-      <form className="profile-grid">
-        {/* Left column */}
-        <div className="profile-column">
-          <h2 style={{ fontWeight: "bold" }}>Personal Information</h2>
-          <div className="profile-avatar-section">
-            <div className="avatar-wrapper">
-              <img
-                src={
-                  preview ||
-                  "https://thumbs.dreamstime.com/b/gmail-logo-google-product-icon-logotype-editorial-vector-illustration-vinnitsa-ukraine-october-199405574.jpg"
-                }
-                alt=""
-                className="avatar-img"
-              />
-              <label htmlFor="profile-upload" className="edit-icon">
-                ✎
-              </label>
-              <input
-                id="profile-upload"
-                type="file"
-                accept="image/*"
-                onChange={handleFileChange}
-                disabled={loadings}
-                style={{ display: "none" }}
-              />
-            </div>
+        <div className="update-overlay">
+          <div className="update-box">
+            <div className="spinner"></div>
+            <p className="loading-text">Updating...</p>
           </div>
-
-          <label>Full Name</label>
-          <input
-            type="text"
-            name="fullName"
-            value={user.fullName}
-            onChange={handleChange}
-            disabled={loadings}
-            className="profile-input"
-          />
-
-          <label>First Name</label>
-          <input
-            type="text"
-            name="firstName"
-            value={user.firstName}
-            onChange={handleChange}
-            disabled={loadings}
-            className="profile-input"
-          />
-
-          <label>Last Name</label>
-          <input
-            type="text"
-            name="lastName"
-            value={user.lastName}
-            onChange={handleChange}
-            disabled={loadings}
-            className="profile-input"
-          />
         </div>
+      )}
 
-        {/* Middle Section */}
-        <div className="middle-section">
-          <h2 style={{ fontWeight: "bold" }}>Company Details</h2>
+      {!loading ? (
+        agency && agency.agencyEmail ? (
+          <div className="profile-container">
+            {error && <p className="error-text">{error}</p>}
+            {success && <p className="success-text">{success}</p>}
 
-          <label>Username</label>
-          <input
-            type="text"
-            name="userName"
-            value={user.userName}
-            disabled
-            className="profile-input"
-          />
+            <form className="profile-grid">
+              {/* Left column */}
+              <div className="profile-column">
+                <h2 style={{ fontWeight: "bold" }}>Personal Information</h2>
 
-          <label>Agency Name</label>
-          <input
-            type="text"
-            name="agencyName"
-            value={user.agencyName}
-            onChange={handleChange}
-            disabled={loadings}
-            className="profile-input"
-          />
+                <div className="profile-avatar-section">
+                  <div className="avatar-wrapper">
+                    <img
+                      src={
+                        preview ||
+                        "https://thumbs.dreamstime.com/b/gmail-logo-google-product-icon-logotype-editorial-vector-illustration-vinnitsa-ukraine-october-199405574.jpg"
+                      }
+                      alt="Profile"
+                      className="avatar-img"
+                    />
+                    <label htmlFor="profile-upload" className="edit-icon">
+                      ✎
+                    </label>
+                    <input
+                      id="profile-upload"
+                      type="file"
+                      accept="image/*"
+                      onChange={handleFileChange}
+                      disabled={loadings}
+                      style={{ display: "none" }}
+                    />
+                  </div>
+                </div>
 
-          <label>Email</label>
-          <input
-            type="email"
-            name="email"
-            value={user.email}
-            onChange={handleChange}
-            disabled={loadings}
-            className="profile-input"
-          />
+                <label>User Name</label>
+                <input
+                  type="text"
+                  name="userName"
+                  value={agency.userName}
+                  onChange={handleChange}
+                  disabled={!loadings}
+                  className="profile-input"
+                />
 
-          <label>Timezone</label>
-          <input
-            type="text"
-            name="timezone"
-            value={user.timezone}
-            disabled
-            className="profile-input"
-          />
-        </div>
+                
 
-        {/* Right Column */}
-        <div className="profile-column">
-          <h2 style={{ fontWeight: "bold" }}>Contact Details</h2>
+                
+                 <label>Status</label>
+                <input
+                  type="text"
+                  value={agency.status?"active":"inactive"}
+                  onChange={handleChange}
+                  disabled={!loadings}
+                  className="profile-input"
+                />
 
-          <label>Company Phone</label>
-          <input
-            type="text"
-            name="companyPhone"
-            value={user.companyPhone}
-            onChange={handleChange}
-            disabled={loadings}
-            className="profile-input"
-          />
 
-          <label>Role Name</label>
-          <input
-            type="text"
-            name="roleName"
-            value={user.roleName}
-            disabled
-            className="profile-input"
-          />
-        </div>
+                 
+              </div>
 
-        <div className="update-btn-container">
-          <button
-            type="button"
-            onClick={handleUpdate}
-            disabled={loadings}
-            className="update-btn"
-          >
-            {loadings ? "Updating..." : "Update Profile"}
-          </button>
-        </div>
-      </form>
-    </div>
-  ) : (
-    <div className="no-data-message">
-      <p style={{textAlign:"center", padding:"30px 0px"}}>No profile data found. Please try again.</p>
-    </div>
-  )
-) : null}
+              {/* Middle Section */}
+              <div className="middle-section">
+                <h2 style={{ fontWeight: "bold" }}>Company Details</h2>
 
-      
+                 <label>Company Name</label>
+                <input
+                  type="text"
+                  name="agencyName"
+                  value={agency.agencyName}
+                  onChange={handleChange}
+                  disabled={loadings}
+                  className="profile-input"
+                />
 
-    
+                
+                <label>CR Number</label>
+                <input
+                  type="text"
+                  name="agencyCRNumber"
+                  value={agency.agencyCRNumber}
+                  onChange={handleChange}
+                  disabled={loadings}
+                  className="profile-input"
+                />
+                <label>CR Expiry Date</label>
+              <input
+                type="date"
+                name="agencyCRExpiryDate"
+                value={agency.agencyCRExpiryDate}
+                onChange={handleChange}
+                className="profile-input"
+              />
+
+               
+
+               
+              </div>
+
+              {/* Right Column */}
+              <div className="profile-column">
+                <h2 style={{ fontWeight: "bold" }}>Contact Details</h2>
+ {/* <CountryCodeSelector onSelect={(code) => setCountryCode(code)} /> */}
+                <label>Company Phone</label>
+                <input
+                  type="text"
+                  name="agencyPhoneNumber"
+                  value={agency.agencyPhoneNumber}
+                  onChange={handleChange}
+                  disabled={loadings}
+                  className="profile-input"
+                />
+                <label>Email Address</label>
+                <input
+                  type="text"
+                  name="agencyEmail"
+                  value={agency.agencyEmail}
+                  onChange={handleChange}
+                  disabled={loadings}
+                  className="profile-input"
+                />
+
+                <label>Address</label>
+                <textarea
+                  type="text"
+                  name="agencyAddress"
+                  value={agency.agencyAddress}
+                  onChange={handleChange}
+                  disabled={loadings}
+                  className="profile-input"
+                />
+              </div>
+
+              <div className="update-btn-container">
+                <button
+                  type="button"
+                  onClick={handleUpdate}
+                  disabled={loadings}
+                  className="update-btn"
+                >
+                  {loadings ? "Updating..." : "Update Profile"}
+                </button>
+              </div>
+            </form>
+          </div>
+        ) : (
+          <div className="no-data-message">
+            <p style={{ textAlign: "center", padding: "30px 0px" }}>
+              No profile data found. Please try again.
+            </p>
+          </div>
+        )
+      ) : null}
     </>
   );
 }
