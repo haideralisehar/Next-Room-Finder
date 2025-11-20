@@ -89,6 +89,7 @@ const Login = () => {
     setIsLoggedIn(false);
     Cookies.remove("token");
     Cookies.remove("userId");
+    Cookies.remove("agencyId");
   };
 
   return (

@@ -85,6 +85,8 @@ class WalletPopup extends Component {
         {showPopup && (
           <div className="wallet-dropdown">
             <h2>My Wallet</h2>
+            
+
 
             {loading ? (
               <div className="wallet-loader">

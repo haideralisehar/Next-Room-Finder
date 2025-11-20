@@ -1,4 +1,6 @@
-/* Popup */
+/* ===============================
+   Popup Overlay (background)
+================================ */
 .popup-overlays {
   position: fixed;
   top: 0;
@@ -6,22 +8,149 @@
   width: 100%;
   height: 100%;
   background: rgba(0, 0, 0, 0.4);
+
+  display: flex;
   justify-content: center;
   align-items: center;
-  
-   overflow: scroll;
+
+  padding: 0px;
   z-index: 4000;
+  overflow: hidden; /* prevent background scroll */
 }
 
+/* ===============================
+   Popup Card (outer box)
+================================ */
 .popup-content {
   background: #fff;
-
-  /* border-radius: 10px; */
-  max-width: 100%;
-  margin: 0px 0px;
   width: 100%;
-  overflow: scroll;
+  max-width: 800px;
+  max-height: 85vh;
+
+  border-radius: 15px;
+  overflow: hidden; /* IMPORTANT for rounded corners */
+
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+  
 }
+
+/* ===============================
+   Scrollable inner area
+================================ */
+.popup-inner {
+  padding: 0px;
+  max-height: 85vh;
+  overflow-y: scroll;
+  overflow-x: hidden;
+}
+
+/* =======================================
+   OVERLAY OPEN/CLOSE ANIMATION
+======================================= */
+
+/* Fade-in */
+.popup-overlays.open {
+  animation: fadeIn 0.3s ease forwards;
+}
+
+/* Fade-out */
+.popup-overlays.closing {
+  animation: fadeOut 0.3s ease forwards;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+@keyframes fadeOut {
+  from { opacity: 1; }
+  to   { opacity: 0; }
+}
+
+
+/* =======================================
+   POPUP BOX ANIMATION
+======================================= */
+
+/* Opening animation */
+.popup-content.open {
+  animation: popupOpen 0.3s ease forwards;
+}
+
+/* Closing animation */
+.popup-content.closing {
+  animation: popupClose 0.3s ease forwards;
+}
+
+@keyframes popupOpen {
+  from {
+    opacity: 0;
+    transform: translateY(30px) scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes popupClose {
+  from {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(30px) scale(0.96);
+  }
+}
+
+
+/* ===============================
+   Text Styling
+================================ */
+.popup-title {
+  text-align: center;
+  font-size: 20px;
+  font-weight: bold;
+  padding-bottom: 10px;
+}
+
+.popup-heading {
+  padding: 20px 0 10px 0;
+  font-weight: bold;
+  font-size: 18px;
+}
+
+/* ===============================
+   Buttons
+================================ */
+.popup-btn-row {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 20px;
+  gap: 10px;
+}
+
+.ack-btn {
+  background-color: #3378c2;
+  color: white;
+  padding: 8px 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  border: none;
+}
+
+.close-btns {
+  background-color: #ddd;
+  padding: 8px 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  border: none;
+}
+
+
+
 
 /* .popup-header {
   display: flex;

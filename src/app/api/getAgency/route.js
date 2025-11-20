@@ -3,7 +3,9 @@ import { NextResponse } from "next/server";
 export async function GET(req) {
   try {
     const cookies = req.cookies;
+
     const agencyId = cookies.get("agencyId")?.value;
+    const token = cookies.get("token")?.value;
 
     if (!agencyId) {
       return NextResponse.json(
@@ -17,6 +19,9 @@ export async function GET(req) {
     const response = await fetch(apiUrl, {
       method: "GET",
       headers: { "Content-Type": "application/json" },
+      // body: JSON.stringify({ userName:"Muhammad Faisal", password:"1122334455" }),
+      // credentials:true,
+      Authorization: `Bearer ${token}`,
     });
 
     if (!response.ok) {

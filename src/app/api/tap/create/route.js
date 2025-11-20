@@ -6,18 +6,32 @@ export async function POST(req) {
 
     const payment = {
       amount: parseFloat(amount),
-      currency:"USD",
-      description: "Student Fees",
+      currency: "BHD",
+      threeDSecure: true,
+      save_card: false,
+      description: "Hotel",
       customer: {
         first_name: customer.firstName,
         last_name: customer.lastName,
         email: customer.email,
         phone: {
-          country_code: "IN",
+          country_code: customer.country_Code, // ✔ FIXED (INDIA numeric code)
           number: customer.phone,
         },
       },
+
+      
+      receipt: {
+        email: true,
+        sms: true,
+      },
+
+      reference: {
+        transaction: "ref" + Date.now() + Math.floor(Math.random() * 1000),
+        order: "ord" + Date.now() + Math.floor(Math.random() * 1000),
+      },
       source: { id: "src_all" },
+
       redirect: {
         url: `${process.env.NEXT_PUBLIC_DOMAIN}/api/tap/callback?studentId=${studentId}&logId=${logId}`,
       },
@@ -34,12 +48,29 @@ export async function POST(req) {
 
     const data = await response.json();
 
+    // console.log(data.reference?.transaction);
+
+    // Handle Tap errors
     if (!response.ok) {
-      return NextResponse.json({ error: data }, { status: response.status });
+      return NextResponse.json(
+        { error: data, message: "Tap API Error" },
+        { status: response.status }
+      );
+    }
+
+    // Protect against undefined data.transaction
+    if (!data.transaction || !data.transaction.url) {
+      return NextResponse.json(
+        { error: "Invalid Tap response", raw: data },
+        { status: 500 }
+      );
     }
 
     return NextResponse.json({ url: data.transaction.url });
   } catch (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    return NextResponse.json(
+      { error: error.message, type: "Server Error" },
+      { status: 500 }
+    );
   }
 }
