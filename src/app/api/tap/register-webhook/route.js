@@ -5,6 +5,7 @@ export async function GET() {
     const url = "https://api.tap.company/v2/webhooks";
 
     const body = {
+      type: "webhook",
       url: "https://next-room-finder-pro.vercel.app/api/tap/webhook",
       events: [
         "charge.succeeded",
