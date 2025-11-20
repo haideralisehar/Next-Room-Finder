@@ -65,18 +65,38 @@ export async function POST(req) {
   try {
     const body = await req.json();
 
-    console.log("Webhook Received:", body);
+    console.log("🔥 TAP WEBHOOK RECEIVED:", body);
 
-    // OPTIONAL: Verify webhook signature (Tap signs them)
-    // const signature = req.headers.get("tap-signature");
+    // Extract essential fields
+    const payload = {
+      tapId: body?.id,
+      status: body?.status,
+      amount: body?.amount,
+      currency: body?.currency,
+      order: body?.reference?.order,
+      transaction: body?.reference?.transaction,
 
-    // TODO:
-    // Save webhook data to Azure DB using fetch() or Prisma
+      customer: {
+        name: body?.customer?.first_name + " " + body?.customer?.last_name,
+        email: body?.customer?.email,
+        phone: body?.customer?.phone?.number,
+      },
 
+      // save the full body for logs or debugging
+      raw: body,
+    };
+
+    // IMPORTANT → Forward to your save API
+    await fetch(`${process.env.NEXT_PUBLIC_DOMAIN}/api/tap/payment/store`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+    });
+
+    // Tap requires 200 OK to stop retrying
     return NextResponse.json({ success: true });
-  } catch (err) {
-    console.error("Webhook Error:", err);
-    return NextResponse.json({ error: "Webhook failed" }, { status: 400 });
+  } catch (error) {
+    console.error("Webhook Error:", error);
+    return NextResponse.json({ success: false }, { status: 500 });
   }
 }
-

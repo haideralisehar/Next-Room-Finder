@@ -20,7 +20,6 @@ export async function POST(req) {
         },
       },
 
-      
       receipt: {
         email: true,
         sms: true,
@@ -31,6 +30,10 @@ export async function POST(req) {
         order: "ord" + Date.now() + Math.floor(Math.random() * 1000),
       },
       source: { id: "src_all" },
+
+      post: {
+        url: `${process.env.NEXT_PUBLIC_DOMAIN}/api/tap/webhook`,
+      },
 
       redirect: {
         url: `${process.env.NEXT_PUBLIC_DOMAIN}/api/tap/callback?studentId=${studentId}&logId=${logId}`,

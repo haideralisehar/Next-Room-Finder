@@ -1,3 +1,4 @@
+// /api/tap/register-webhook/route.js
 import { NextResponse } from "next/server";
 
 export async function POST() {
@@ -5,13 +6,13 @@ export async function POST() {
     const url = "https://api.tap.company/v2/webhooks";
 
     const body = {
+      type: "webhook",
       url: "https://next-room-finder-pro.vercel.app/api/tap/webhook",
-      content_type: "json",  // REQUIRED for Tap
       events: [
-        "charge.succeeded",
-        "charge.failed",
         "charge.captured",
-        "charge.refunded"
+        "charge.failed",
+        "charge.refunded",
+        "charge.authorized",
       ],
     };
 
@@ -24,10 +25,9 @@ export async function POST() {
       body: JSON.stringify(body),
     });
 
-    const result = await response.json();
-    return NextResponse.json(result);
-
-  } catch (e) {
-    return NextResponse.json({ error: e.message }, { status: 500 });
+    const data = await response.json();
+    return NextResponse.json(data);
+  } catch (error) {
+    return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }
