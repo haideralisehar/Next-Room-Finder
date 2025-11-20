@@ -48,14 +48,14 @@ export async function POST(req) {
 }
 
 // Allow GET request (browser)
-export async function GET() {
-  // ⚠️ Only enable GET for local testing
-  if (process.env.NODE_ENV === "production") {
-    return NextResponse.json(
-      { error: "GET not allowed in production" },
-      { status: 405 }
-    );
-  }
+// export async function GET() {
+//   // ⚠️ Only enable GET for local testing
+//   if (process.env.NODE_ENV === "production") {
+//     return NextResponse.json(
+//       { error: "GET not allowed in production" },
+//       { status: 405 }
+//     );
+//   }
 
   return register();
 }
