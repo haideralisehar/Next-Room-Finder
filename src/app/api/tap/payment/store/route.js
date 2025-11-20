@@ -9,7 +9,7 @@ export async function POST(req) {
 
     // TODO: Save in DB here (MongoDB, Prisma, SQL, Appwrite, etc.)
 
-    return NextResponse.json({ success: true });
+    return NextResponse.json({ success: true, "Data:" :data });
   } catch (err) {
     return NextResponse.json({ success: false, error: err.message }, { status: 500 });
   }
