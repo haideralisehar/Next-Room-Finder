@@ -94,7 +94,7 @@ export async function POST(req) {
     });
 
     // Tap requires 200 OK to stop retrying
-   return new Response("OK", { status: 200 }); // VERY IMPORTANT
+   return NextResponse.json({ success: true, "Data:" :body }); // VERY IMPORTANT
   } catch (error) {
     console.log("Webhook error:", error);
     return new Response("OK", { status: 200 }); // STILL RETURN 200
