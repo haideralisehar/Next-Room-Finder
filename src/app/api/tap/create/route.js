@@ -26,8 +26,9 @@ export async function POST(req) {
       },
 
       reference: {
-        transaction: "ref" + Date.now() + Math.floor(Math.random() * 1000),
-        order: "ord" + Date.now() + Math.floor(Math.random() * 1000),
+        transaction: "ref" + Date.now() + Math.floor(Math.random() * 1000000),
+        order: "ord" + Date.now() + Math.floor(Math.random() * 100),
+        invoice: "inv" + Date.now() + Math.floor(Math.random() * 1000000)
       },
       source: { id: "src_all" },
 
