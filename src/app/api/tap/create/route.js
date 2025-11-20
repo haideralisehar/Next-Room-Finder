@@ -30,6 +30,7 @@ export async function POST(req) {
         order: "ord" + Date.now() + Math.floor(Math.random() * 100),
         invoice: "inv" + Date.now() + Math.floor(Math.random() * 1000000)
       },
+      retry_for_captured: true,
       source: { id: "src_all" },
 
       post: {
