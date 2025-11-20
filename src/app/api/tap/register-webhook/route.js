@@ -5,8 +5,8 @@ export async function POST() {
     const url = "https://api.tap.company/v2/webhooks";
 
     const body = {
-      type: "webhook",
       url: "https://next-room-finder-pro.vercel.app/api/tap/webhook",
+      content_type: "json",  // REQUIRED for Tap
       events: [
         "charge.succeeded",
         "charge.failed",
