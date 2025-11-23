@@ -2,12 +2,12 @@
 import React, { useState, useEffect, useRef } from "react";
 import styles from "../styling/CountrySelector.module.css";
 
-export default function CountrySelector({ selectedCountry, onCountrySelect, formData={} }) {
+export default function CountrySelector({ selectedCountry, onCountrySelect, formData = {} }) {
   const [countries, setCountries] = useState([]);
   const [search, setSearch] = useState(formData.country || "");
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [loading, setLoading] = useState(false);
-  const justSelectedRef = useRef(false); // 🧠 flag to prevent reopening after selection
+  const justSelectedRef = useRef(false);
 
   useEffect(() => {
     if (search.trim().length < 1) {
@@ -17,7 +17,6 @@ export default function CountrySelector({ selectedCountry, onCountrySelect, form
       return;
     }
 
-    // 👇 Show suggestions immediately while fetching
     if (!justSelectedRef.current) {
       setShowSuggestions(true);
     }
@@ -29,6 +28,8 @@ export default function CountrySelector({ selectedCountry, onCountrySelect, form
       try {
         const res = await fetch(`/api/country?q=${search}`);
         const data = await res.json();
+
+        // API RETURNS: { id, name, countryCode }
         setCountries(Array.isArray(data) ? data : []);
       } catch (error) {
         console.error("Error fetching countries:", error);
@@ -42,22 +43,21 @@ export default function CountrySelector({ selectedCountry, onCountrySelect, form
     return () => clearTimeout(delayDebounce);
   }, [search]);
 
-  const handleSelect = (countryName) => {
-    setSearch(countryName);
+  // SELECT a country
+  const handleSelect = (country) => {
+    setSearch(`${country.name}, ${country.countryCode}`);
     setShowSuggestions(false);
-    onCountrySelect(countryName);
-    justSelectedRef.current = true;
 
-    // Reset flag after short delay
+    // SEND {name, countryCode} to parent
+    onCountrySelect({
+      name: country.name,
+      code: country.countryCode, // 🔥 CORRECT FIELD
+    });
+
+    justSelectedRef.current = true;
     setTimeout(() => {
       justSelectedRef.current = false;
     }, 300);
-
-    if (typeof handleChange === "function") {
-      handleChange({
-        target: { name: "country", value: countryName },
-      });
-    }
   };
 
   return (
@@ -86,10 +86,10 @@ export default function CountrySelector({ selectedCountry, onCountrySelect, form
             countries.map((country) => (
               <li
                 key={country.id}
-                onClick={() => handleSelect(country.name)}
+                onClick={() => handleSelect(country, country.countryCode)}
                 className={styles.suggestionItem}
               >
-                {country.name}
+                {country.name} ({country.countryCode}) {/* 🔥 FIXED */}
               </li>
             ))
           ) : (
