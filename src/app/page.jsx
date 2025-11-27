@@ -48,3 +48,54 @@ function page() {
 }
 
 export default page;
+
+
+
+
+
+
+
+
+{/* <div className="hotel-card" key={hotel.id}>
+
+     
+      <div className="hotel-image-wrapper">
+        <img
+          src={hotel.images[0].url || hotel.images[3].url}
+          alt={hotel.name}
+          className="hotel-image"
+        />
+      </div>
+
+      
+      <div className="hotel-details">
+        <h2 className="hotel-title">{hotel.name}</h2>
+
+        
+        <StarRating rating={hotel.starRating || 0} />
+
+        
+        <p className="hotel-location">
+          {hotel.location.address}
+        </p>
+
+        
+        {hotel.priceInfo ? (
+          <div className="hotel-price-box">
+            <p className="hotel-price-title">Price Details</p>
+            <p className="hotel-price-value">
+              From {hotel.priceInfo.Currency}{" "}
+              <strong>
+            {hotel?.priceInfo?.LowestPrice?.Value
+              ? hotel.priceInfo.LowestPrice.Value
+              : "N/A"}
+          </strong>
+            </p>
+          </div>
+        ) : (
+          <p className="hotel-no-price">No price available</p>
+        )}
+
+        <button className="hotel-btn">View Hotel</button>
+      </div>
+    </div> */}

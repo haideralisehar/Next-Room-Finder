@@ -91,9 +91,10 @@
 .hotel-card {
   display: flex;
   justify-content: space-between;
-  border: 1.5px solid #959595; /* previously maybe 1px */
+  border: 1px solid #c8c8c8; /* previously maybe 1px */
   border-radius: 10px;
   transition: border-color 0.3s ease;
+  cursor: pointer;
   
   /* box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);  */
   overflow: hidden;

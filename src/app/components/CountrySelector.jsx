@@ -2,7 +2,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import styles from "../styling/CountrySelector.module.css";
 
-export default function CountrySelector({ selectedCountry, onCountrySelect, formData = {} }) {
+export default function CountrySelector({ show_label=true,selectedCountry, onCountrySelect, formData = {} }) {
   const [countries, setCountries] = useState([]);
   const [search, setSearch] = useState(formData.country || "");
   const [showSuggestions, setShowSuggestions] = useState(false);
@@ -59,14 +59,20 @@ export default function CountrySelector({ selectedCountry, onCountrySelect, form
       justSelectedRef.current = false;
     }, 300);
   };
+  // const show_label = true;
 
   return (
     <div className={styles.inputGroup}>
-      <label>Country *</label>
+      {
+        show_label&&(
+          <label>Country *</label>
+        )
+      }
+      
 
       <input
         type="text"
-        placeholder="Search country..."
+        placeholder={show_label?"Search country...":"Where you want to go?"}
         value={search}
         onChange={(e) => setSearch(e.target.value)}
         onFocus={() => {

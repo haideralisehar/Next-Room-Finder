@@ -6,6 +6,7 @@ import { hotelsData } from "../HotelDetails/hoteldata.js";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
 import "../results/ResultsPage.css";
+import "../results/HotelsList.css";
 import Link from "next/link";
 import Filters from "../components/filter"; // ✅ Import Filters component
 import MobFilter from "../components/MobFilter";
@@ -16,6 +17,8 @@ import { useCurrency } from "../Context/CurrencyContext";
 import dynamic from "next/dynamic";
 import ImageViewer from "../components/ImageViewer";
 import HotelTabs from "../components/tabs";
+import SmartImage from "../components/SmartImages";
+
 
 
 const MapWithPrices = dynamic(() => import("../MapView/MapShow"), {
@@ -39,6 +42,8 @@ export default function ResultsContent() {
   const [facilities, setFacility] = useState([]);
   const handlePopupToggle = () => setShowPopup(!showPopup);
   const [showMap, setShowMap] = useState(true); // map show
+  const [selectedHotel, setSelectedHotel] = useState(null);
+
 
   // ✅ Filters state
   const [filters, setFilters] = useState({
@@ -51,10 +56,50 @@ export default function ResultsContent() {
   const [sortOption, setSortOption] = useState("");
 
   useEffect(() => {
+
+      const stored = sessionStorage.getItem("hotelData");
+
+  if (!stored) {
+    console.error("No hotel data found in sessionStorage");
+    setLoading(false);
+    return;
+  }
+
+  const apiResponse = JSON.parse(stored);
+
+  // const hotels = apiResponse || [];
+  // setResults(hotels);   
+
+  const hotels = apiResponse.hotelDetails?.data || [];
+const hotelList = apiResponse.prices?.Success?.PriceDetails?.HotelList || [];
+
+// Convert hotelList to a fast lookup map
+const hotelListMap = new Map(
+  hotelList.map(h => [h.HotelID, h])
+);
+
+// Keep only hotels that exist in BOTH lists
+const mergedHotels = hotels
+  .filter(hotel => hotelListMap.has(hotel.id))    // 👈 ONLY MATCHING IDs
+  .map(hotel => ({
+    ...hotel,
+    priceInfo: hotelListMap.get(hotel.id),        // attach pricing
+  }));
+
+
+
+
+// setResults(mergedHotels);
+
+
+  // console.log("Hotels:", hotels.totalHotels);
+  // console.log("total", results.totalHotels);
+
+
     setTimeout(() => {
       const dest = searchParams.get("destination") || "";
-      const f = searchParams.get("from") || "";
-      const t = searchParams.get("to") || "";
+      const f = searchParams.get("checkIn") || "";
+      const t = searchParams.get("checkOut") || "";
       const n = searchParams.get("nights") || "";
       const d = searchParams.get("description");
 
@@ -75,58 +120,64 @@ export default function ResultsContent() {
       setResults(hotelsData[dest] || []);
       setLoading(false);
       setDescription(d);
+     setResults(mergedHotels);
+
+
     }, 300);
   }, [searchParams]);
 
+  console.log("Hotels_List:", results);
+  console.log("selected",selectedHotel);
+
   // ✅ Filtering + Sorting logic
-  const filteredResults = useMemo(() => {
-    let data = results.filter((hotel) => {
-      // Title search
-      if (
-        filters.title &&
-        !hotel.name.toLowerCase().includes(filters.title.toLowerCase())
-      ) {
-        return false;
-      }
+  // const filteredResults = useMemo(() => {
+  //   let data = results.filter((hotel) => {
+  //     // Title search
+  //     if (
+  //       filters.title &&
+  //       !hotel.name.toLowerCase().includes(filters.title.toLowerCase())
+  //     ) {
+  //       return false;
+  //     }
 
-      // Rating filter
-      if (filters.rating) {
-        const rating = parseFloat(hotel.rating);
-        if (filters.rating === "4+" && rating < 4) return false;
-        if (filters.rating === "3+" && rating < 3) return false;
-        if (filters.rating === "2+" && rating < 2) return false;
-        if (filters.rating === "1+" && rating < 1) return false;
-      }
+  //     // Rating filter
+  //     if (filters.rating) {
+  //       const rating = parseFloat(hotel.rating);
+  //       if (filters.rating === "4+" && rating < 4) return false;
+  //       if (filters.rating === "3+" && rating < 3) return false;
+  //       if (filters.rating === "2+" && rating < 2) return false;
+  //       if (filters.rating === "1+" && rating < 1) return false;
+  //     }
 
-      // Price filter
-      const [minPrice, maxPrice] = filters.priceRange;
-      if (hotel.price < minPrice || hotel.price > maxPrice) {
-        return false;
-      }
+  //     // Price filter
+  //     const [minPrice, maxPrice] = filters.priceRange;
+  //     if (hotel.price < minPrice || hotel.price > maxPrice) {
+  //       return false;
+  //     }
 
-      return true;
-    });
+  //     return true;
+  //   });
 
-    // ✅ Apply Sorting
-    if (sortOption) {
-      data = [...data].sort((a, b) => {
-        switch (sortOption) {
-          case "price-low":
-            return a.price - b.price;
-          case "price-high":
-            return b.price - a.price;
-          case "az":
-        return a.name.localeCompare(b.name);
-      case "za":
-        return b.name.localeCompare(a.name);
-      default:
-        return 0;
-        }
-      });
-    }
+  //   // ✅ Apply Sorting
+  //   if (sortOption) {
+  //     data = [...data].sort((a, b) => {
+  //       switch (sortOption) {
+  //         case "price-low":
+  //           return a.price - b.price;
+  //         case "price-high":
+  //           return b.price - a.price;
+  //         case "az":
+  //       return a.name.localeCompare(b.name);
+  //     case "za":
+  //       return b.name.localeCompare(a.name);
+  //     default:
+  //       return 0;
+  //       }
+  //     });
+  //   }
 
-    return data;
-  }, [results, filters, sortOption]);
+  //   return data;
+  // }, [results, filters, sortOption]);
 
   // ✅ Clear filters
   const clearFilters = () => {
@@ -136,6 +187,8 @@ export default function ResultsContent() {
       priceRange: [0, 500],
     });
   };
+
+  
 
   if (loading) {
     return (
@@ -150,19 +203,22 @@ export default function ResultsContent() {
     );
   }
 
+  
+
   return (
     <>
       <Header />
       <HotelSearchBar
-        initialDestination={destination}
-        initialCheckIn={from}
-        initialCheckOut={to}
-        initialRooms={
-          rooms.length > 0
-            ? rooms
-            : [{ adults: 2, children: 0, childrenAges: [] }]
-        }
-      />
+  initialData={{
+    destination: destination,
+    checkIn: from,
+    checkOut: to,
+    rooms: rooms.length > 0 ? rooms : [
+      { adults: 1, children: 0, childrenAges: [] }
+    ]
+  }}
+/>
+
 
       <div className="map-mobile">
         <div
@@ -215,13 +271,11 @@ export default function ResultsContent() {
       {/* --- Top bar with results count + sort --- */}
       <div className="nf-pro">
         <p className="desti-count">
-          {filteredResults.length === 0
-            ? "No Hotel Available"
-            : `${filteredResults.length} properties in ${destination}`}
-          {/* {filteredResults.length} destinations */}
-          {/* {filteredResults.length} properties in {destination} */}
-          {/* {filteredResults.length} destinations */}
+          
+       {results.length} properties in {destination}
         </p>
+
+        
         <div
           className="set-fil"
           style={{ display: "flex", gap: "7px", marginTop: "0px" }}
@@ -261,32 +315,7 @@ export default function ResultsContent() {
       </div>
 
       <div className="results-container">
-        {/* <div className="room-details">
-      <p><strong>{rooms.length}</strong> room(s)</p>
-      {rooms.map((room, index) => (
-        <p key={index} style={{ fontSize: "13px", margin: "2px 0" }}>
-          Room {index + 1}: {room.adults} adult(s), {room.children} child(ren)
-        </p>
-      ))}
-    </div> */}
-
-        {/* <div className="room-details">
-      <p><strong>{rooms.length}</strong> room(s)</p>
-      {rooms.map((room, index) => (
-        <div key={index} style={{ fontSize: "13px", margin: "4px 0" }}>
-          <p>
-            Room {index + 1}: {room.adults} adult(s), {room.children} child(ren)
-          </p>
-          {room.children > 0 && (
-            <p style={{ marginLeft: "10px", color: "gray" }}>
-              Ages: {room.childrenAges && room.childrenAges.length > 0
-                ? room.childrenAges.join(", ")
-                : "Not specified"}
-            </p>
-          )}
-        </div>
-      ))}
-    </div> */}
+        
         {destination === "" ? (
           // --- Show message only ---
           <main className="hotel-results">
@@ -300,6 +329,8 @@ export default function ResultsContent() {
                 }}
               >
                 Try searching or find other hotels
+
+                {/* {results.hotelDetails.data[0].language} */}
               </p>
             </div>
           </main>
@@ -320,7 +351,7 @@ export default function ResultsContent() {
             {showMap && (
               <main className="hotel-results">
                 <div className="hotel-list">
-                  {filteredResults.length === 0 ? (
+                  {results.length === 0 ? (
                     <p
                       style={{
                         fontSize: "16px",
@@ -333,24 +364,67 @@ export default function ResultsContent() {
                       filters or search for another place.
                     </p>
                   ) : (
-                    filteredResults.map((hotel) => (
+                    // filteredResults.map((hotel) => (
                      
-                      <div className="hotel-card" key={hotel.id}>
+                      
+                      // </Link>
+
+//                       results.map((hotel) => (
+//   <div key={hotel.id} className="hotel-card">
+
+//     <h2>{hotel.name}</h2>
+
+//     {/* star rating */}
+//     <StarRating rating={hotel.starRating} />
+
+//     {/* hotel image if any */}
+//     {/* <img src={hotel.imageUrl} alt={hotel.name} /> */}
+
+//     {/* Prices */}
+//     {hotel.priceInfo ? (
+//       <div>
+//         <p><strong>Price Available</strong></p>
+//         <p>Hotel ID: {hotel.priceInfo.HotelID}</p>
+//         {/* Add any other pricing info */}
+//       </div>
+//     ) : (
+//       <p>No pricing found</p>
+//     )}
+
+//   </div>
+// ))
+
+
+    
+<div className="hotel-container">
+  {results.length === 0 && <p className="no-data">No hotels found.</p>}
+
+  {results.map((hotel) => (
+    <div className="hotel-card" key={hotel.id}>
                         {/* Left: Image */}
 
                         <div className="hotel-img-wrapper">
-                          <img
-                            src={hotel.image}
-                            alt={hotel.name}
-                            className="hotel-img"
-                          />
-                          <div className="favorite-icon">❤</div>
-                        </div>
+  <img
+    src={
+      hotel?.images?.find(img => img?.url)?.url || "/no-image.jpg"
+    }
+    alt={hotel.name}
+    className="hotel-img"
+    onError={(e) => { e.target.src = "https://www.freeiconspng.com/thumbs/no-image-icon/no-image-icon-6.png"; }}
+  />
+
+  {/* <SmartImage
+  images={hotel.images.map(img => img.url)}
+  alt={hotel.name}
+  className="hotel-img"
+/> */}
+
+</div>
 
                         {/* Right: Details */}
                         <div className="hotel-details">
                           <div className="hotel-header">
-                            <StarRating rating={hotel.rating} />
+                            <StarRating rating={hotel.starRating || 0} />
                             <h3>{hotel.name}</h3>
                           </div>
 
@@ -359,7 +433,7 @@ export default function ResultsContent() {
                             style={{ display: "flex" }}
                           >
                             <IoLocationOutline />
-                            <p className="location">{hotel.location}</p>
+                            <p className="location">{hotel.location.address}</p>
                           </div>
 
                           <p
@@ -381,7 +455,7 @@ export default function ResultsContent() {
                                 fontSize: "13px",
                                 paddingLeft: "3px",
                               }}
-                              onClick={() => setShowRoomPopup(true)}
+                              onClick={() => setSelectedHotel(hotel)}
                             >
                               See More
                             </p>
@@ -389,41 +463,19 @@ export default function ResultsContent() {
 
                           <div className="price-info top-right">
                             <p className="price">
-                              {convertPrice(hotel.price)} {currency}
+                              {/* <strong>
+            {hotel?.priceInfo?.LowestPrice?.Value
+              ? hotel.priceInfo.LowestPrice.Value
+              : "N/A"}
+          </strong> */}
+                              {convertPrice(hotel.priceInfo.LowestPrice.Value)} {currency}
                             </p>
                             <p className="price-sub">
-                              {rooms.length} room(s) <br /> {nights} night(s)
-                              incl. taxes
+                              {hotel.rooms.length} room(s)
+                              
                             </p>
-                             <Link
-                        key={hotel.id}
-                        href={{
-                          pathname: "/hotel-view",
-                          query: {
-                            id: hotel.id,
-                            name: hotel.name,
-                            location: hotel.location,
-                            price: hotel.price,
-                            image: hotel.image,
-                            from: from,
-                            to: to,
-                            rooms: JSON.stringify(rooms),
-                            count: rooms.length,
-                            nights: nights,
-                            rating: hotel.rating,
-                            description: hotel.description,
-                            lat: hotel.position.lat,
-                            lon: hotel.position.lon,
-                            facility: JSON.stringify(hotel.facilities),
-                            roomImages: JSON.stringify(hotel.roomImages),
-                            hotelRooms: JSON.stringify(hotel.rooms),
-                            roomPhotos: JSON.stringify(hotel.roomImages),
-                          },
-                        }}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                      >
-                            <button
+                             
+                            <button 
                             className="bok-btn"
                               style={{
                                 fontSize: "14px",
@@ -437,10 +489,12 @@ export default function ResultsContent() {
                             >
                               Book Now
                             </button>
-                            </Link>
+                            
                           </div>
+
+                          
                         </div>
-                        {showRoomPopup && (
+                        {/* {showRoomPopup && (
                           <div className="popup-overlay-room">
                             <div className="popup-content-room">
                               <button
@@ -449,12 +503,7 @@ export default function ResultsContent() {
                               >
                                 ✕
                               </button>
-                              {/* <h2>{hotel.name}</h2> */}
-                              {/*<p>{hotel.description}</p>
-            <p><strong>Location:</strong> {hotel.location}</p>
-            <p><strong>Price:</strong> ${hotel.price} / night</p> */}
-                              {/* <button className="book-btn">Book Now</button> */}
-                              {/* <p>{hotel.position.lat}{hotel.position.lon}</p> */}
+                             
                               <div className="RatingPlusTitle">
                                 <h1
                                   className="hotel-title"
@@ -463,7 +512,7 @@ export default function ResultsContent() {
                                   {hotel.name}
                                 </h1>
                                 <div className="StartManage">
-                                  <StarRating rating={hotel.rating} />
+                                  <StarRating rating={hotel.starRating} />
                                 </div>
                               </div>
 
@@ -472,26 +521,80 @@ export default function ResultsContent() {
                                 style={{ padding: "0px 12px 0px 20px" }}
                               >
                                 <IoLocationOutline />
-                                <p>{hotel.location}</p>
+                                <p>{hotel.location.address}</p>
                               </div>
                               <ImageViewer
-                                images={hotel.roomImages}
+                                images={hotel.images}
                                 location={[
-                                  hotel.position.lat,
-                                  hotel.position.lon,
+                                  hotel.location.coordinate,
+                                  hotel.location.latitude,
                                 ]}
                               />
 
                              
 
-                               <HotelTabs description={hotel.description} facility={hotel.facilities} />
+                             
+
+                               <HotelTabs description={hotel.description} facility={"sad"} />
                             </div>
                           </div>
-                        )}
+                          
+                        )} */}
+
+                       
+
                       </div>
-                      // </Link>
-                    ))
+                      
+  ))}
+
+   {selectedHotel && (
+  <div className="popup-overlay-room">
+    <div className="popup-content-room">
+      <button
+        className="popup-close"
+        onClick={() => setSelectedHotel(null)}
+      >
+        ✕
+      </button>
+
+      <div className="RatingPlusTitle">
+        <h1 className="hotel-title" style={{ padding: "0px 12px 0px 20px" }}>
+          {selectedHotel.name}
+        </h1>
+        <div className="StartManage">
+          <StarRating rating={selectedHotel.starRating} />
+        </div>
+      </div>
+
+      <div className="tit-mng" style={{ padding: "0px 12px 0px 20px" }}>
+        <IoLocationOutline />
+        <p>{selectedHotel.location.address}</p>
+      </div>
+
+      <ImageViewer
+  images={selectedHotel.images.map(img => img.url)}   // <— FIX
+  location={[
+    selectedHotel.location.coordinate,
+    selectedHotel.location.latitude,
+  ]}
+/>
+
+
+      <HotelTabs
+        description={selectedHotel?.description}
+        facility={selectedHotel.facilities}
+      />
+    </div>
+  </div>
+)}
+</div>
+
+
+                    
+
+                    
                   )}
+                  
 
                   {/* --- Popup Modal --- */}
                 </div>

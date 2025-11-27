@@ -9,13 +9,15 @@
 
 
 /* background-color: red; */
+width: 100%;
 }
 
 .searchInput {
-  padding: 7px;
+  /* padding: 7px; */
   border: 1px solid #ccc;
   border-radius: 6px;
   font-size: 14px;
+  
 }
 
 .suggestionList {

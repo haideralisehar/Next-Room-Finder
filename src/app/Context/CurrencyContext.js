@@ -4,16 +4,20 @@ import React, { createContext, useContext, useState, useEffect } from "react";
 
 // Conversion rates (base: BHD)
 const conversionRates = {
-  BHD: 1,
-  USD: 2.65,
-  EUR: 2.26,
-  SAR: 9.94,
+  // BHD: 1,
+  // USD: 2.65,
+  // EUR: 2.26,
+  // SAR: 9.94,
+  USD: 1,
+  BHD: 0.37736,
+  EUR: 0.8538,
+  SAR: 3.7,
 };
 
 const CurrencyContext = createContext();
 
 export function CurrencyProvider({ children }) {
-  const [currency, setCurrency] = useState("BHD"); // ✅ Default: BHD
+  const [currency, setCurrency] = useState("USD"); // ✅ Default: BHD
 
   // ✅ Load currency from localStorage when app starts
   useEffect(() => {

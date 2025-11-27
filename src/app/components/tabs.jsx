@@ -24,29 +24,36 @@ export default function HotelTabs({ description, facility }) {
 
       {/* Tab Content */}
       <div className="tab-content">
-        {activeTab === "facilities" && (
-          <div>
-            <h2 className="tab-title">Facilities</h2>
-           <div className="facilities-list">
-  {Array.isArray(facility) && facility.length > 0 ? (
-    facility.map((item, i) => (
-      <div key={i} className="facility-item">
-        <span className="icon">i</span>
-        {item}
-      </div>
-    ))
-  ) : (
-    <p>No facilities listed</p>
-  )}
-</div>
+      {activeTab === "facilities" && (
+  <div>
+    <h2 className="tab-title">Facilities</h2>
 
-          </div>
-        )}
+    <div className="facilities-list">
+      {Array.isArray(facility) && facility.length > 0 ? (
+        facility
+          .filter((item) => item.type === "HotelFacility") // ⬅️ filter here
+          .map((item, i) => (
+            <div key={i} className="facility-item">
+              <span className="icon">i</span>
+              {item.description}
+            </div>
+          ))
+      ) : (
+        <p>No facilities listed</p>
+      )}
+    </div>
+  </div>
+)}
+
 
         {activeTab === "description" && (
           <div>
             <h2 className="tab-title">Description</h2>
-            <p className="tab-text">{description}</p>
+            <div
+  dangerouslySetInnerHTML={{
+    __html: description,
+  }}
+/>
           </div>
         )}
 
@@ -54,8 +61,10 @@ export default function HotelTabs({ description, facility }) {
           <div>
             <h2 className="tab-title">Reviews</h2>
             <p className="tab-text">
-              ⭐⭐⭐⭐ 4.5/5 – Guests loved the cleanliness, location, and
-              friendly staff.
+              {/* ⭐⭐⭐⭐ 4.5/5 – Guests loved the cleanliness, location, and
+              friendly staff. */}
+
+              No Reviews....
             </p>
           </div>
         )}
