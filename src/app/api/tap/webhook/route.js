@@ -96,11 +96,11 @@ export async function POST(req) {
     console.log(body);
 
     // Tap requires 200 OK to stop retrying
-<<<<<<< HEAD
-   return new Response("OK", { status: 200 }, {body}); // VERY IMPORTANT
-=======
-   return new Response("OK", { status: 200, "Body":body }); // VERY IMPORTANT
->>>>>>> 9c4bdaa0bcbfb8858d60e7c273198dafd78e957f
+// <<<<<<< HEAD
+//    return new Response("OK", { status: 200 }, {body}); // VERY IMPORTANT
+// =======
+//    return new Response("OK", { status: 200, "Body":body }); // VERY IMPORTANT
+// >>>>>>> 9c4bdaa0bcbfb8858d60e7c273198dafd78e957f
   } catch (error) {
     console.log("Webhook error:", error);
     return new Response("OK", { status: 200 }); // STILL RETURN 200
