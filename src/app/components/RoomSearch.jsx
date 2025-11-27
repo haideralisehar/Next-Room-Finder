@@ -1,6 +1,4 @@
-// HotelSearchBar.jsx
-// Updated component based on your CSS and required functionality
-
+"use client";
 import React, { useState, useEffect } from "react";
 import { DateRange } from "react-date-range";
 import { useRouter } from "next/navigation";
@@ -20,6 +18,8 @@ import CountrySelector from "../components/CountrySelector";
 export default function HotelSearchBar({ initialData }) {
   const router = useRouter();
 
+  const [loading, setLoading] = useState(false); // ✅ ADDED LOADING STATE
+
   const [formData, setFormData] = useState({
     destination: initialData?.destination || "",
     checkIn: initialData?.checkIn || "",
@@ -27,36 +27,24 @@ export default function HotelSearchBar({ initialData }) {
     rooms: initialData?.rooms || [{ adults: 1, children: 0, childrenAges: [] }],
   });
 
-  
-
-  console.log(formData);
-
   const [showRoomPopup, setShowRoomPopup] = useState(false);
   const [showDatePicker, setShowDatePicker] = useState(false);
-  // const [dateRange, setDateRange] = useState([
-  //   {
-  //     startDate: new Date(),
-  //     endDate: new Date(),
-  //     key: "selection",
-  //   },
-  // ]);
 
   const today = new Date();
-const tomorrow = new Date();
-tomorrow.setDate(today.getDate() + 1);
+  const tomorrow = new Date();
+  tomorrow.setDate(today.getDate() + 1);
 
-const [dateRange, setDateRange] = useState([
-  { startDate: today, endDate: tomorrow, key: "selection" },
-]);
+  const [dateRange, setDateRange] = useState([
+    { startDate: today, endDate: tomorrow, key: "selection" },
+  ]);
 
-useEffect(() => {
-  setFormData(prev => ({
-    ...prev,
-    checkIn: formatDate(dateRange[0].startDate),
-    checkOut: formatDate(dateRange[0].endDate)
-  }));
-}, [dateRange]);
-
+  useEffect(() => {
+    setFormData((prev) => ({
+      ...prev,
+      checkIn: formatDate(dateRange[0].startDate),
+      checkOut: formatDate(dateRange[0].endDate),
+    }));
+  }, [dateRange]);
 
   const formatDate = (date) => {
     const d = date.getDate();
@@ -65,123 +53,54 @@ useEffect(() => {
     return `${y}-${String(m).padStart(2, "0")}-${String(d).padStart(2, "0")}`;
   };
 
-  const handleDateApply = () => {
-    setShowDatePicker(false);
-  };
-
-  const handleAddRoom = () => {
-    setFormData((prev) => ({
-      ...prev,
-      rooms: [
-        ...prev.rooms,
-        {
-          adults: 1,
-          children: 0,
-          childrenAges: [],
-        },
-      ],
-    }));
-  };
-
-  const handleRemoveRoom = (index) => {
-    if (formData.rooms.length === 1) return;
-    const updated = [...formData.rooms];
-    updated.splice(index, 1);
-    setFormData((prev) => ({ ...prev, rooms: updated }));
-  };
-
-  const handleCounter = (index, field, value) => {
-    const updated = [...formData.rooms];
-
-    // Children count adjustment
-    if (field === "children") {
-      updated[index].children = Math.max(0, updated[index].children + value);
-      updated[index].childrenAges = Array.from({
-        length: updated[index].children,
-      }).map((_, i) => updated[index].childrenAges[i] || "0");
-    } else {
-      updated[index][field] = Math.max(1, updated[index][field] + value);
+  // ⭐ SUBMIT SEARCH WITH LOADER
+  const submitSearch = async () => {
+    if (!formData.destination) {
+      alert("Please select a destination!");
+      return;
     }
 
-    setFormData((prev) => ({ ...prev, rooms: updated }));
-  };
+    setLoading(true); // ⬅️ SHOW LOADER
 
-  const handleChildrenAgeChange = (roomIndex, childIndex, newAge) => {
-    const updated = [...formData.rooms];
-    updated[roomIndex].childrenAges[childIndex] = newAge;
-    setFormData((prev) => ({ ...prev, rooms: updated }));
-  };
+    const totalRooms = formData.rooms.length;
+    const totalAdults = formData.rooms.reduce((s, r) => s + r.adults, 0);
 
-  // const submitSearch = () => {
-  //   if (!formData.destination) {
-  //     alert("Please select an destination!");
-  //   } else {
-  //     router.push(
-  //       `/results?destination=${formData.destination}&checkIn=${
-  //         formData.checkIn
-  //       }&checkOut=${formData.checkOut}&rooms=${encodeURIComponent(
-  //         JSON.stringify(formData.rooms)
-  //       )}`
-  //     );
-  //   }
-  // };
+    const requestBody = {
+      countryCode: formData.destination,
+      checkIn: formData.checkIn,
+      checkOut: formData.checkOut,
+      rooms: totalRooms,
+      adults: totalAdults,
+      currency: "USD",
+      nationality: formData.destination,
+    };
 
-  const submitSearch = async () => {
-  if (!formData.destination) {
-    alert("Please select a destination!");
-    return;
-  }
+    try {
+      const res = await fetch("/api/hotelsearch", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(requestBody),
+      });
 
-  const totalRooms = formData.rooms.length;
-  const totalAdults = formData.rooms.reduce((s, r) => s + r.adults, 0);
+      const data = await res.json();
+      console.log("API Response:", data);
 
-  const requestBody = {
-    countryCode: formData.destination, // EX: "GB"
-    checkIn: formData.checkIn,
-    checkOut: formData.checkOut,
-    rooms: totalRooms,
-    adults: totalAdults,
-    currency: "USD",
-    nationality: formData.destination,
-  };
+      sessionStorage.setItem("hotelData", JSON.stringify(data));
 
-  try {
-    const res = await fetch("/api/hotelsearch", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(requestBody),
-    });
-
-    const data = await res.json();
-
-    console.log("API Response:", data);
-
-    // Navigate to Results page with API response as encoded data
-    // router.push(
-    //   `/results?data=${encodeURIComponent(JSON.stringify(data))}&destination=${formData.destination}&checkIn=${
-    //       formData.checkIn
-    //     }&checkOut=${formData.checkOut}&rooms=${encodeURIComponent(
-    //       JSON.stringify(formData.rooms)
-    //     )}`
-    // );
-    
-
-    sessionStorage.setItem("hotelData", JSON.stringify(data));
-    router.push(
+      router.push(
         `/results?destination=${formData.destination}&checkIn=${
           formData.checkIn
         }&checkOut=${formData.checkOut}&rooms=${encodeURIComponent(
           JSON.stringify(formData.rooms)
         )}`
       );
-   
-
-  } catch (error) {
-    console.error("Search API error:", error);
-    alert("Error fetching hotel data.");
-  }
-};
-
+    } catch (error) {
+      console.error("Search API error:", error);
+      alert("Error fetching hotel data.");
+    } finally {
+      setLoading(false); // ⬅️ HIDE LOADER
+    }
+  };
 
   const handleCountrySelect = (countryName) => {
     setFormData((prev) => ({
@@ -194,17 +113,24 @@ useEffect(() => {
     const totalRooms = formData.rooms.length;
     const totalAdults = formData.rooms.reduce((s, r) => s + r.adults, 0);
     const totalChildren = formData.rooms.reduce((s, r) => s + r.children, 0);
-
-    return `${totalRooms} Room${
-      totalRooms > 1 ? "s" : ""
-    }, ${totalAdults} Adults${
+    return `${totalRooms} Room${totalRooms > 1 ? "s" : ""}, ${totalAdults} Adults${
       totalChildren > 0 ? `, ${totalChildren} Children` : ""
     }`;
   };
 
   return (
-    <div>
-      <div className="search-bar">
+    <>
+      {/* ⭐ LOADER OVERLAY ⭐ */}
+      {loading && (
+          <div className="loading-container">
+            <div className="box" >
+          <div className="spinner"></div>
+          <p style={{fontSize:"12px"}}>Please Wait...</p>
+          </div>
+        </div>
+      )}
+
+      <div className={`search-bar ${loading ? "disabled" : ""}`}>
         <div className="search-box">
           <FaSearch className="icon" />
           <CountrySelector
@@ -214,35 +140,30 @@ useEffect(() => {
           />
         </div>
 
-        {/* Date Range */}
+        {/* DATE RANGE SELECTOR */}
         <div className="search-box date-box">
           <FaCalendarAlt className="icon" />
           <input
             readOnly
-            value={
-              formData.checkIn && formData.checkOut
-                ? `${formData.checkIn} → ${formData.checkOut}`
-                : "Check-in — Check-out"
-            }
-            onClick={() => setShowDatePicker(true)}
+            value={`${formData.checkIn} → ${formData.checkOut}`}
+            onClick={() => !loading && setShowDatePicker(true)}
           />
 
-          {/* {showDatePicker && (
+          {showDatePicker && (
             <div className="date-picker-popup">
               <DateRange
-                editableDateInputs={true}
-                moveRangeOnFirstSelection={false}
                 ranges={dateRange}
-                onChange={(item) => {
-                  const range = item.selection;
-                  setDateRange([range]);
-
-                  // UPDATE STATE LIVE
-                  setFormData((prev) => ({
-                    ...prev,
-                    checkIn: formatDate(range.startDate),
-                    checkOut: formatDate(range.endDate),
-                  }));
+                minDate={today}
+                moveRangeOnFirstSelection={false}
+                onChange={(ranges) => {
+                  const { startDate, endDate } = ranges.selection;
+                  setDateRange([
+                    {
+                      startDate,
+                      endDate: endDate < startDate ? startDate : endDate,
+                      key: "selection",
+                    },
+                  ]);
                 }}
               />
 
@@ -253,87 +174,36 @@ useEffect(() => {
                 >
                   Cancel
                 </button>
-                <button className="apply-btn" onClick={handleDateApply}>
+
+                <button
+                  className="apply-btn"
+                  onClick={() => setShowDatePicker(false)}
+                >
                   Apply
                 </button>
               </div>
             </div>
-          )} */}
-          {showDatePicker && (
-  <div className="date-picker-popup">
-    <DateRange
-      ranges={dateRange}
-      minDate={today}
-      moveRangeOnFirstSelection={false}
-      onChange={(ranges) => {
-        const { startDate, endDate } = ranges.selection;
-
-        // Prevent endDate < startDate
-        const validEndDate = endDate < startDate ? startDate : endDate;
-
-        setDateRange([
-          {
-            startDate,
-            endDate: validEndDate,
-            key: "selection",
-          },
-        ]);
-      }}
-    />
-
-    <div className="footer-buttons">
-      <button
-        className="cancel-btn"
-        onClick={() => {
-          // Reset back to previously saved formData
-          setDateRange([
-            {
-              startDate: new Date(formData.checkIn),
-              endDate: new Date(formData.checkOut),
-              key: "selection",
-            },
-          ]);
-
-          setShowDatePicker(false);
-        }}
-      >
-        Cancel
-      </button>
-
-      <button
-        className="apply-btn"
-        onClick={() => {
-          // Apply already synced values
-          setShowDatePicker(false);
-        }}
-      >
-        Apply
-      </button>
-    </div>
-  </div>
-)}
-
+          )}
         </div>
 
-        {/* Rooms */}
-        <div className="search-box" onClick={() => setShowRoomPopup(true)}>
+        {/* ROOMS */}
+        <div className="search-box" onClick={() => !loading && setShowRoomPopup(true)}>
           <FaUser className="icon" />
           <input readOnly value={getRoomSummary()} />
         </div>
 
-        <button className="search-btn" onClick={submitSearch}>
-          <FaSearch /> Search Hotels
+        {/* SEARCH BUTTON */}
+        <button className="search-btn" onClick={submitSearch} disabled={loading}>
+          <FaSearch /> {loading ? "Searching..." : "Search Hotels"}
         </button>
       </div>
 
-      {/* ------------ POPUP FOR ROOMS ------------ */}
-      {showRoomPopup && (
+      {/* ROOM POPUP (If Not Loading) */}
+      {!loading && showRoomPopup && (
         <div className="popup-overlay">
           <div className="popup">
             <div className="pop-top">
-              <div className="title">
-                <p>Select Rooms</p>
-              </div>
+              <div className="title"><p>Select Rooms</p></div>
               <button onClick={() => setShowRoomPopup(false)}>✖</button>
             </div>
 
@@ -351,7 +221,6 @@ useEffect(() => {
                   )}
                 </div>
 
-                {/* Adults */}
                 <div className="counter">
                   <label>Adults</label>
                   <button onClick={() => handleCounter(index, "adults", -1)}>
@@ -363,7 +232,6 @@ useEffect(() => {
                   </button>
                 </div>
 
-                {/* Children */}
                 <div className="counter">
                   <label>Children</label>
                   <button onClick={() => handleCounter(index, "children", -1)}>
@@ -375,7 +243,6 @@ useEffect(() => {
                   </button>
                 </div>
 
-                {/* Children Ages */}
                 {room.children > 0 && (
                   <div className="children-ages">
                     {room.childrenAges.map((age, i) => (
@@ -403,16 +270,12 @@ useEffect(() => {
             <button className="add-room-btn" onClick={handleAddRoom}>
               + Add Room
             </button>
-            <button
-              className="close-btn"
-              onClick={() => setShowRoomPopup(false)}
-            >
+            <button className="close-btn" onClick={() => setShowRoomPopup(false)}>
               Done
             </button>
           </div>
         </div>
       )}
-    </div>
+    </>
   );
 }
-

@@ -340,6 +340,49 @@
   background: #ddd;
 }
 
+/* --- Loading Spinner --- */
+.loading-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center; /* center horizontally */
+  align-items: center;     /* center vertically */
+  background: rgba(0, 0, 0, 0.4); /* optional dim background */
+  z-index: 9999;
+}
+.box {
+  width: 120px;            /* set any size you want */
+  height: 120px;
+  background-color: rgb(255, 255, 255);
+  display: flex;           /* center contents */
+  flex-direction: column;  /* stack spinner + text */
+  justify-content: center; /* center vertically */
+  align-items: center;     /* center horizontally */
+  border-radius: 10px;
+  padding: 20px;
+}
+
+
+.spinner {
+  width: 40px;
+  height: 20px;
+  border: 5px solid #ddd;
+  border-top: 5px solid #0070f3; /* Next.js blue or your theme color */
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-bottom: 15px;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+
 /* ---------------- Responsive (Mobile) ---------------- */
 @media (max-width: 980px) {
   .date-picker-popup {

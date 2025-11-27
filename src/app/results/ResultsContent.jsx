@@ -8,27 +8,23 @@ import Footer from "../components/Footer";
 import "../results/ResultsPage.css";
 import "../results/HotelsList.css";
 import Link from "next/link";
-import Filters from "../components/filter"; // ✅ Import Filters component
+import Filters from "../components/filter";
 import MobFilter from "../components/MobFilter";
-import { IoLocationOutline, IoCalendarOutline } from "react-icons/io5";
+import { IoLocationOutline } from "react-icons/io5";
 import { FaFilter } from "react-icons/fa";
 import StarRating from "../components/rating";
 import { useCurrency } from "../Context/CurrencyContext";
 import dynamic from "next/dynamic";
 import ImageViewer from "../components/ImageViewer";
 import HotelTabs from "../components/tabs";
-import SmartImage from "../components/SmartImages";
-
-
 
 const MapWithPrices = dynamic(() => import("../MapView/MapShow"), {
   ssr: false,
 });
+
 export default function ResultsContent() {
   const searchParams = useSearchParams();
-
   const { currency, convertPrice } = useCurrency();
-  const [showRoomPopup, setShowRoomPopup] = useState(false);
 
   const [loading, setLoading] = useState(true);
   const [results, setResults] = useState([]);
@@ -39,68 +35,54 @@ export default function ResultsContent() {
   const [nights, setNights] = useState("");
   const [showPopup, setShowPopup] = useState(false);
   const [description, setDescription] = useState("");
-  const [facilities, setFacility] = useState([]);
   const handlePopupToggle = () => setShowPopup(!showPopup);
-  const [showMap, setShowMap] = useState(true); // map show
+  const [showMap, setShowMap] = useState(true);
   const [selectedHotel, setSelectedHotel] = useState(null);
 
-
-  // ✅ Filters state
+  // Filters state (maxPrice will be set once results load)
   const [filters, setFilters] = useState({
     title: "",
     rating: "",
-    priceRange: [0, 500],
+    minPrice: 0,
+    maxPrice: 2000, // stored in CURRENT currency
+    priceRange: [0, 2000],
   });
 
-  // ✅ Sorting state
   const [sortOption, setSortOption] = useState("");
 
+  // Helpful: turn convertPrice output into a plain number robustly
+  const parseConvertedNumber = (val) => {
+    if (val === null || val === undefined) return 0;
+    // convertPrice may return a number or a formatted string like "1,234.56"
+    const s = String(val);
+    // remove all except digits, dot and minus
+    const cleaned = s.replace(/[^0-9.\-]/g, "");
+    const n = parseFloat(cleaned);
+    return Number.isFinite(n) ? n : 0;
+  };
+
+  // Load and merge incoming API data
   useEffect(() => {
+    const stored = sessionStorage.getItem("hotelData");
 
-      const stored = sessionStorage.getItem("hotelData");
+    if (!stored) {
+      console.error("No hotel data found in sessionStorage");
+      setLoading(false);
+      return;
+    }
 
-  if (!stored) {
-    console.error("No hotel data found in sessionStorage");
-    setLoading(false);
-    return;
-  }
-
-  const apiResponse = JSON.parse(stored);
-
-  // const hotels = apiResponse || [];
-  // setResults(hotels);   
-
-  const hotels = apiResponse.hotelDetails?.data || [];
-const hotelList = apiResponse.prices?.Success?.PriceDetails?.HotelList || [];
-
-// Convert hotelList to a fast lookup map
-const hotelListMap = new Map(
-  hotelList.map(h => [h.HotelID, h])
-);
-
-// Keep only hotels that exist in BOTH lists
-const mergedHotels = hotels
-  .filter(hotel => hotelListMap.has(hotel.id))    // 👈 ONLY MATCHING IDs
-  .map(hotel => ({
-    ...hotel,
-    priceInfo: hotelListMap.get(hotel.id),        // attach pricing
-  }));
-
-
-
-
-// setResults(mergedHotels);
-
-
-  // console.log("Hotels:", hotels.totalHotels);
-  // console.log("total", results.totalHotels);
-
+    const apiResponse = JSON.parse(stored);
+    const hotels = apiResponse.hotelDetails?.data || [];
+    const hotelList = apiResponse.prices?.Success?.PriceDetails?.HotelList || [];
+    const hotelListMap = new Map(hotelList.map((h) => [h.HotelID, h]));
+    const mergedHotels = hotels
+      .filter((hotel) => hotelListMap.has(hotel.id))
+      .map((hotel) => ({ ...hotel, priceInfo: hotelListMap.get(hotel.id) }));
 
     setTimeout(() => {
       const dest = searchParams.get("destination") || "";
       const f = searchParams.get("checkIn") || "";
       const t = searchParams.get("checkOut") || "";
-      const n = searchParams.get("nights") || "";
       const d = searchParams.get("description");
 
       let r = [];
@@ -115,80 +97,126 @@ const mergedHotels = hotels
       setDestination(dest);
       setFrom(f);
       setTo(t);
-      setNights(n);
+      setNights(searchParams.get("nights") || "");
       setRooms(r);
-      setResults(hotelsData[dest] || []);
-      setLoading(false);
       setDescription(d);
-     setResults(mergedHotels);
 
-
+      setResults(mergedHotels);
+      setLoading(false);
     }, 300);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchParams]);
 
-  console.log("Hotels_List:", results);
-  console.log("selected",selectedHotel);
+  // Recompute converted prices and maxPrice whenever results OR currency change
+  useEffect(() => {
+    if (!results || results.length === 0) {
+      // if no results, keep defaults but ensure priceRange consistent
+      setFilters((prev) => ({
+        ...prev,
+        maxPrice: prev.maxPrice || 2000,
+        priceRange: Array.isArray(prev.priceRange) ? prev.priceRange : [0, prev.maxPrice || 2000],
+      }));
+      return;
+    }
 
-  // ✅ Filtering + Sorting logic
-  // const filteredResults = useMemo(() => {
-  //   let data = results.filter((hotel) => {
-  //     // Title search
-  //     if (
-  //       filters.title &&
-  //       !hotel.name.toLowerCase().includes(filters.title.toLowerCase())
-  //     ) {
-  //       return false;
-  //     }
+    // compute converted numeric price for each hotel
+    const convertedPrices = results
+      .map((h) => {
+        const raw = Number(h?.priceInfo?.LowestPrice?.Value) || 0;
+        const conv = parseConvertedNumber(convertPrice(raw)); // number in current currency
+        return Number.isFinite(conv) && conv > 0 ? conv : 0;
+      })
+      .filter((p) => p > 0);
 
-  //     // Rating filter
-  //     if (filters.rating) {
-  //       const rating = parseFloat(hotel.rating);
-  //       if (filters.rating === "4+" && rating < 4) return false;
-  //       if (filters.rating === "3+" && rating < 3) return false;
-  //       if (filters.rating === "2+" && rating < 2) return false;
-  //       if (filters.rating === "1+" && rating < 1) return false;
-  //     }
+    const highest = convertedPrices.length ? Math.ceil(Math.max(...convertedPrices)) : 2000;
 
-  //     // Price filter
-  //     const [minPrice, maxPrice] = filters.priceRange;
-  //     if (hotel.price < minPrice || hotel.price > maxPrice) {
-  //       return false;
-  //     }
+    setFilters((prev) => {
+      const newMax = Math.max(highest, 1);
+      const prevMin = Array.isArray(prev.priceRange) ? Number(prev.priceRange[0] || 0) : 0;
+      const prevMax = Array.isArray(prev.priceRange) ? Number(prev.priceRange[1] || newMax) : newMax;
 
-  //     return true;
-  //   });
+      const clampedMax = Math.min(prevMax, newMax);
+      const clampedMin = Math.min(Math.max(prevMin, 0), clampedMax);
 
-  //   // ✅ Apply Sorting
-  //   if (sortOption) {
-  //     data = [...data].sort((a, b) => {
-  //       switch (sortOption) {
-  //         case "price-low":
-  //           return a.price - b.price;
-  //         case "price-high":
-  //           return b.price - a.price;
-  //         case "az":
-  //       return a.name.localeCompare(b.name);
-  //     case "za":
-  //       return b.name.localeCompare(a.name);
-  //     default:
-  //       return 0;
-  //       }
-  //     });
-  //   }
+      // only update when necessary
+      if (prev.maxPrice === newMax && prev.priceRange?.[0] === clampedMin && prev.priceRange?.[1] === clampedMax) {
+        return prev;
+      }
 
-  //   return data;
-  // }, [results, filters, sortOption]);
+      return {
+        ...prev,
+        maxPrice: newMax,
+        priceRange: [clampedMin, clampedMax],
+      };
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [results, currency]);
 
-  // ✅ Clear filters
-  const clearFilters = () => {
-    setFilters({
+  // Filter + sort results using converted prices
+  const filteredResults = useMemo(() => {
+    if (!results) return [];
+
+    const applyConvertedPrice = (hotel) => {
+      const raw = Number(hotel?.priceInfo?.LowestPrice?.Value) || 0;
+      return parseConvertedNumber(convertPrice(raw));
+    };
+
+    let data = results.filter((hotel) => {
+      const convPrice = applyConvertedPrice(hotel);
+
+      // Title filter
+      if (filters.title && !hotel?.name?.toLowerCase().includes(filters.title.toLowerCase())) {
+        return false;
+      }
+
+      // Rating
+      const r = Number(hotel?.starRating || 0);
+      if (filters.rating) {
+        if (filters.rating === "4+" && r < 4) return false;
+        if (filters.rating === "3+" && r < 3) return false;
+        if (filters.rating === "2+" && r < 2) return false;
+        if (filters.rating === "1+" && r < 1) return false;
+      }
+
+      // Price range (compare converted prices)
+      const [minP = 0, maxP = filters.maxPrice || 0] = filters.priceRange || [];
+      if (convPrice < minP || convPrice > maxP) return false;
+
+      return true;
+    });
+
+    // Sorting: use converted prices for price sorts
+    if (sortOption) {
+      const getConv = (h) => parseConvertedNumber(convertPrice(Number(h?.priceInfo?.LowestPrice?.Value || 0)));
+      data = [...data].sort((a, b) => {
+        const pa = getConv(a);
+        const pb = getConv(b);
+        switch (sortOption) {
+          case "price-low":
+            return pa - pb;
+          case "price-high":
+            return pb - pa;
+          case "az":
+            return (a.name || "").localeCompare(b.name || "");
+          case "za":
+            return (b.name || "").localeCompare(a.name || "");
+          default:
+            return 0;
+        }
+      });
+    }
+
+    return data;
+  }, [results, filters, sortOption, currency]);
+
+  function clearFilters() {
+    setFilters((prev) => ({
+      ...prev,
       title: "",
       rating: "",
-      priceRange: [0, 500],
-    });
-  };
-
-  
+      priceRange: [0, prev.maxPrice || 2000],
+    }));
+  }
 
   if (loading) {
     return (
@@ -203,22 +231,17 @@ const mergedHotels = hotels
     );
   }
 
-  
-
   return (
     <>
       <Header />
       <HotelSearchBar
-  initialData={{
-    destination: destination,
-    checkIn: from,
-    checkOut: to,
-    rooms: rooms.length > 0 ? rooms : [
-      { adults: 1, children: 0, childrenAges: [] }
-    ]
-  }}
-/>
-
+        initialData={{
+          destination: destination,
+          checkIn: from,
+          checkOut: to,
+          rooms: rooms.length > 0 ? rooms : [{ adults: 1, children: 0, childrenAges: [] }],
+        }}
+      />
 
       <div className="map-mobile">
         <div
@@ -234,7 +257,6 @@ const mergedHotels = hotels
             overflow: "hidden",
           }}
         >
-          {/* Overlay layer */}
           <div
             style={{
               position: "absolute",
@@ -242,14 +264,13 @@ const mergedHotels = hotels
               left: 0,
               width: "100%",
               height: "100%",
-              backgroundColor: "rgba(44, 161, 220, 0.24)", // semi-transparent
+              backgroundColor: "rgba(44, 161, 220, 0.24)",
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
               borderRadius: "8px",
             }}
           >
-            {/* Centered button */}
             <button
               onClick={() => setShowMap(!showMap)}
               style={{
@@ -268,18 +289,10 @@ const mergedHotels = hotels
         </div>
       </div>
 
-      {/* --- Top bar with results count + sort --- */}
       <div className="nf-pro">
-        <p className="desti-count">
-          
-       {results.length} properties in {destination}
-        </p>
+        <p className="desti-count">{filteredResults.length} properties in {destination}</p>
 
-        
-        <div
-          className="set-fil"
-          style={{ display: "flex", gap: "7px", marginTop: "0px" }}
-        >
+        <div className="set-fil" style={{ display: "flex", gap: "7px", marginTop: "0px" }}>
           <div
             className="btn-filter"
             style={{
@@ -290,54 +303,33 @@ const mergedHotels = hotels
               cursor: "pointer",
             }}
           >
-            <div
-              style={{ display: "flex", justifyContent: "center" }}
-              onClick={handlePopupToggle}
-            >
+            <div style={{ display: "flex", justifyContent: "center" }} onClick={handlePopupToggle}>
               <FaFilter />{" "}
               <p style={{ fontSize: "14px", fontWeight: "normal" }}>Filter</p>
             </div>
           </div>
-          {/* ✅ Sort Dropdown (aligned right) */}
-          <select
-  className="sort-dropdown"
-  value={sortOption}
-  onChange={(e) => setSortOption(e.target.value)}
->
-  <option value="">Sort By</option>
-  <option value="price-low">Price: Low to High</option>
-  <option value="price-high">Price: High to Low</option>
-  <option value="az">Alphabetical (A → Z)</option>
-  <option value="za">Alphabetical (Z → A)</option>
-</select>
 
+          <select className="sort-dropdown" value={sortOption} onChange={(e) => setSortOption(e.target.value)}>
+            <option value="">Sort By</option>
+            <option value="price-low">Price: Low to High</option>
+            <option value="price-high">Price: High to Low</option>
+            <option value="az">Alphabetical (A → Z)</option>
+            <option value="za">Alphabetical (Z → A)</option>
+          </select>
         </div>
       </div>
 
       <div className="results-container">
-        
         {destination === "" ? (
-          // --- Show message only ---
           <main className="hotel-results">
             <div className="hotel-list">
-              <p
-                style={{
-                  fontSize: "16px",
-                  color: "gray",
-                  textAlign: "center",
-                  padding: "20px",
-                }}
-              >
+              <p style={{ fontSize: "16px", color: "gray", textAlign: "center", padding: "20px" }}>
                 Try searching or find other hotels
-
-                {/* {results.hotelDetails.data[0].language} */}
               </p>
             </div>
           </main>
         ) : (
-          // --- Show Filters + Results ---
           <>
-            {/* Filters Sidebar */}
             <Filters
               setShowMap={setShowMap}
               showMap={showMap}
@@ -346,270 +338,120 @@ const mergedHotels = hotels
               clearFilters={clearFilters}
             />
 
-            {/* Hotel Results */}
-
             {showMap && (
               <main className="hotel-results">
                 <div className="hotel-list">
-                  {results.length === 0 ? (
-                    <p
-                      style={{
-                        fontSize: "16px",
-                        color: "gray",
-                        textAlign: "center",
-                        padding: "20px",
-                      }}
-                    >
-                      No properties found for "{destination}". Try adjusting
-                      filters or search for another place.
+                  {filteredResults.length === 0 ? (
+                    <p style={{ fontSize: "16px", color: "gray", textAlign: "center", padding: "20px" }}>
+                      No properties found for "{destination}". Try adjusting filters or search for another place.
                     </p>
                   ) : (
-                    // filteredResults.map((hotel) => (
-                     
-                      
-                      // </Link>
-
-//                       results.map((hotel) => (
-//   <div key={hotel.id} className="hotel-card">
-
-//     <h2>{hotel.name}</h2>
-
-//     {/* star rating */}
-//     <StarRating rating={hotel.starRating} />
-
-//     {/* hotel image if any */}
-//     {/* <img src={hotel.imageUrl} alt={hotel.name} /> */}
-
-//     {/* Prices */}
-//     {hotel.priceInfo ? (
-//       <div>
-//         <p><strong>Price Available</strong></p>
-//         <p>Hotel ID: {hotel.priceInfo.HotelID}</p>
-//         {/* Add any other pricing info */}
-//       </div>
-//     ) : (
-//       <p>No pricing found</p>
-//     )}
-
-//   </div>
-// ))
-
-
-    
-<div className="hotel-container">
-  {results.length === 0 && <p className="no-data">No hotels found.</p>}
-
-  {results.map((hotel) => (
-    <div className="hotel-card" key={hotel.id}>
-                        {/* Left: Image */}
-
-                        <div className="hotel-img-wrapper">
-  <img
-    src={
-      hotel?.images?.find(img => img?.url)?.url || "/no-image.jpg"
-    }
-    alt={hotel.name}
-    className="hotel-img"
-    onError={(e) => { e.target.src = "https://www.freeiconspng.com/thumbs/no-image-icon/no-image-icon-6.png"; }}
-  />
-
-  {/* <SmartImage
-  images={hotel.images.map(img => img.url)}
-  alt={hotel.name}
-  className="hotel-img"
-/> */}
-
-</div>
-
-                        {/* Right: Details */}
-                        <div className="hotel-details">
-                          <div className="hotel-header">
-                            <StarRating rating={hotel.starRating || 0} />
-                            <h3>{hotel.name}</h3>
-                          </div>
-
-                          <div
-                            className="m-xtx-set"
-                            style={{ display: "flex" }}
-                          >
-                            <IoLocationOutline />
-                            <p className="location">{hotel.location.address}</p>
-                          </div>
-
-                          <p
-                            style={{
-                              fontSize: "12px",
-                              color: "red",
-                              paddingBottom: "0px",
-                            }}
-                          >
-                            🚫 Non-Refundable
-                          </p>
-                          <span>
-                            {/* {hotel.rating >= 3 ? "Very Good" : "Good"} */}
-                            <p
-                              style={{
-                                color: "#1c8bd0ff",
-                                cursor: "pointer",
-                                textDecoration: "underline",
-                                fontSize: "13px",
-                                paddingLeft: "3px",
-                              }}
-                              onClick={() => setSelectedHotel(hotel)}
-                            >
-                              See More
-                            </p>
-                          </span>
-
-                          <div className="price-info top-right">
-                            <p className="price">
-                              {/* <strong>
-            {hotel?.priceInfo?.LowestPrice?.Value
-              ? hotel.priceInfo.LowestPrice.Value
-              : "N/A"}
-          </strong> */}
-                              {convertPrice(hotel.priceInfo.LowestPrice.Value)} {currency}
-                            </p>
-                            <p className="price-sub">
-                              {hotel.rooms.length} room(s)
-                              
-                            </p>
-                             
-                            <button 
-                            className="bok-btn"
-                              style={{
-                                fontSize: "14px",
-                                backgroundColor: "#f74a06ff",
-                                padding: "3px 14px",
-                                color: "white",
-                                borderRadius: "20px",
-                                marginTop: "10px",
-                                cursor:"pointer"
-                              }}
-                            >
-                              Book Now
-                            </button>
-                            
-                          </div>
-
-                          
-                        </div>
-                        {/* {showRoomPopup && (
-                          <div className="popup-overlay-room">
-                            <div className="popup-content-room">
-                              <button
-                                className="popup-close"
-                                onClick={() => setShowRoomPopup(false)}
-                              >
-                                ✕
-                              </button>
-                             
-                              <div className="RatingPlusTitle">
-                                <h1
-                                  className="hotel-title"
-                                  style={{ padding: "0px 12px 0px 20px" }}
-                                >
-                                  {hotel.name}
-                                </h1>
-                                <div className="StartManage">
-                                  <StarRating rating={hotel.starRating} />
-                                </div>
-                              </div>
-
-                              <div
-                                className="tit-mng"
-                                style={{ padding: "0px 12px 0px 20px" }}
-                              >
-                                <IoLocationOutline />
-                                <p>{hotel.location.address}</p>
-                              </div>
-                              <ImageViewer
-                                images={hotel.images}
-                                location={[
-                                  hotel.location.coordinate,
-                                  hotel.location.latitude,
-                                ]}
+                    <div className="hotel-container">
+                      {filteredResults.map((hotel) => {
+                        const raw = Number(hotel?.priceInfo?.LowestPrice?.Value) || 0;
+                        const convPrice = parseFloat(String(convertPrice(raw)).replace(/[^0-9.\-]/g, "")) || 0;
+                        return (
+                          <div className="hotel-card" key={hotel.id}>
+                            <div className="hotel-img-wrapper">
+                              <img
+                                src={hotel?.images?.find((img) => img?.url)?.url || "/no-image.jpg"}
+                                alt={hotel.name}
+                                className="hotel-img"
+                                onError={(e) => {
+                                  e.target.src = "https://www.freeiconspng.com/thumbs/no-image-icon/no-image-icon-6.png";
+                                }}
                               />
+                            </div>
 
-                             
+                            <div className="hotel-details">
+                              <div className="hotel-header">
+                                <StarRating rating={hotel.starRating || 0} />
+                                <h3>{hotel.name}</h3>
+                              </div>
 
-                             
+                              <div className="m-xtx-set" style={{ display: "flex" }}>
+                                <IoLocationOutline />
+                                <p className="location">{hotel.location?.address}</p>
+                              </div>
 
-                               <HotelTabs description={hotel.description} facility={"sad"} />
+                              <span>
+                                <p
+                                  style={{
+                                    color: "#1c8bd0ff",
+                                    cursor: "pointer",
+                                    textDecoration: "underline",
+                                    fontSize: "13px",
+                                    paddingLeft: "3px",
+                                  }}
+                                  onClick={() => setSelectedHotel(hotel)}
+                                >
+                                  See More
+                                </p>
+                              </span>
+
+                              <div className="price-info top-right">
+                                <p className="price">
+                                  {Number.isFinite(convPrice) ? convPrice : 0} {currency}
+                                </p>
+                                <p className="price-sub">{(hotel.rooms || []).length} room(s)</p>
+
+                                <button
+                                  className="bok-btn"
+                                  style={{
+                                    fontSize: "14px",
+                                    backgroundColor: "#f74a06ff",
+                                    padding: "3px 14px",
+                                    color: "white",
+                                    borderRadius: "20px",
+                                    marginTop: "10px",
+                                    cursor: "pointer",
+                                  }}
+                                >
+                                  Book Now
+                                </button>
+                              </div>
                             </div>
                           </div>
-                          
-                        )} */}
+                        );
+                      })}
 
-                       
+                      {selectedHotel && (
+                        <div className="popup-overlay-room">
+                          <div className="popup-content-room">
+                            <button className="popup-close" onClick={() => setSelectedHotel(null)}>✕</button>
 
-                      </div>
-                      
-  ))}
+                            <div className="RatingPlusTitle">
+                              <h1 className="hotel-title" style={{ padding: "0px 12px 0px 20px" }}>
+                                {selectedHotel.name}
+                              </h1>
+                              <div className="StartManage">
+                                <StarRating rating={selectedHotel.starRating} />
+                              </div>
+                            </div>
 
-   {selectedHotel && (
-  <div className="popup-overlay-room">
-    <div className="popup-content-room">
-      <button
-        className="popup-close"
-        onClick={() => setSelectedHotel(null)}
-      >
-        ✕
-      </button>
+                            <div className="tit-mng" style={{ padding: "0px 12px 0px 20px" }}>
+                              <IoLocationOutline />
+                              <p>{selectedHotel.location?.address}</p>
+                            </div>
 
-      <div className="RatingPlusTitle">
-        <h1 className="hotel-title" style={{ padding: "0px 12px 0px 20px" }}>
-          {selectedHotel.name}
-        </h1>
-        <div className="StartManage">
-          <StarRating rating={selectedHotel.starRating} />
-        </div>
-      </div>
+                            <ImageViewer images={selectedHotel.images.map((img) => img.url)} location={[
+                              selectedHotel.location?.coordinate,
+                              selectedHotel.location?.latitude,
+                            ]} />
 
-      <div className="tit-mng" style={{ padding: "0px 12px 0px 20px" }}>
-        <IoLocationOutline />
-        <p>{selectedHotel.location.address}</p>
-      </div>
-
-      <ImageViewer
-  images={selectedHotel.images.map(img => img.url)}   // <— FIX
-  location={[
-    selectedHotel.location.coordinate,
-    selectedHotel.location.latitude,
-  ]}
-/>
-
-
-      <HotelTabs
-        description={selectedHotel?.description}
-        facility={selectedHotel.facilities}
-      />
-    </div>
-  </div>
-)}
-</div>
-
-
-                    
-
-                    
+                            <HotelTabs description={selectedHotel?.description} facility={selectedHotel.facilities} />
+                          </div>
+                        </div>
+                      )}
+                    </div>
                   )}
-                  
-
-                  {/* --- Popup Modal --- */}
                 </div>
               </main>
             )}
 
             {!showMap && (
               <div className="map-con">
-                <MapWithPrices
-                  hotels={filteredResults}
-                  from={from}
-                  to={to}
-                  nights={nights}
-                  rooms={rooms}
-                />
+                <MapWithPrices hotels={filteredResults} />
               </div>
             )}
           </>
@@ -617,16 +459,14 @@ const mergedHotels = hotels
 
         {showPopup && (
           <div className="popup-overlay">
-            {" "}
             <div className="popup">
-              {" "}
               <MobFilter
                 filters={filters}
                 setFilters={setFilters}
                 clearFilters={clearFilters}
                 handlePopupToggle={handlePopupToggle}
-              />{" "}
-            </div>{" "}
+              />
+            </div>
           </div>
         )}
       </div>
