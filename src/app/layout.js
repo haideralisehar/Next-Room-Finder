@@ -4,6 +4,7 @@ import LanguageSwitcher from "../app/components/LanguageSwitcher";
 import {Jost} from "next/font/google";
 import { CurrencyProvider } from "../app/Context/CurrencyContext";
 import {BhdCurrencyProvider} from "../app/Context/BHDCurrency"
+// import { HotelProvider } from "../app/Context/HotelContext";
 
 
 const jost = Jost({
@@ -26,8 +27,10 @@ export default function RootLayout({ children }) {
         <GoogleTranslateLoader />
         <BhdCurrencyProvider>
         <CurrencyProvider>
+           {/* <HotelProvider> */}
            
         {children}
+        {/* </HotelProvider> */}
         </CurrencyProvider>
         </BhdCurrencyProvider>
       </body>

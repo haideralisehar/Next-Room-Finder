@@ -70,27 +70,57 @@ export default function HotelView() {
   const [selectedRoomsInfo, setSelectedRoomsInfo] = useState([]);
   const [currentRoomIndex, setCurrentRoomIndex] = useState(0);
 
+  const [mergedRoom, setmergedRoom] = useState([]);
+
   // ✅ Initial load
-  useEffect(() => {
-    if (hotelRooms.length > 0 && hotel.rooms.length > 0) {
-      const firstRequested = hotel.rooms[0];
-      const { adults = 1, children = 0 } = firstRequested;
+  // useEffect(() => {
+  //   if (hotelRooms.length > 0 && hotel.rooms.length > 0) {
+  //     const firstRequested = hotel.rooms[0];
+  //     const { adults = 1, children = 0 } = firstRequested;
 
-      const matched = hotelRooms.filter(
-        (room) =>
-          Number(room.fitForAdults) === adults &&
-          Number(room.fitForChildren) >= children
-      );
+  //     const matched = hotelRooms.filter(
+  //       (room) =>
+  //         Number(room.fitForAdults) === adults &&
+  //         Number(room.fitForChildren) >= children
+  //     );
 
-      setBaseFilteredRooms(matched);
-      setFilteredRooms(matched);
+  //     setBaseFilteredRooms(matched);
+  //     setFilteredRooms(matched);
 
-      toast.info(
-        `${matched.length} room(s) available for Room 1 (${adults} adults, ${children} children)`,
-        { autoClose: 3000 }
-      );
-    }
-  }, [hotelRooms.length, hotel.rooms.length]);
+  //     toast.info(
+  //       `${matched.length} room(s) available for Room 1 (${adults} adults, ${children} children)`,
+  //       { autoClose: 3000 }
+  //     );
+  //   }
+  // }, [hotelRooms.length, hotel.rooms.length]);
+
+ useEffect(() => {
+  const s_hotel = sessionStorage.getItem("selectedHotel");
+  if (!s_hotel) {
+    console.error("No rooms data found.");
+    setLoading(false);
+    return;
+  }
+
+  const apiResponse = JSON.parse(s_hotel);
+
+  const price_info = apiResponse.priceInfo?.RatePlanList || [];
+  const room_info = apiResponse.rooms || [];
+
+  // Correct: map rooms by id
+  const roomMap = new Map(room_info.map((room) => [room.id, room]));
+
+  // Correct: merge rate plan with matching room
+  const mergedRatePlans = price_info.map((plan) => ({
+    ...plan,
+    roomDetails: roomMap.get(plan.RoomTypeID) || null
+  }));
+
+  console.log("Merged RatePlans:", mergedRatePlans);
+});
+
+
+  console.log(mergedRoom);
 
   // ✅ When user clicks "Choose"
   const handleChooseRoom = (roomId, variation) => {
@@ -217,26 +247,30 @@ export default function HotelView() {
           <br />
 
           {filteredRooms.length > 0 ? (
-  filteredRooms.map((room) => (
-    <RoomCard
-      key={room.id}
-      room={room}
-      nights={nights}
-      roomCount={selectedRooms.length}
-      onChooseRoom={(variation) => handleChooseRoom(room.id, variation)}
-      isSelected={
-        selectedRoomsInfo[currentRoomIndex]?.parentRoomId === room.id
-      }
-      selectedVariation={selectedRoomsInfo[currentRoomIndex]}
-      isTaken={selectedRoomsInfo.some(
-        (r, idx) => r?.parentRoomId === room.id && idx !== currentRoomIndex
-      )} // ✅ prevent duplicate selection
-    />
-  ))
-) : (
-  <p className="no-rooms-msg">😔 No rooms are available for this selection.</p>
-)}
-
+            filteredRooms.map((room) => (
+              <RoomCard
+                key={room.id}
+                room={room}
+                nights={nights}
+                roomCount={selectedRooms.length}
+                onChooseRoom={(variation) =>
+                  handleChooseRoom(room.id, variation)
+                }
+                isSelected={
+                  selectedRoomsInfo[currentRoomIndex]?.parentRoomId === room.id
+                }
+                selectedVariation={selectedRoomsInfo[currentRoomIndex]}
+                isTaken={selectedRoomsInfo.some(
+                  (r, idx) =>
+                    r?.parentRoomId === room.id && idx !== currentRoomIndex
+                )} // ✅ prevent duplicate selection
+              />
+            ))
+          ) : (
+            <p className="no-rooms-msg">
+              😔 No rooms are available for this selection.
+            </p>
+          )}
         </div>
 
         {selectedRoomsInfo.filter(Boolean).length === selectedRooms.length && (
@@ -259,7 +293,7 @@ export default function HotelView() {
               },
             }}
           >
-           <button
+            <button
               style={{
                 float: "right",
                 marginTop: "8px",
@@ -278,7 +312,8 @@ export default function HotelView() {
             >
               Proceed to Booking
             </button>
-            <br /><br />
+            <br />
+            <br />
           </Link>
         )}
       </div>

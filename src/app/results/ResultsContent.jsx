@@ -17,12 +17,15 @@ import { useCurrency } from "../Context/CurrencyContext";
 import dynamic from "next/dynamic";
 import ImageViewer from "../components/ImageViewer";
 import HotelTabs from "../components/tabs";
+import { useRouter } from "next/navigation";
 
 const MapWithPrices = dynamic(() => import("../MapView/MapShow"), {
   ssr: false,
 });
 
 export default function ResultsContent() {
+   const router = useRouter();
+  
   const searchParams = useSearchParams();
   const { currency, convertPrice } = useCurrency();
 
@@ -38,6 +41,7 @@ export default function ResultsContent() {
   const handlePopupToggle = () => setShowPopup(!showPopup);
   const [showMap, setShowMap] = useState(true);
   const [selectedHotel, setSelectedHotel] = useState(null);
+  const [starRating, setstarRating] = useState("");
 
   // Filters state (maxPrice will be set once results load)
   const [filters, setFilters] = useState({
@@ -47,6 +51,15 @@ export default function ResultsContent() {
     maxPrice: 2000, // stored in CURRENT currency
     priceRange: [0, 2000],
   });
+
+  function clearFilters() {
+    setFilters((prev) => ({
+      ...prev,
+      title: "",
+      rating: "",
+      priceRange: [0, prev.maxPrice || 2000],
+    }));
+  }
 
   const [sortOption, setSortOption] = useState("");
 
@@ -62,7 +75,59 @@ export default function ResultsContent() {
   };
 
   // Load and merge incoming API data
+  // useEffect(() => {
+  //   const stored = sessionStorage.getItem("hotelData");
+
+  //   if (!stored) {
+  //     console.error("No hotel data found in sessionStorage");
+  //     setLoading(false);
+  //     return;
+  //   }
+
+  //   const apiResponse = JSON.parse(stored);
+  //   const hotels = apiResponse.hotelDetails?.data || [];
+  //   const hotelList = apiResponse.prices?.Success?.PriceDetails?.HotelList || [];
+  //   const hotelListMap = new Map(hotelList.map((h) => [h.HotelID, h]));
+  //   const mergedHotels = hotels
+  //     .filter((hotel) => hotelListMap.has(hotel.id))
+  //     .map((hotel) => ({ ...hotel, priceInfo: hotelListMap.get(hotel.id) }));
+
+  //   setTimeout(() => {
+  //     const dest = searchParams.get("destination") || "";
+  //     const f = searchParams.get("checkIn") || "";
+  //     const t = searchParams.get("checkOut") || "";
+  //     const d = searchParams.get("description");
+
+  //     let r = [];
+  //     try {
+  //       r = searchParams.get("rooms")
+  //         ? JSON.parse(decodeURIComponent(searchParams.get("rooms")))
+  //         : [];
+  //     } catch (e) {
+  //       console.error("Invalid rooms data:", e);
+  //     }
+
+  //     setDestination(dest);
+  //     setFrom(f);
+  //     setTo(t);
+  //     setNights(searchParams.get("nights") || "");
+  //     setRooms(r);
+  //     setDescription(d);
+
+  //     setResults(mergedHotels);
+
+
+  //     setLoading(false);
+
+
+  //   }, 300);
+  //   // eslint-disable-next-line react-hooks/exhaustive-deps
+  // }, [searchParams]);
+
   useEffect(() => {
+
+    
+  const loadData = () => {
     const stored = sessionStorage.getItem("hotelData");
 
     if (!stored) {
@@ -75,6 +140,7 @@ export default function ResultsContent() {
     const hotels = apiResponse.hotelDetails?.data || [];
     const hotelList = apiResponse.prices?.Success?.PriceDetails?.HotelList || [];
     const hotelListMap = new Map(hotelList.map((h) => [h.HotelID, h]));
+
     const mergedHotels = hotels
       .filter((hotel) => hotelListMap.has(hotel.id))
       .map((hotel) => ({ ...hotel, priceInfo: hotelListMap.get(hotel.id) }));
@@ -84,6 +150,7 @@ export default function ResultsContent() {
       const f = searchParams.get("checkIn") || "";
       const t = searchParams.get("checkOut") || "";
       const d = searchParams.get("description");
+      let s_Rating = searchParams.get('starRating') || "";
 
       let r = [];
       try {
@@ -100,12 +167,29 @@ export default function ResultsContent() {
       setNights(searchParams.get("nights") || "");
       setRooms(r);
       setDescription(d);
+      setstarRating(s_Rating);
 
       setResults(mergedHotels);
       setLoading(false);
     }, 300);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [searchParams]);
+  };
+
+  // 🔹 first load when page opens
+  loadData();
+
+  // 🔹 update when new search happens from results page
+  const handleUpdate = () => {
+    loadData();
+    clearFilters();
+  };
+
+  window.addEventListener("hotelDataUpdated", handleUpdate);
+
+  return () => window.removeEventListener("hotelDataUpdated", handleUpdate);
+
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+}, [searchParams]);
+
 
   // Recompute converted prices and maxPrice whenever results OR currency change
   useEffect(() => {
@@ -209,14 +293,10 @@ export default function ResultsContent() {
     return data;
   }, [results, filters, sortOption, currency]);
 
-  function clearFilters() {
-    setFilters((prev) => ({
-      ...prev,
-      title: "",
-      rating: "",
-      priceRange: [0, prev.maxPrice || 2000],
-    }));
-  }
+  
+
+  console.log("Hotel_List", results)
+  console.log("selected_Hotel", selectedHotel);
 
   if (loading) {
     return (
@@ -239,6 +319,8 @@ export default function ResultsContent() {
           destination: destination,
           checkIn: from,
           checkOut: to,
+          starRating: starRating,
+
           rooms: rooms.length > 0 ? rooms : [{ adults: 1, children: 0, childrenAges: [] }],
         }}
       />
@@ -290,7 +372,9 @@ export default function ResultsContent() {
       </div>
 
       <div className="nf-pro">
+        {results && (
         <p className="desti-count">{filteredResults.length} properties in {destination}</p>
+        )}
 
         <div className="set-fil" style={{ display: "flex", gap: "7px", marginTop: "0px" }}>
           <div
@@ -307,8 +391,10 @@ export default function ResultsContent() {
               <FaFilter />{" "}
               <p style={{ fontSize: "14px", fontWeight: "normal" }}>Filter</p>
             </div>
+            
           </div>
 
+{results && (
           <select className="sort-dropdown" value={sortOption} onChange={(e) => setSortOption(e.target.value)}>
             <option value="">Sort By</option>
             <option value="price-low">Price: Low to High</option>
@@ -316,6 +402,8 @@ export default function ResultsContent() {
             <option value="az">Alphabetical (A → Z)</option>
             <option value="za">Alphabetical (Z → A)</option>
           </select>
+          )}
+
         </div>
       </div>
 
@@ -330,6 +418,7 @@ export default function ResultsContent() {
           </main>
         ) : (
           <>
+          {results && (
             <Filters
               setShowMap={setShowMap}
               showMap={showMap}
@@ -337,6 +426,7 @@ export default function ResultsContent() {
               setFilters={setFilters}
               clearFilters={clearFilters}
             />
+            )}
 
             {showMap && (
               <main className="hotel-results">
@@ -406,6 +496,12 @@ export default function ResultsContent() {
                                     marginTop: "10px",
                                     cursor: "pointer",
                                   }}
+
+
+                                   onClick={() => {
+    sessionStorage.setItem("selectedHotel", JSON.stringify(hotel));
+    router.push(`/hotel-view?hotelId=${hotel.id}`);
+  }}
                                 >
                                   Book Now
                                 </button>
