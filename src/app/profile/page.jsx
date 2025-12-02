@@ -101,6 +101,7 @@ export default function ProfilePage() {
 
       const formData = new FormData();
       formData.append("userName", agency.userName);
+
       formData.append("agencyName", agency.agencyName);
       formData.append("agencyEmail", agency.agencyEmail);
       formData.append("agencyAddress", agency.agencyAddress);
@@ -213,9 +214,9 @@ export default function ProfilePage() {
 
               {/* Middle Section */}
               <div className="middle-section">
-                <h2 style={{ fontWeight: "bold" }}>Company Details</h2>
+                <h2 style={{ fontWeight: "bold" }}>Agency Details</h2>
 
-                 <label>Company Name</label>
+                 <label>Agency Name</label>
                 <input
                   type="text"
                   name="agencyName"
@@ -253,7 +254,7 @@ export default function ProfilePage() {
               <div className="profile-column">
                 <h2 style={{ fontWeight: "bold" }}>Contact Details</h2>
  {/* <CountryCodeSelector onSelect={(code) => setCountryCode(code)} /> */}
-                <label>Company Phone</label>
+                <label>Agency Phone</label>
                 <input
                   type="text"
                   name="agencyPhoneNumber"

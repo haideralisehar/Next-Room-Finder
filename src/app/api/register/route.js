@@ -6,7 +6,6 @@ export async function POST(req) {
 
     // Map form data to match backend API fields
     const payload = {
-      
       userName: body.username,
       password: body.password,
       agencyName: body.agencyName,

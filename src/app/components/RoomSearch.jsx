@@ -38,6 +38,7 @@ export default function HotelSearchBar({ initialData }) {
 
   const [showRoomPopup, setShowRoomPopup] = useState(false);
   const [showDatePicker, setShowDatePicker] = useState(false);
+  
 
   const today = new Date();
   const tomorrow = new Date();
@@ -54,6 +55,8 @@ export default function HotelSearchBar({ initialData }) {
       checkOut: formatDate(dateRange[0].endDate),
     }));
   }, [dateRange]);
+
+ 
 
   const formatDate = (date) => {
     const d = date.getDate();
