@@ -18,16 +18,18 @@ import dynamic from "next/dynamic";
 import ImageViewer from "../components/ImageViewer";
 import HotelTabs from "../components/tabs";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 
 const MapWithPrices = dynamic(() => import("../MapView/MapShow"), {
   ssr: false,
 });
 
 export default function ResultsContent() {
-   const router = useRouter();
-  
+  const router = useRouter();
+
   const searchParams = useSearchParams();
   const { currency, convertPrice } = useCurrency();
+  const [loadingfetch, setLoadingfetch] = useState(false); // loader
 
   const [loading, setLoading] = useState(true);
   const [results, setResults] = useState([]);
@@ -61,7 +63,7 @@ export default function ResultsContent() {
     }));
   }
 
-  const [sortOption, setSortOption] = useState("");
+  const [sortOption, setSortOption] = useState("price-low");
 
   // Helpful: turn convertPrice output into a plain number robustly
   const parseConvertedNumber = (val) => {
@@ -116,80 +118,76 @@ export default function ResultsContent() {
 
   //     setResults(mergedHotels);
 
-
   //     setLoading(false);
-
 
   //   }, 300);
   //   // eslint-disable-next-line react-hooks/exhaustive-deps
   // }, [searchParams]);
 
   useEffect(() => {
+    const loadData = () => {
+      const stored = sessionStorage.getItem("hotelData");
 
-    
-  const loadData = () => {
-    const stored = sessionStorage.getItem("hotelData");
-
-    if (!stored) {
-      console.error("No hotel data found in sessionStorage");
-      setLoading(false);
-      return;
-    }
-
-    const apiResponse = JSON.parse(stored);
-    const hotels = apiResponse.hotelDetails?.data || [];
-    const hotelList = apiResponse.prices?.Success?.PriceDetails?.HotelList || [];
-    const hotelListMap = new Map(hotelList.map((h) => [h.HotelID, h]));
-
-    const mergedHotels = hotels
-      .filter((hotel) => hotelListMap.has(hotel.id))
-      .map((hotel) => ({ ...hotel, priceInfo: hotelListMap.get(hotel.id) }));
-
-    setTimeout(() => {
-      const dest = searchParams.get("destination") || "";
-      const f = searchParams.get("checkIn") || "";
-      const t = searchParams.get("checkOut") || "";
-      const d = searchParams.get("description");
-      let s_Rating = searchParams.get('starRating') || "";
-
-      let r = [];
-      try {
-        r = searchParams.get("rooms")
-          ? JSON.parse(decodeURIComponent(searchParams.get("rooms")))
-          : [];
-      } catch (e) {
-        console.error("Invalid rooms data:", e);
+      if (!stored) {
+        console.error("No hotel data found in sessionStorage");
+        setLoading(false);
+        return;
       }
 
-      setDestination(dest);
-      setFrom(f);
-      setTo(t);
-      setNights(searchParams.get("nights") || "");
-      setRooms(r);
-      setDescription(d);
-      setstarRating(s_Rating);
+      const apiResponse = JSON.parse(stored);
+      const hotels = apiResponse.hotelDetails?.data || [];
+      const hotelList =
+        apiResponse.prices?.Success?.PriceDetails?.HotelList || [];
+      const hotelListMap = new Map(hotelList.map((h) => [h.HotelID, h]));
 
-      setResults(mergedHotels);
-      setLoading(false);
-    }, 300);
-  };
+      const mergedHotels = hotels
+        .filter((hotel) => hotelListMap.has(hotel.id))
+        .map((hotel) => ({ ...hotel, priceInfo: hotelListMap.get(hotel.id) }));
 
-  // 🔹 first load when page opens
-  loadData();
+      setTimeout(() => {
+        const dest = searchParams.get("destination") || "";
+        const f = searchParams.get("checkIn") || "";
+        const t = searchParams.get("checkOut") || "";
+        const d = searchParams.get("description");
+        let s_Rating = searchParams.get("starRating") || "";
 
-  // 🔹 update when new search happens from results page
-  const handleUpdate = () => {
+        let r = [];
+        try {
+          r = searchParams.get("rooms")
+            ? JSON.parse(decodeURIComponent(searchParams.get("rooms")))
+            : [];
+        } catch (e) {
+          console.error("Invalid rooms data:", e);
+        }
+
+        setDestination(dest);
+        setFrom(f);
+        setTo(t);
+        setNights(searchParams.get("nights") || "");
+        setRooms(r);
+        setDescription(d);
+        setstarRating(s_Rating);
+
+        setResults(mergedHotels);
+        setLoading(false);
+      }, 300);
+    };
+
+    // 🔹 first load when page opens
     loadData();
-    clearFilters();
-  };
 
-  window.addEventListener("hotelDataUpdated", handleUpdate);
+    // 🔹 update when new search happens from results page
+    const handleUpdate = () => {
+      loadData();
+      clearFilters();
+    };
 
-  return () => window.removeEventListener("hotelDataUpdated", handleUpdate);
+    window.addEventListener("hotelDataUpdated", handleUpdate);
 
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-}, [searchParams]);
+    return () => window.removeEventListener("hotelDataUpdated", handleUpdate);
 
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchParams]);
 
   // Recompute converted prices and maxPrice whenever results OR currency change
   useEffect(() => {
@@ -198,7 +196,9 @@ export default function ResultsContent() {
       setFilters((prev) => ({
         ...prev,
         maxPrice: prev.maxPrice || 2000,
-        priceRange: Array.isArray(prev.priceRange) ? prev.priceRange : [0, prev.maxPrice || 2000],
+        priceRange: Array.isArray(prev.priceRange)
+          ? prev.priceRange
+          : [0, prev.maxPrice || 2000],
       }));
       return;
     }
@@ -212,18 +212,28 @@ export default function ResultsContent() {
       })
       .filter((p) => p > 0);
 
-    const highest = convertedPrices.length ? Math.ceil(Math.max(...convertedPrices)) : 2000;
+    const highest = convertedPrices.length
+      ? Math.ceil(Math.max(...convertedPrices))
+      : 2000;
 
     setFilters((prev) => {
       const newMax = Math.max(highest, 1);
-      const prevMin = Array.isArray(prev.priceRange) ? Number(prev.priceRange[0] || 0) : 0;
-      const prevMax = Array.isArray(prev.priceRange) ? Number(prev.priceRange[1] || newMax) : newMax;
+      const prevMin = Array.isArray(prev.priceRange)
+        ? Number(prev.priceRange[0] || 0)
+        : 0;
+      const prevMax = Array.isArray(prev.priceRange)
+        ? Number(prev.priceRange[1] || newMax)
+        : newMax;
 
       const clampedMax = Math.min(prevMax, newMax);
       const clampedMin = Math.min(Math.max(prevMin, 0), clampedMax);
 
       // only update when necessary
-      if (prev.maxPrice === newMax && prev.priceRange?.[0] === clampedMin && prev.priceRange?.[1] === clampedMax) {
+      if (
+        prev.maxPrice === newMax &&
+        prev.priceRange?.[0] === clampedMin &&
+        prev.priceRange?.[1] === clampedMax
+      ) {
         return prev;
       }
 
@@ -249,7 +259,10 @@ export default function ResultsContent() {
       const convPrice = applyConvertedPrice(hotel);
 
       // Title filter
-      if (filters.title && !hotel?.name?.toLowerCase().includes(filters.title.toLowerCase())) {
+      if (
+        filters.title &&
+        !hotel?.name?.toLowerCase().includes(filters.title.toLowerCase())
+      ) {
         return false;
       }
 
@@ -271,7 +284,10 @@ export default function ResultsContent() {
 
     // Sorting: use converted prices for price sorts
     if (sortOption) {
-      const getConv = (h) => parseConvertedNumber(convertPrice(Number(h?.priceInfo?.LowestPrice?.Value || 0)));
+      const getConv = (h) =>
+        parseConvertedNumber(
+          convertPrice(Number(h?.priceInfo?.LowestPrice?.Value || 0))
+        );
       data = [...data].sort((a, b) => {
         const pa = getConv(a);
         const pb = getConv(b);
@@ -293,9 +309,7 @@ export default function ResultsContent() {
     return data;
   }, [results, filters, sortOption, currency]);
 
-  
-
-  console.log("Hotel_List", results)
+  console.log("Hotel_List", results);
   console.log("selected_Hotel", selectedHotel);
 
   if (loading) {
@@ -303,8 +317,16 @@ export default function ResultsContent() {
       <>
         <Header />
         <div className="loading-container">
-          <div className="spinner"></div>
-          <p>Please Wait...</p>
+          <div className="box">
+            <Image
+              className="circular-left-right"
+              src="/loading_ico.png"
+              alt="Loading"
+              width={200}
+              height={200}
+            />
+            <p style={{ fontSize: "13px" }}>Please Wait...</p>
+          </div>
         </div>
         <Footer />
       </>
@@ -321,9 +343,27 @@ export default function ResultsContent() {
           checkOut: to,
           starRating: starRating,
 
-          rooms: rooms.length > 0 ? rooms : [{ adults: 1, children: 0, childrenAges: [] }],
+          rooms:
+            rooms.length > 0
+              ? rooms
+              : [{ adults: 1, children: 0, childrenAges: [] }],
         }}
       />
+
+      {loadingfetch && (
+        <div className="loading-container">
+          <div className="box">
+            <Image
+              className="circular-left-right"
+              src="/loading_ico.png"
+              alt="Loading"
+              width={200}
+              height={200}
+            />
+            <p style={{ fontSize: "13px" }}>Please Wait...</p>
+          </div>
+        </div>
+      )}
 
       <div className="map-mobile">
         <div
@@ -373,10 +413,15 @@ export default function ResultsContent() {
 
       <div className="nf-pro">
         {results && (
-        <p className="desti-count">{filteredResults.length} properties in {destination}</p>
+          <p className="desti-count">
+            {filteredResults.length} properties in {destination}
+          </p>
         )}
 
-        <div className="set-fil" style={{ display: "flex", gap: "7px", marginTop: "0px" }}>
+        <div
+          className="set-fil"
+          style={{ display: "flex", gap: "7px", marginTop: "0px" }}
+        >
           <div
             className="btn-filter"
             style={{
@@ -387,23 +432,28 @@ export default function ResultsContent() {
               cursor: "pointer",
             }}
           >
-            <div style={{ display: "flex", justifyContent: "center" }} onClick={handlePopupToggle}>
+            <div
+              style={{ display: "flex", justifyContent: "center" }}
+              onClick={handlePopupToggle}
+            >
               <FaFilter />{" "}
               <p style={{ fontSize: "14px", fontWeight: "normal" }}>Filter</p>
             </div>
-            
           </div>
 
-{results && (
-          <select className="sort-dropdown" value={sortOption} onChange={(e) => setSortOption(e.target.value)}>
-            <option value="">Sort By</option>
-            <option value="price-low">Price: Low to High</option>
-            <option value="price-high">Price: High to Low</option>
-            <option value="az">Alphabetical (A → Z)</option>
-            <option value="za">Alphabetical (Z → A)</option>
-          </select>
+          {results && (
+            <select
+              className="sort-dropdown"
+              value={sortOption}
+              onChange={(e) => setSortOption(e.target.value)}
+            >
+              {/* <option value="">Sort By</option> */}
+              <option value="price-low">Price: Low to High</option>
+              <option value="price-high">Price: High to Low</option>
+              <option value="az">Alphabetical (A → Z)</option>
+              <option value="za">Alphabetical (Z → A)</option>
+            </select>
           )}
-
         </div>
       </div>
 
@@ -411,57 +461,85 @@ export default function ResultsContent() {
         {destination === "" ? (
           <main className="hotel-results">
             <div className="hotel-list">
-              <p style={{ fontSize: "16px", color: "gray", textAlign: "center", padding: "20px" }}>
+              <p
+                style={{
+                  fontSize: "16px",
+                  color: "gray",
+                  textAlign: "center",
+                  padding: "20px",
+                }}
+              >
                 Try searching or find other hotels
               </p>
             </div>
           </main>
         ) : (
           <>
-          {results && (
-            <Filters
-              setShowMap={setShowMap}
-              showMap={showMap}
-              filters={filters}
-              setFilters={setFilters}
-              clearFilters={clearFilters}
-            />
+            {results && (
+              <Filters
+                setShowMap={setShowMap}
+                showMap={showMap}
+                filters={filters}
+                setFilters={setFilters}
+                clearFilters={clearFilters}
+              />
             )}
 
             {showMap && (
               <main className="hotel-results">
                 <div className="hotel-list">
                   {filteredResults.length === 0 ? (
-                    <p style={{ fontSize: "16px", color: "gray", textAlign: "center", padding: "20px" }}>
-                      No properties found for "{destination}". Try adjusting filters or search for another place.
+                    <p
+                      style={{
+                        fontSize: "16px",
+                        color: "gray",
+                        textAlign: "center",
+                        padding: "20px",
+                      }}
+                    >
+                      No properties found for "{destination}". Try adjusting
+                      filters or search for another place.
                     </p>
                   ) : (
                     <div className="hotel-container">
                       {filteredResults.map((hotel) => {
-                        const raw = Number(hotel?.priceInfo?.LowestPrice?.Value) || 0;
-                        const convPrice = parseFloat(String(convertPrice(raw)).replace(/[^0-9.\-]/g, "")) || 0;
+                        const raw =
+                          Number(hotel?.priceInfo?.LowestPrice?.Value) || 0;
+                        const convPrice =
+                          parseFloat(
+                            String(convertPrice(raw)).replace(/[^0-9.\-]/g, "")
+                          ) || 0;
                         return (
                           <div className="hotel-card" key={hotel.id}>
                             <div className="hotel-img-wrapper">
                               <img
-                                src={hotel?.images?.find((img) => img?.url)?.url || "/no-image.jpg"}
+                                src={
+                                  hotel?.images?.find((img) => img?.url)?.url ||
+                                  "/no-image.jpg"
+                                }
                                 alt={hotel.name}
                                 className="hotel-img"
                                 onError={(e) => {
-                                  e.target.src = "https://www.freeiconspng.com/thumbs/no-image-icon/no-image-icon-6.png";
+                                  e.target.src =
+                                    "https://www.freeiconspng.com/thumbs/no-image-icon/no-image-icon-6.png";
                                 }}
                               />
                             </div>
 
-                            <div className="hotel-details">
+                            <div className="hotel-details-c">
                               <div className="hotel-header">
                                 <StarRating rating={hotel.starRating || 0} />
                                 <h3>{hotel.name}</h3>
                               </div>
 
-                              <div className="m-xtx-set" style={{ display: "flex" }}>
+                              <div
+                                className="m-xtx-set"
+                                style={{ display: "flex" }}
+                              >
                                 <IoLocationOutline />
-                                <p className="location">{hotel.location?.address}</p>
+                                <p className="location">
+                                  {hotel.location?.address}
+                                </p>
                               </div>
 
                               <span>
@@ -481,9 +559,12 @@ export default function ResultsContent() {
 
                               <div className="price-info top-right">
                                 <p className="price">
-                                  {Number.isFinite(convPrice) ? convPrice : 0} {currency}
+                                  {Number.isFinite(convPrice) ? convPrice : 0}{" "}
+                                  {currency}
                                 </p>
-                                <p className="price-sub">{(hotel.rooms || []).length} room(s)</p>
+                                <p className="price-sub">
+                                  {(hotel.rooms || []).length} room(s)
+                                </p>
 
                                 <button
                                   className="bok-btn"
@@ -496,12 +577,54 @@ export default function ResultsContent() {
                                     marginTop: "10px",
                                     cursor: "pointer",
                                   }}
+                                  //   onClick={() => {
 
+                                  //     sessionStorage.setItem(
+                                  //       "selectedHotel",
+                                  //       JSON.stringify(hotel)
+                                  //     );
+                                  //     router.push(
+                                  //       `/hotel-view?hotelId=${hotel.id}`
+                                  //     );
+                                  //   }}
+                                  // >
 
-                                   onClick={() => {
-    sessionStorage.setItem("selectedHotel", JSON.stringify(hotel));
-    router.push(`/hotel-view?hotelId=${hotel.id}`);
-  }}
+                                  onClick={async () => {
+                                    try {
+                                      setLoadingfetch(true);
+                                      // 1️⃣ Fetch API
+                                      const res = await fetch("/api/all_types");
+                                      const data = await res.json();
+
+                                      if (!data.success) {
+                                        console.error("API Error:", data.error);
+                                        setLoadingfetch(false);
+                                        return;
+                                      }
+
+                                      setLoadingfetch(false);
+
+                                      // 2️⃣ Save selected hotel
+                                      sessionStorage.setItem(
+                                        "selectedHotel",
+                                        JSON.stringify(hotel)
+                                      );
+
+                                      // 3️⃣ Save API response
+                                      sessionStorage.setItem(
+                                        "dictionaryTypes",
+                                        JSON.stringify(data.data)
+                                      );
+
+                                      // 4️⃣ Redirect
+                                      router.push(
+                                        `/hotel-view?hotelId=${hotel.id}`
+                                      );
+                                    } catch (error) {
+                                      console.error("Failed to fetch:", error);
+                                      setLoadingfetch(false);
+                                    }
+                                  }}
                                 >
                                   Book Now
                                 </button>
@@ -514,10 +637,18 @@ export default function ResultsContent() {
                       {selectedHotel && (
                         <div className="popup-overlay-room">
                           <div className="popup-content-room">
-                            <button className="popup-close" onClick={() => setSelectedHotel(null)}>✕</button>
+                            <button
+                              className="popup-close"
+                              onClick={() => setSelectedHotel(null)}
+                            >
+                              ✕
+                            </button>
 
                             <div className="RatingPlusTitle">
-                              <h1 className="hotel-title" style={{ padding: "0px 12px 0px 20px" }}>
+                              <h1
+                                className="hotel-title"
+                                style={{ padding: "0px 12px 0px 20px" }}
+                              >
                                 {selectedHotel.name}
                               </h1>
                               <div className="StartManage">
@@ -525,17 +656,28 @@ export default function ResultsContent() {
                               </div>
                             </div>
 
-                            <div className="tit-mng" style={{ padding: "0px 12px 0px 20px" }}>
+                            <div
+                              className="tit-mng"
+                              style={{ padding: "0px 12px 0px 20px" }}
+                            >
                               <IoLocationOutline />
                               <p>{selectedHotel.location?.address}</p>
                             </div>
 
-                            <ImageViewer images={selectedHotel.images.map((img) => img.url)} location={[
-                              selectedHotel.location?.coordinate,
-                              selectedHotel.location?.latitude,
-                            ]} />
+                            <ImageViewer
+                              images={selectedHotel.images.map(
+                                (img) => img.url
+                              )}
+                              location={[
+                                selectedHotel.location?.coordinate,
+                                selectedHotel.location?.latitude,
+                              ]}
+                            />
 
-                            <HotelTabs description={selectedHotel?.description} facility={selectedHotel.facilities} />
+                            <HotelTabs
+                              description={selectedHotel?.description}
+                              facility={selectedHotel.facilities}
+                            />
                           </div>
                         </div>
                       )}

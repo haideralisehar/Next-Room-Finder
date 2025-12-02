@@ -1,322 +1,276 @@
 "use client";
 import React, { useEffect, useState, useRef } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
-import "../hotel-view/hotel.css";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
-import { IoLocationOutline } from "react-icons/io5";
-import StarRating from "../components/rating";
-import HotelTabs from "../components/tabs";
-import ImageViewer from "../components/ImageViewer";
 import RoomCard from "../components/RoomCard";
-import { ToastContainer, toast } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
 import HotelFilterBar from "../components/RoomFilter";
 import RoomSelection from "../components/ChooseRoom";
-import Link from "next/link";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import "../hotel-view/hotel.css";
 
 export default function HotelView() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const buttonRef = useRef(null);
 
-  const [shake, setShake] = useState(false);
+  const hotel_id = searchParams.get("hotelId");
 
-  let hotelRooms = [];
-  try {
-    hotelRooms = searchParams.get("hotelRooms")
-      ? JSON.parse(searchParams.get("hotelRooms"))
-      : [];
-  } catch (e) {
-    console.error("Invalid hotelRooms data:", e);
-  }
-
+  // hotel basic info from query params (keeps parity with your existing code)
   const hotel = {
     id: searchParams.get("id"),
     name: searchParams.get("name"),
-    location: searchParams.get("location"),
-    price: searchParams.get("price"),
-    image: searchParams.get("image"),
     from: searchParams.get("from"),
     to: searchParams.get("to"),
-    lat: parseFloat(searchParams.get("lat")),
-    lon: parseFloat(searchParams.get("lon")),
-    rooms: searchParams.get("rooms")
-      ? JSON.parse(searchParams.get("rooms"))
-      : [],
-    count: searchParams.get("count"),
-    nights: searchParams.get("nights"),
+    nights: Number(searchParams.get("nights") || 1),
+    rooms: searchParams.get("rooms") ? JSON.parse(searchParams.get("rooms")) : [],
     rating: searchParams.get("rating"),
-    description: searchParams.get("description"),
-    facilities: searchParams.get("facility")
-      ? JSON.parse(searchParams.get("facility"))
-      : [],
-    roomImages: searchParams.get("roomImages")
-      ? JSON.parse(searchParams.get("roomImages"))
-      : [],
-    totRooms: searchParams.get("totRooms")
-      ? JSON.parse(searchParams.get("totRooms"))
-      : [],
   };
 
-  const [checkInDate, setCheckInDate] = useState(hotel.from);
-  const [checkOutDate, setCheckOutDate] = useState(hotel.to);
-  const [nights, setNights] = useState(hotel.nights);
-  const [selectedRooms, setSelectedRooms] = useState(hotel.rooms);
+  // requested rooms count (from previous search)
+  const requiredRooms = Array.isArray(hotel.rooms) && hotel.rooms.length > 0 ? hotel.rooms.length : 1;
 
+  // state
+  const [loading, setLoading] = useState(true);
+  const [mergedRooms, setMergedRooms] = useState([]); // grouped rooms with variations
   const [baseFilteredRooms, setBaseFilteredRooms] = useState([]);
   const [filteredRooms, setFilteredRooms] = useState([]);
-
-  const [selectedRoomsInfo, setSelectedRoomsInfo] = useState([]);
+  const [selectedRoomsInfo, setSelectedRoomsInfo] = useState(Array(requiredRooms).fill(null)); // slots
   const [currentRoomIndex, setCurrentRoomIndex] = useState(0);
+  const [shake, setShake] = useState(false);
 
-  const [mergedRoom, setmergedRoom] = useState([]);
-
-  // ✅ Initial load
-  // useEffect(() => {
-  //   if (hotelRooms.length > 0 && hotel.rooms.length > 0) {
-  //     const firstRequested = hotel.rooms[0];
-  //     const { adults = 1, children = 0 } = firstRequested;
-
-  //     const matched = hotelRooms.filter(
-  //       (room) =>
-  //         Number(room.fitForAdults) === adults &&
-  //         Number(room.fitForChildren) >= children
-  //     );
-
-  //     setBaseFilteredRooms(matched);
-  //     setFilteredRooms(matched);
-
-  //     toast.info(
-  //       `${matched.length} room(s) available for Room 1 (${adults} adults, ${children} children)`,
-  //       { autoClose: 3000 }
-  //     );
-  //   }
-  // }, [hotelRooms.length, hotel.rooms.length]);
-
- useEffect(() => {
-  const s_hotel = sessionStorage.getItem("selectedHotel");
-  if (!s_hotel) {
-    console.error("No rooms data found.");
-    setLoading(false);
-    return;
-  }
-
-  const apiResponse = JSON.parse(s_hotel);
-
-  const price_info = apiResponse.priceInfo?.RatePlanList || [];
-  const room_info = apiResponse.rooms || [];
-
-  // Correct: map rooms by id
-  const roomMap = new Map(room_info.map((room) => [room.id, room]));
-
-  // Correct: merge rate plan with matching room
-  const mergedRatePlans = price_info.map((plan) => ({
-    ...plan,
-    roomDetails: roomMap.get(plan.RoomTypeID) || null
-  }));
-
-  console.log("Merged RatePlans:", mergedRatePlans);
-});
-
-
-  console.log(mergedRoom);
-
-  // ✅ When user clicks "Choose"
-  const handleChooseRoom = (roomId, variation) => {
-    const updated = [...selectedRoomsInfo];
-    updated[currentRoomIndex] = { ...variation, parentRoomId: roomId };
-    setSelectedRoomsInfo(updated);
-
-    if (currentRoomIndex < selectedRooms.length - 1) {
-      setCurrentRoomIndex(currentRoomIndex + 1);
-    }
-  };
-
-  // ✅ Filter logic
-  const handleFilterChange = ({ roomType, refund, freeCancel, roomName }) => {
-    if (!baseFilteredRooms || baseFilteredRooms.length === 0) {
-      setFilteredRooms([]);
+  // --- useEffect: merge price_info + room_info into grouped rooms with variations
+  useEffect(() => {
+    const s_hotel = sessionStorage.getItem("selectedHotel");
+    if (!s_hotel) {
+      console.error("No rooms data found in sessionStorage.selectedHotel");
+      setLoading(false);
       return;
     }
 
-    let filtered = [];
-    baseFilteredRooms.forEach((room) => {
-      let matchedVariations = room.variations.filter((variation) => {
-        let isMatch = true;
-        if (roomType) {
-          isMatch =
-            isMatch &&
-            variation.mealPlan.toLowerCase().trim() ===
-              roomType.toLowerCase().trim();
+    try {
+      const apiResponse = JSON.parse(s_hotel);
+
+      const price_info = apiResponse.priceInfo?.RatePlanList || [];
+      const room_info = apiResponse.rooms || [];
+
+      // map rooms by id
+      const roomMap = new Map((room_info || []).map((r) => [Number(r.id ?? r.RoomTypeID ?? r.RoomTypeId), r]));
+
+      // group by RoomTypeID
+      const grouped = new Map();
+
+      (price_info || []).forEach((plan) => {
+        const roomTypeId = Number(plan.RoomTypeID ?? plan.RoomTypeId ?? plan.RoomType) || null;
+        const roomDetail = roomMap.get(roomTypeId) || plan.roomDetails || null;
+
+        // price extraction: prefer PriceList[0].Price, fallback to Prices[0].Price.Amount or TotalPrice
+        const priceFromList =
+          plan?.PriceList?.[0]?.Price ??
+          plan?.Prices?.[0]?.Price?.Amount ??
+          plan?.TotalPrice ??
+          plan?.displayPrice ??
+          0;
+
+        // currency
+        const currency = plan?.Currency ?? plan?.Prices?.[0]?.Currency ?? "USD";
+
+        // meal extraction: prefer PriceList[0].MealType, fallback BreakfastType or plan.mealType
+        const mealType = plan?.PriceList?.[0]?.MealType ?? plan?.Prices?.[0]?.MealType ?? plan?.BreakfastType ?? plan?.mealType ?? "N/A";
+        const mealAmount = plan?.PriceList?.[0]?.MealAmount ?? plan?.Prices?.[0]?.MealAmount ?? undefined;
+
+        // refund/cancellation heuristics
+        const refundable = Array.isArray(plan?.RatePlanCancellationPolicyList) && plan.RatePlanCancellationPolicyList.length > 0;
+        const cancellation = Array.isArray(plan?.RatePlanCancellationPolicyList) && plan.RatePlanCancellationPolicyList.length > 0;
+
+        const variation = {
+          ratePlanId: plan?.RatePlanID ?? plan?.RatePlanId ?? `${roomTypeId}_${Math.random().toString(36).slice(2,8)}`,
+          ratePlanName: plan?.RatePlanName ?? plan?.RoomName ?? "Rate Plan",
+          price: Number(priceFromList) || 0,
+          currency,
+          mealType,
+          mealAmount,
+          refundable,
+          cancellation,
+          raw: plan,
+        };
+
+        const roomKey = roomTypeId ?? (roomDetail?.id ?? variation.ratePlanId);
+
+        if (!grouped.has(roomKey)) {
+          // derive facilities from roomDetail
+          const facilities = [];
+          if (roomDetail) {
+            if (roomDetail.hasWifi) facilities.push("Free WiFi");
+            if (roomDetail.hasWindow) facilities.push("Window");
+            if (roomDetail.size) facilities.push(`Size: ${roomDetail.size}`);
+          }
+
+          grouped.set(roomKey, {
+            id: roomKey,
+            roomTypeId: roomKey,
+            title: roomDetail?.name ?? plan?.RoomName ?? plan?.RatePlanName ?? "Room",
+            roomDetails: roomDetail,
+            fitForAdults: roomDetail?.maxOccupancy ?? roomDetail?.StandardOccupancy ?? plan?.RoomOccupancy?.AdultCount ?? 1,
+            fitForChildren: roomDetail?.ChildCount ?? plan?.RoomOccupancy?.ChildCount ?? 0,
+            facilities,
+            variations: [variation],
+          });
+        } else {
+          grouped.get(roomKey).variations.push(variation);
         }
-        if (refund) {
-          isMatch =
-            isMatch &&
-            (refund.toLowerCase() === "refundable"
-              ? variation.refund === true
-              : variation.refund === false);
-        }
-        if (freeCancel) {
-          isMatch =
-            isMatch &&
-            (freeCancel.toLowerCase() === "free cancelation"
-              ? variation.cancellation === true
-              : variation.cancellation === false);
-        }
-        return isMatch;
       });
 
-      if (matchedVariations.length > 0) {
-        filtered.push({ ...room, variations: matchedVariations });
+      const mergedArray = Array.from(grouped.values());
+
+      // fallback: if none grouped but room_info present, use rooms
+      if (mergedArray.length === 0 && Array.isArray(room_info) && room_info.length > 0) {
+        const fallback = room_info.map((r) => ({
+          id: r.id,
+          roomTypeId: r.id,
+          title: r.name ?? r.RoomName ?? "Room",
+          roomDetails: r,
+          fitForAdults: r.maxOccupancy ?? r.StandardOccupancy ?? 1,
+          fitForChildren: r.ChildCount ?? 0,
+          facilities: [
+            ...(r.hasWifi ? ["Free WiFi"] : []),
+            ...(r.hasWindow ? ["Window"] : []),
+            ...(r.size ? [`Size: ${r.size}`] : []),
+          ],
+          variations: [],
+        }));
+        setMergedRooms(fallback);
+        setBaseFilteredRooms(fallback);
+        setFilteredRooms(fallback);
+      } else {
+        setMergedRooms(mergedArray);
+        setBaseFilteredRooms(mergedArray);
+        setFilteredRooms(mergedArray);
       }
-    });
 
-    if (roomName) {
-      filtered = filtered.filter((room) =>
-        room.title?.toLowerCase().includes(roomName.toLowerCase().trim())
-      );
+      setLoading(false);
+      toast.info(`${(mergedArray.length || room_info.length)} room(s) available`, { autoClose: 1500 });
+      console.log("Merged grouped rooms:", mergedArray);
+    } catch (err) {
+      console.error("Failed to parse selectedHotel:", err);
+      setLoading(false);
+      toast.error("Failed to load room data", { autoClose: 2000 });
     }
+  }, []);
 
-    setFilteredRooms(filtered);
+  // handle filter change (simple)
+  const handleFilterChange = ({ roomName, mealType } = {}) => {
+    if (!baseFilteredRooms.length) return;
+    let list = [...baseFilteredRooms];
+    if (roomName) list = list.filter((r) => r.title?.toLowerCase().includes(roomName.toLowerCase()));
+    if (mealType) {
+      list = list
+        .map((r) => ({ ...r, variations: r.variations.filter((v) => v.mealType?.toString() === mealType.toString()) }))
+        .filter((r) => r.variations && r.variations.length > 0);
+    }
+    setFilteredRooms(list);
+    toast.info(`${list.length} result(s)`, { autoClose: 1200 });
+  };
 
-    if (filtered.length > 0) {
-      toast.success(`${filtered.length} room(s) found`, { autoClose: 2000 });
-    } else {
-      toast.error("No rooms match your filters", { autoClose: 2000 });
+  // is a room already taken by another slot?
+  const isTaken = (roomId) =>
+    selectedRoomsInfo.some((s, idx) => s?.parentRoomId === roomId && idx !== currentRoomIndex);
+
+  // handle choose variation for current slot
+  const handleChooseRoom = (parentRoomId, variation) => {
+    const updated = [...selectedRoomsInfo];
+    updated[currentRoomIndex] = { ...variation, parentRoomId };
+    setSelectedRoomsInfo(updated);
+
+    // auto-advance to next slot if available
+    if (currentRoomIndex < requiredRooms - 1) {
+      setCurrentRoomIndex((p) => p + 1);
     }
   };
 
-  // ✅ Scroll to "Proceed" when all selected
+  // auto-scroll + shake when ready
   useEffect(() => {
-    if (
-      selectedRoomsInfo.length === selectedRooms.length &&
-      selectedRooms.length > 0
-    ) {
+    if (selectedRoomsInfo.filter(Boolean).length === requiredRooms && requiredRooms > 0) {
       if (buttonRef.current) {
-        buttonRef.current.scrollIntoView({
-          behavior: "smooth",
-          block: "center",
-        });
+        buttonRef.current.scrollIntoView({ behavior: "smooth", block: "center" });
         setShake(true);
-        const timer = setTimeout(() => setShake(false), 5000);
-        return () => clearTimeout(timer);
+        const t = setTimeout(() => setShake(false), 2200);
+        return () => clearTimeout(t);
       }
     }
-  }, [selectedRoomsInfo, selectedRooms]);
+  }, [selectedRoomsInfo, requiredRooms]);
+
+  // proceed to booking
+  const proceedToBooking = () => {
+    const query = {
+      id: hotel.id,
+      nights: hotel.nights,
+      selectedRoom: JSON.stringify(selectedRoomsInfo.filter(Boolean)),
+    };
+    const qs = new URLSearchParams(query).toString();
+    router.push(`/booking?${qs}`);
+  };
 
   return (
     <>
       <Header />
-      <div className="hotel-view-container">
-        {/* <div className="RatingPlusTitle">
-          <h1 className="hotel-title" style={{ padding: "0px 12px 0px 20px" }}>
-            {hotel.name}
-          </h1>
-          <div className="StartManage">
-            <StarRating rating={hotel.rating} />
-          </div>
-        </div>
+      <div className="hotel-view-container" style={{ padding: 12 }}>
+        <h2 style={{ fontWeight: "bold", fontSize: 20 }}>Room Choice</h2>
 
-        <div className="tit-mng" style={{ padding: "0px 12px 0px 20px" }}>
-          <IoLocationOutline />
-          <p>{hotel.location}</p>
-        </div> */}
+        <p style={{ margin: "6px 0" }}>
+          Select <strong>{requiredRooms}</strong> room{requiredRooms > 1 ? "s" : ""}.
+          &nbsp;<span style={{ color: "#666" }}>{selectedRoomsInfo.filter(Boolean).length} / {requiredRooms} selected</span>
+        </p>
 
-        {/* <ImageViewer images={hotel.roomImages} location={[hotel.lat, hotel.lon]} />
-        <HotelTabs description={hotel.description} facility={hotel.facilities} /> */}
+        <RoomSelection rooms={hotel.rooms} currentRoomIndex={currentRoomIndex} onRoomClick={setCurrentRoomIndex} />
 
-        <div style={{ marginTop: "10px" }}>
-          <h2
-            style={{
-              fontWeight: "bold",
-              fontSize: "20px",
-              padding: "1px 15px",
-            }}
-          >
-            Room Choice
-          </h2>
+        <HotelFilterBar onFilterChange={handleFilterChange} />
 
-          <RoomSelection
-            rooms={selectedRooms}
-            currentRoomIndex={currentRoomIndex}
-            onRoomClick={setCurrentRoomIndex}
-          />
-
-          <HotelFilterBar onFilterChange={handleFilterChange} />
-          <br />
-
-          {filteredRooms.length > 0 ? (
+        <div style={{ marginTop: 12 }}>
+          {loading ? (
+            <p>Loading rooms...</p>
+          ) : filteredRooms && filteredRooms.length > 0 ? (
             filteredRooms.map((room) => (
               <RoomCard
                 key={room.id}
+                hotel_id={hotel_id}
                 room={room}
-                nights={nights}
-                roomCount={selectedRooms.length}
-                onChooseRoom={(variation) =>
-                  handleChooseRoom(room.id, variation)
-                }
-                isSelected={
-                  selectedRoomsInfo[currentRoomIndex]?.parentRoomId === room.id
-                }
+                nights={hotel.nights}
+                roomCount={requiredRooms}
+                onChooseRoom={(variation) => handleChooseRoom(room.id, variation)}
+                isSelected={selectedRoomsInfo[currentRoomIndex]?.parentRoomId === room.id}
                 selectedVariation={selectedRoomsInfo[currentRoomIndex]}
-                isTaken={selectedRoomsInfo.some(
-                  (r, idx) =>
-                    r?.parentRoomId === room.id && idx !== currentRoomIndex
-                )} // ✅ prevent duplicate selection
+                isTaken={isTaken(room.id)}
               />
             ))
           ) : (
-            <p className="no-rooms-msg">
-              😔 No rooms are available for this selection.
-            </p>
+            <p className="no-rooms-msg">😔 No rooms are available for this selection.</p>
           )}
         </div>
 
-        {selectedRoomsInfo.filter(Boolean).length === selectedRooms.length && (
-          <Link
-            href={{
-              pathname: "/booking",
-              query: {
-                id: hotel.id,
-                name: hotel.name,
-                location: hotel.location,
-                price: hotel.price,
-                image: hotel.image,
-                from: checkInDate,
-                to: checkOutDate,
-                rooms: JSON.stringify(selectedRooms),
-                totalRooms: selectedRooms.length,
-                nights,
-                rating: hotel.rating,
-                selectedRoom: JSON.stringify(selectedRoomsInfo),
-              },
-            }}
-          >
+        {selectedRoomsInfo.filter(Boolean).length === requiredRooms && (
+          <div style={{ textAlign: "right", marginTop: 12 }}>
             <button
-              style={{
-                float: "right",
-                marginTop: "8px",
-                marginRight: "8px",
-
-                padding: "12px 20px",
-                backgroundColor: "#3c7dabff",
-                color: "white",
-                borderRadius: "8px",
-                fontSize: "16px",
-                fontWeight: "600",
-                cursor: "pointer",
-              }}
               ref={buttonRef}
               className={`proceed-btn ${shake ? "shake" : ""}`}
+              onClick={proceedToBooking}
+              style={{
+                padding: "12px 20px",
+                backgroundColor: "#3c7dab",
+                color: "white",
+                borderRadius: 8,
+                border: "none",
+                fontWeight: 600,
+                cursor: "pointer",
+              }}
             >
               Proceed to Booking
             </button>
-            <br />
-            <br />
-          </Link>
+          </div>
         )}
       </div>
+
       <Footer />
       <ToastContainer />
     </>

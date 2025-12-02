@@ -1,7 +1,7 @@
 .hotel-container {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 7px;
   /* padding: 20px; */
 }
 
@@ -27,15 +27,15 @@
 }
 
 /* Image */
-.hotel-image-wrapper {
+/* .hotel-image-wrapper {
   width: 180px;
-  height: 150px;
+  height: 120px;
   overflow: hidden;
-}
+} */
 
 .hotel-image {
   width: 100%;
-  height: 100%;
+  /* height: 100%; */
   object-fit: cover;
 }
 
@@ -53,19 +53,12 @@
 
 .hotel-location {
   color: #777;
-  margin-top: 6px;
+  margin-top: 0px;
   font-size: 14px;
 }
 
-/* Price Box */
-.hotel-price-box {
-  margin-top: 10px;
-  padding: 10px;
-  border-radius: 8px;
-  background: #f9f9f9;
-  border: 1px solid #eee;
-  width: fit-content;
-}
+
+
 
 .hotel-price-title {
   font-size: 14px;

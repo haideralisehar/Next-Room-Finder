@@ -527,6 +527,7 @@ export default function BookingPage() {
           <div className={styles.totalBoxe}>
             <div className={styles.totalBox}>
               <h5>Total Cal.</h5>
+              
               <p>
                 {/* {convertPrice(hotel.roomCost)} {Bhdcurrency} / Night x{" "} */}
                 {hotel.totalRooms} Room(s) x {hotel.nights} Night(s)

@@ -1,92 +1,106 @@
+"use client";
 import React, { useState } from "react";
 import "../styling/RoomCard.css";
 import { useCurrency } from "../Context/CurrencyContext";
 
+/**
+ * Props:
+ *  - room: grouped room object produced by HotelView
+ *  - nights
+ *  - roomCount: required number of rooms to select
+ *  - onChooseRoom(variation) -> HotelView will call handleChooseRoom(room.id, variation)
+ *  - isSelected: whether this parent room is selected for the active slot
+ *  - selectedVariation: the selected variation object for the current slot
+ *  - isTaken: whether this room is already chosen for a different slot
+ */
 export default function RoomCard({
   room,
   roomCount,
-  nights,
+  nights = 1,
   onChooseRoom,
   isSelected,
   selectedVariation,
-  isTaken, // ✅ NEW prop
+  isTaken,
+  hotel_id
 }) {
-  const { currency, convertPrice } = useCurrency();
+  // currency context (fallbacks if missing)
+  const currencyCtx = useCurrency?.();
+  const currencyLabel = currencyCtx?.currency ?? "USD";
+  const convertPrice = currencyCtx?.convertPrice ?? ((v) => v);
+
   const [current, setCurrent] = useState(0);
-  const [showPopup, setShowPopup] = useState(false);
   const [showAmenitiesPopup, setShowAmenitiesPopup] = useState(false);
 
-  const images =
-    room.roomPhotos?.length > 0
-      ? room.roomPhotos
-      : [
-          "https://static.cupid.travel/hotels/508614426.jpg",
-          "https://plus.unsplash.com/premium_photo-1670360414903-19e5832f8bc4?w=600",
-          "https://images.unsplash.com/photo-1566665797739-1674de7a421a?w=600",
-        ];
+  // images from room.roomDetails.images or fallback
+  const images = room.roomDetails?.images?.length > 0
+    ? room.roomDetails.images
+    : [
+        "https://static.cupid.travel/hotels/508614426.jpg",
+        "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSNfP1r1Ck7b16JdwZnxX-G6xP_bTOYHE3DcA&s"
+      ];
+
+  // meal mapping (standard)
+ 
+
+
+  function getDictionaryTypes() {
+  if (typeof window === "undefined") return {};
+
+  try {
+    const raw = sessionStorage.getItem("dictionaryTypes");
+    return raw ? JSON.parse(raw) : {};
+  } catch (err) {
+    console.error("Failed to parse dictionary types", err);
+    return {};
+  }
+}
+
+ const dictionary = getDictionaryTypes();
+const mealOptions = dictionary?.mealTypes?.data || [];
+
+const mealLabel = (code, amount) => {
+  const found = mealOptions.find((m) => m.code == code);
+  if (found) {
+    return amount ? `${found.name} (${amount})` : found.name;
+  }
+  return "N/A";
+};
+
+
 
   return (
-    <div className="room-card">
-      {/* Left: Room Info */}
-      <div className="room-left">
-        <h3 className="room-title">{room.title}</h3>
+    <div className="room-card" style={{ display: "flex", gap: 16, padding: 16, border: "1px solid #e6e6e6", borderRadius: 10, marginBottom: 12 }}>
+      {/* LEFT: room info */}
+      <div className="room-left" style={{ flex: 1 }}>
+        <h3 className="room-title">{room.roomDetails?.name ?? room.title}</h3>
 
-        {/* Slider */}
-        {/* <div className="slider">
-          <div
-            className="slider-wrapper"
-            style={{ transform: `translateX(-${current * 100}%)` }}
-          >
-            {images.map((img, index) => (
-              <img key={index} src={img} alt="Room" />
-            ))}
-          </div>
+        {/* small slider preview (first image only to keep simple) */}
+        <div style={{ margin: "8px 0" }}>
+          <img src={images[1]} alt="room" style={{ width: 160, height: 100, objectFit: "cover", borderRadius: 8 }} />
+        </div>
 
-          <button
-            onClick={() =>
-              setCurrent((p) => (p - 1 + images.length) % images.length)
-            }
-            className="nav-btn left"
-          >
-            ‹
-          </button>
-          <button
-            onClick={() => setCurrent((p) => (p + 1) % images.length)}
-            className="nav-btn right"
-          >
-            ›
-          </button>
-        </div> */}
-
-        {/* Room Details */}
         <div className="room-details">
-          <h4 style={{fontSize:"14px", borderTop:"1px solid #cfcfcfff", paddingTop:"6px"}}>Room Details</h4>
-          <p style={{fontSize:"12px"}}>
-            🛏 Sleeps {room.fitForAdults} | 📐 {room.roomDetails.size}
+          <h4 style={{ fontSize: 14, borderTop: "1px solid #eee", paddingTop: 6 }}>Room Details</h4>
+          <p style={{ fontSize: 12 }}>
+            🛏 Sleeps {room.fitForAdults ?? room.roomDetails?.maxOccupancy ?? 1} | 📐 {room.roomDetails?.size ?? "N/A"}
           </p>
 
-          <h4 style={{fontSize:"14px"}}>Amenities</h4>
-          <div className="facilities-list">
-            {room.roomDetails.amenities?.length > 0 ? (
-              room.roomDetails.amenities.map((item, i) => (
-                <div key={i} className="facility-item">
-                  <span className="icon" >i</span>
-                  <p style={{fontSize:"12px"}}>{item}</p>
+          <h4 style={{ fontSize: 14 }}>Amenities</h4>
+          <div className="facilities-list" style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
+            {Array.isArray(room.facilities) && room.facilities.length > 0 ? (
+              room.facilities.map((f, i) => (
+                <div key={i} className="facility-item" style={{ background: "#f2f4f8", padding: "6px 8px", borderRadius: 6, fontSize: 12 }}>
+                  {f}
                 </div>
               ))
             ) : (
-              <p>No facilities listed</p>
+              <div style={{ fontSize: 12, color: "#777" }}>No facilities listed</div>
             )}
           </div>
-          {room.roomDetails.amenities.length > 0 && (
+
+          {room.roomDetails?.amenities && room.roomDetails.amenities.length > 0 && (
             <p
-              style={{
-                paddingTop: "10px",
-                color: "#5e72e0ff",
-                textDecoration: "underline",
-                cursor: "pointer",
-                fontSize:"13px"
-              }}
+              style={{ paddingTop: 10, color: "#5e72e0", textDecoration: "underline", cursor: "pointer", fontSize: 13 }}
               onClick={() => setShowAmenitiesPopup(true)}
             >
               See more amenities
@@ -95,177 +109,82 @@ export default function RoomCard({
         </div>
       </div>
 
-      {/* Right: Variations */}
-      <div className="room-right">
-        {room.variations?.length > 0 ? (
-          room.variations.map((variation, idx) => {
-            const isThisSelected =
-              selectedVariation?.parentRoomId === room.id &&
-              selectedVariation?.mealPlan === variation.mealPlan;
+      {/* RIGHT: variations */}
+      <div className="room-right" style={{ width: 380, display: "flex", flexDirection: "column", gap: 10, alignItems: "flex-end" }}>
+        {Array.isArray(room.variations) && room.variations.length > 0 ? (
+          room.variations.map((variation) => {
+            // determine selected state for this variation
+            const isThisSelected = selectedVariation?.parentRoomId === room.id && selectedVariation?.ratePlanId === variation.ratePlanId;
 
             return (
-              <div key={idx} className="room-type-box">
-                <div className="variation-info">
-                  <h4 style={{ fontWeight: "600", fontSize: "14px" }}>
-                    {variation.mealPlan} -{" "}
-                    {variation.refund ? "Refundable" : "Non-refundable"}
-                  </h4>
-                  {/* <p>{variation.refund ? "Refundable" : "Non-refundable"}</p> */}
-                  {variation.breakfast &&
-                    variation.mealPlan === "Full Board" && (
-                      <p  className="txt-rsiz">
-                        <span className="green">✔</span> Including Breakfast +
-                        Lunch + Dinner
-                      </p>
-                    )}{" "}
-                  {variation.breakfast &&
-                    variation.mealPlan === "Half Board" && (
-                      <p className="txt-rsiz">
-                        <span className="green">✔</span> Including Breakfast +
-                        Lunch (or Dinner)
-                      </p>
-                    )}{" "}
-                  {variation.breakfast &&
-                    variation.mealPlan === "Bed and Breakfast" && (
-                      <p className="txt-rsiz">
-                        <span className="green">✔</span> Breakfast Included
-                      </p>
-                    )}{" "}
-                  {!variation.breakfast && (
-                    <p className="txt-rsiz">
-                      <span className="red">✖</span> No Breakfast Included
-                    </p>
-                  )}{" "}
-                  {variation.cancellation ? (
-                    <p className="txt-rsiz">
-                      <span className="green">✔</span> Free Cancellation
-                    </p>
-                  ) : (
-                    <p className="txt-rsiz">
-                      <span className="red">✖</span> No Cancellation
-                    </p>
-                  )}{" "}
-                  {variation.refund ? (
-                    <p className="txt-rsiz">
-                      <span className="green">✔</span> Refundable
-                    </p>
-                  ) : (
-                    <p className="txt-rsiz">
-                      <span className="red">✖</span> No-Refundable
-                    </p>
-                  )}
+              <div key={variation.ratePlanId} className="room-type-box" style={{ width: "100%", padding: 12, border: "1px solid #f0f0f0", borderRadius: 8, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                <div className="variation-info" style={{ maxWidth: "60%" }}>
+                  <h4 style={{ margin: 0, fontWeight: 600, fontSize: 14 }}>{variation.ratePlanName} - {room.id}</h4>
+                  <div style={{ fontSize: 13, color: "#666" }}>{mealLabel(variation.mealType, )}</div>
+
+                  <div style={{ marginTop: 6 }}>
+                    <span style={{ fontSize: 12, color: variation.refundable ? "#2d8a4b" : "#c23d3d" }}>{variation.refundable ? "✔ Refundable" : "✖ Non-refundable"}</span>
+                    <span style={{ marginLeft: 8, fontSize: 12, color: variation.cancellation ? "#2d8a4b" : "#c23d3d" }}>{variation.cancellation ? "✔ Free cancellation" : ""}</span>
+                  </div>
                 </div>
 
-                <div className="price-box">
-                  <span className="discount">{variation.off} OFF</span>
-                  <p className="old-price">
-                    {convertPrice(variation.oldprice)} {currency}
-                  </p>
-                  <h2 className="new-price">
-                    {convertPrice(variation.price)} {currency}
-                  </h2>
-                  <p className="small-text">
-                    {roomCount} room(s) - {nights} night(s)
-                  </p>
-                  {/* <p className="small-text"></p> */}
+                <div className="price-box" style={{ textAlign: "right" }}>
+                  <div style={{ fontSize: 18, fontWeight: 700 }}>{variation.currency ?? currencyLabel} {convertPrice(variation.price).toFixed ? convertPrice(variation.price).toFixed(2) : variation.price}</div>
+                  <div style={{ fontSize: 13, color: "#666" }}>for {nights} night{nights > 1 ? "s" : ""}</div>
 
                   <button
-                    className={`choose-btn 
-                      ${isThisSelected ? "active" : ""} 
-                      ${isTaken ? "taken" : ""}`}
-                    disabled={isTaken} // ✅ disable if taken
-                    onClick={() =>
-                      onChooseRoom({
-                        parentRoomId: room.id,
-                        roomName: room.title,
-                        mealPlan: variation.mealPlan,
-                        price: variation.price,
-                        oldPrice: variation.oldprice,
-                        off: variation.off,
-                        refund: variation.refund,
-                        breakfast: variation.breakfast,
-                        cancellation: variation.cancellation,
-                      })
-                    }
+                    className={`choose-btn ${isThisSelected ? "active" : ""} ${isTaken ? "taken" : ""}`}
+                    disabled={isTaken && !isThisSelected}
+                    onClick={() => onChooseRoom({
+                      
+                      parentRoomId: room.id,
+                      ratePlanId: variation.ratePlanId,
+                      ratePlanName: variation.ratePlanName,
+                      mealType: variation.mealType,
+                      mealAmount: variation.mealAmount,
+                      price: variation.price,
+                      hotel_id:hotel_id,
+                      currency: variation.currency,
+                      refundable: variation.refundable,
+                      cancellation: variation.cancellation,
+                    })}
+                    style={{
+                      marginTop: 8,
+                      padding: "8px 12px",
+                      background: isThisSelected ? "#2b7bb3" : "#3c7dab",
+                      color: "#fff",
+                      border: "none",
+                      borderRadius: 6,
+                      cursor: isTaken && !isThisSelected ? "not-allowed" : "pointer",
+                      opacity: isTaken && !isThisSelected ? 0.6 : 1,
+                    }}
                   >
-                    {isTaken
-                      ? "Already Selected"
-                      : isThisSelected
-                      ? "Selected"
-                      : "Choose"}
-                  </button>
-
-                  <button
-                    className={`choose-btn-mob 
-                      ${isThisSelected ? "active" : ""} 
-                      ${isTaken ? "taken" : ""}`}
-                    disabled={isTaken} // ✅ disable if taken
-                    onClick={() =>
-                      onChooseRoom({
-                        parentRoomId: room.id,
-                        roomName: room.title,
-                        mealPlan: variation.mealPlan,
-                        price: variation.price,
-                        oldPrice: variation.oldprice,
-                        off: variation.off,
-                        refund: variation.refund,
-                        breakfast: variation.breakfast,
-                        cancellation: variation.cancellation,
-                      })
-                    }
-                  >
-                    {isTaken
-                      ? "Already Selected"
-                      : isThisSelected
-                      ? "Selected"
-                      : "Choose"}
+                    {isThisSelected ? "Selected" : isTaken && !isThisSelected ? "Unavailable" : "Choose"}
                   </button>
                 </div>
               </div>
             );
           })
         ) : (
-          <p>No room variations available</p>
+          <div style={{ width: "100%", padding: 12, border: "1px dashed #eee", borderRadius: 8, textAlign: "center" }}>
+            No rate plans available
+          </div>
         )}
+
+        {/* amenities popup */}
         {showAmenitiesPopup && (
           <div className="popup-overlays">
             <div className="popup-content">
-              {/* Header with title + close button */}
-              <div
-                className="btn-cls"
-                style={{ display: "flex", justifyContent: "space-between" }}
-              >
-                <h1
-                  style={{
-                    fontWeight: "600",
-                    paddingTop: "10px",
-                    fontSize: "18px",
-                  }}
-                >
-                  Amenities
-                </h1>
-                <button
-                  className="close-btns"
-                  onClick={() => setShowAmenitiesPopup(false)}
-                >
-                  Close
-                </button>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                <h3 style={{ margin: 0 }}>Amenities</h3>
+                <button onClick={() => setShowAmenitiesPopup(false)} style={{ background: "transparent", border: "none", cursor: "pointer" }}>Close</button>
               </div>
-
-              <hr style={{ color: "#eeeeeeff", margin: "5px 0px 10px 0px" }} />
-
-              {/* Facilities List */}
-              <div className="facilities-list">
-                {Array.isArray(room.roomDetails?.amenities) &&
-                room.roomDetails.amenities.length > 0 ? (
-                  room.roomDetails.amenities.map((item, i) => (
-                    <div key={i} className="facility-item">
-                      <span className="icon">i</span>
-                      {item}
-                    </div>
-                  ))
+              <hr style={{ margin: "8px 0" }} />
+              <div>
+                {Array.isArray(room.roomDetails?.amenities) && room.roomDetails.amenities.length > 0 ? (
+                  room.roomDetails.amenities.map((a, i) => <div key={i} style={{ padding: 6 }}>{a}</div>)
                 ) : (
-                  <p>No facilities listed</p>
+                  <div style={{ padding: 6 }}>No amenities listed</div>
                 )}
               </div>
             </div>

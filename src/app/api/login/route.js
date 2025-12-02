@@ -137,7 +137,7 @@ export async function POST(req) {
       secure: true,
       sameSite: "strict",
       path: "/",
-      maxAge: 86400,
+      maxAge: 8,
     });
 
     res.cookies.set("userId", userId, {
@@ -145,7 +145,7 @@ export async function POST(req) {
       secure: true,
       sameSite: "strict",
       path: "/",
-      maxAge: 86400,
+      maxAge: 8,
     });
 
     res.cookies.set("agencyId", agencyId, {
@@ -153,7 +153,7 @@ export async function POST(req) {
       secure: true,
       sameSite: "strict",
       path: "/",
-      maxAge: 86400,
+      maxAge: 8,
     });
 
     console.log("Cookies set successfully");

@@ -29,7 +29,7 @@ export default function HotelSearchBar({ initialData }) {
     destination: initialData?.destination || "",
     checkIn: initialData?.checkIn || "",
     checkOut: initialData?.checkOut || "",
-    starRating: initialData?.starRating || "",   // ⭐ NEW FIELD
+    starRating: initialData?.starRating || "3",   // ⭐ NEW FIELD
     rooms:
       initialData?.rooms && Array.isArray(initialData.rooms) && initialData.rooms.length > 0
         ? initialData.rooms
@@ -119,8 +119,10 @@ export default function HotelSearchBar({ initialData }) {
     setLoadingfetch(true);
 
     const totalRooms = formData.rooms.length;
+    
     const totalAdults = formData.rooms.reduce((s, r) => s + r.adults, 0);
-
+    
+    console.log(totalRooms);
     const requestBody = {
       countryCode: formData.destination,
       checkIn: formData.checkIn,

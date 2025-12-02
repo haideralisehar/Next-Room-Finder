@@ -62,7 +62,7 @@ export default function Filters({
 
   return (
     <aside className="filters">
-      <p style={{ fontWeight: "bold", textAlign: "left", padding: "10px 0px" }}>Filters</p>
+      <p style={{ fontWeight: "bold", textAlign: "left", padding: "10px 0px" }}><span style={{color:"black"}}>ᯤ</span> Filters</p>
 
       <div className="map-loc" style={{ position: "relative", width: "100%", height: "120px", backgroundColor: "#f7f7f7ff", margin: "0 0 20px 0", borderRadius: "8px", border: "1px solid #eaeaea", overflow: "hidden" }}>
         <div style={{ position: "absolute", top: 0, left: 0, width: "100%", height: "100%", backgroundColor: "rgba(75, 160, 203, 0.24)", display: "flex", alignItems: "center", justifyContent: "center", borderRadius: "8px" }}>
@@ -72,12 +72,12 @@ export default function Filters({
         </div>
       </div>
 
-      <button className="clear-btn" onClick={clearFilters}>Clear Filters</button>
+      <button className="clear-btn-clear" onClick={clearFilters}>Clear Filters</button>
 
       <div className="filter-group">
         <p>Hotel Name</p>
         <input
-          style={{ border: "1px solid silver", fontSize: "14px", padding: "6px", borderRadius: "4px", width: "100%" }}
+          style={{ border: "1px solid silver", fontSize: "14px", padding: "6px 10px", borderRadius: "4px", width: "100%" }}
           id="hotelName"
           type="text"
           placeholder="Search by name..."
