@@ -41,123 +41,183 @@ export default function HotelView() {
   const [shake, setShake] = useState(false);
 
   // --- useEffect: merge price_info + room_info into grouped rooms with variations
-  useEffect(() => {
-    const s_hotel = sessionStorage.getItem("selectedHotel");
-    if (!s_hotel) {
-      console.error("No rooms data found in sessionStorage.selectedHotel");
-      setLoading(false);
-      return;
-    }
+useEffect(() => {
+  const s_hotel = sessionStorage.getItem("selectedHotel");
 
-    try {
-      const apiResponse = JSON.parse(s_hotel);
+  if (!s_hotel) {
+    console.error("No rooms data found in sessionStorage.selectedHotel");
+    setLoading(false);
+    return;
+  }
 
-      const price_info = apiResponse.priceInfo?.RatePlanList || [];
-      const room_info = apiResponse.rooms || [];
+  try {
+    const apiResponse = JSON.parse(s_hotel);
 
-      // map rooms by id
-      const roomMap = new Map((room_info || []).map((r) => [Number(r.id ?? r.RoomTypeID ?? r.RoomTypeId), r]));
+    const price_info = apiResponse.priceInfo?.RatePlanList || [];
+    const room_info = apiResponse.rooms || [];
 
-      // group by RoomTypeID
-      const grouped = new Map();
+    // Normalize numeric ID safely
+    const normalizeId = (v) => Number(v ?? 0);
 
-      (price_info || []).forEach((plan) => {
-        const roomTypeId = Number(plan.RoomTypeID ?? plan.RoomTypeId ?? plan.RoomType) || null;
-        const roomDetail = roomMap.get(roomTypeId) || plan.roomDetails || null;
+    // Create room map for fast lookup
+    const roomMap = new Map(
+      (room_info || []).map((r) => [
+        normalizeId(r.id ?? r.RoomTypeID ?? r.RoomTypeId ?? r.RoomType),
+        r,
+      ])
+    );
 
-        // price extraction: prefer PriceList[0].Price, fallback to Prices[0].Price.Amount or TotalPrice
-        const priceFromList =
-          plan?.PriceList?.[0]?.Price ??
-          plan?.Prices?.[0]?.Price?.Amount ??
-          plan?.TotalPrice ??
-          plan?.displayPrice ??
-          0;
+    const grouped = new Map();
 
-        // currency
-        const currency = plan?.Currency ?? plan?.Prices?.[0]?.Currency ?? "USD";
+    price_info.forEach((plan) => {
+      const roomTypeId = normalizeId(
+        plan.RoomTypeID ?? plan.RoomTypeId ?? plan.RoomType
+      );
 
-        // meal extraction: prefer PriceList[0].MealType, fallback BreakfastType or plan.mealType
-        const mealType = plan?.PriceList?.[0]?.MealType ?? plan?.Prices?.[0]?.MealType ?? plan?.BreakfastType ?? plan?.mealType ?? "N/A";
-        const mealAmount = plan?.PriceList?.[0]?.MealAmount ?? plan?.Prices?.[0]?.MealAmount ?? undefined;
+      const roomDetail =
+        roomMap.get(roomTypeId) || plan.roomDetails || null;
 
-        // refund/cancellation heuristics
-        const refundable = Array.isArray(plan?.RatePlanCancellationPolicyList) && plan.RatePlanCancellationPolicyList.length > 0;
-        const cancellation = Array.isArray(plan?.RatePlanCancellationPolicyList) && plan.RatePlanCancellationPolicyList.length > 0;
+      // Price extraction priority
+      const priceFromList =
+        plan?.PriceList?.[0]?.Price ??
+        plan?.Prices?.[0]?.Price?.Amount ??
+        plan?.TotalPrice ??
+        plan?.displayPrice ??
+        0;
 
-        const variation = {
-          ratePlanId: plan?.RatePlanID ?? plan?.RatePlanId ?? `${roomTypeId}_${Math.random().toString(36).slice(2,8)}`,
-          ratePlanName: plan?.RatePlanName ?? plan?.RoomName ?? "Rate Plan",
-          price: Number(priceFromList) || 0,
-          currency,
-          mealType,
-          mealAmount,
-          refundable,
-          cancellation,
-          raw: plan,
-        };
+      // Currency
+      const currency =
+        plan?.Currency ??
+        plan?.Prices?.[0]?.Currency ??
+        "USD";
 
-        const roomKey = roomTypeId ?? (roomDetail?.id ?? variation.ratePlanId);
+      // Meal type fallback logic
+      const mealType =
+        plan?.PriceList?.[0]?.MealType ??
+        plan?.Prices?.[0]?.MealType ??
+        plan?.BreakfastType ??
+        plan?.mealType ??
+        "N/A";
 
-        if (!grouped.has(roomKey)) {
-          // derive facilities from roomDetail
-          const facilities = [];
-          if (roomDetail) {
-            if (roomDetail.hasWifi) facilities.push("Free WiFi");
-            if (roomDetail.hasWindow) facilities.push("Window");
-            if (roomDetail.size) facilities.push(`Size: ${roomDetail.size}`);
-          }
+      const mealAmount =
+        plan?.PriceList?.[0]?.MealAmount ??
+        plan?.Prices?.[0]?.MealAmount ??
+        undefined;
 
-          grouped.set(roomKey, {
-            id: roomKey,
-            roomTypeId: roomKey,
-            title: roomDetail?.name ?? plan?.RoomName ?? plan?.RatePlanName ?? "Room",
-            roomDetails: roomDetail,
-            fitForAdults: roomDetail?.maxOccupancy ?? roomDetail?.StandardOccupancy ?? plan?.RoomOccupancy?.AdultCount ?? 1,
-            fitForChildren: roomDetail?.ChildCount ?? plan?.RoomOccupancy?.ChildCount ?? 0,
-            facilities,
-            variations: [variation],
-          });
-        } else {
-          grouped.get(roomKey).variations.push(variation);
+      // Cancellation/refund heuristics
+      const refundable =
+        Array.isArray(plan?.RatePlanCancellationPolicyList) &&
+        plan.RatePlanCancellationPolicyList.length > 0;
+
+      const cancellation =
+        Array.isArray(plan?.RatePlanCancellationPolicyList) &&
+        plan.RatePlanCancellationPolicyList.length > 0;
+
+      // Build variation object
+      const variation = {
+        ratePlanId:
+          plan?.RatePlanID ??
+          plan?.RatePlanId ??
+          `${roomTypeId}_${Math.random().toString(36).slice(2, 8)}`,
+        ratePlanName:
+          plan?.RatePlanName ??
+          plan?.RoomName ??
+          "Rate Plan",
+        price: Number(priceFromList) || 0,
+        currency,
+        mealType,
+        mealAmount,
+        refundable,
+        cancellation,
+        raw: plan,
+      };
+
+      // Key for grouped entry
+      const roomKey =
+        roomTypeId ?? roomDetail?.id ?? variation.ratePlanId;
+
+      // First time this room appears
+      if (!grouped.has(roomKey)) {
+        const facilities = [];
+
+        if (roomDetail) {
+          if (roomDetail.hasWifi) facilities.push("Free WiFi");
+          if (roomDetail.hasWindow) facilities.push("Window");
+          if (roomDetail.size) facilities.push(`Size: ${roomDetail.size}`);
         }
-      });
 
-      const mergedArray = Array.from(grouped.values());
-
-      // fallback: if none grouped but room_info present, use rooms
-      if (mergedArray.length === 0 && Array.isArray(room_info) && room_info.length > 0) {
-        const fallback = room_info.map((r) => ({
-          id: r.id,
-          roomTypeId: r.id,
-          title: r.name ?? r.RoomName ?? "Room",
-          roomDetails: r,
-          fitForAdults: r.maxOccupancy ?? r.StandardOccupancy ?? 1,
-          fitForChildren: r.ChildCount ?? 0,
-          facilities: [
-            ...(r.hasWifi ? ["Free WiFi"] : []),
-            ...(r.hasWindow ? ["Window"] : []),
-            ...(r.size ? [`Size: ${r.size}`] : []),
-          ],
-          variations: [],
-        }));
-        setMergedRooms(fallback);
-        setBaseFilteredRooms(fallback);
-        setFilteredRooms(fallback);
+        grouped.set(roomKey, {
+          id: roomKey,
+          roomTypeId: roomKey,
+          title:
+            roomDetail?.name ??
+            plan?.RoomName ??
+            plan?.RatePlanName ??
+            "Room",
+          roomDetails: roomDetail,
+          fitForAdults:
+            roomDetail?.maxOccupancy ??
+            roomDetail?.StandardOccupancy ??
+            plan?.RoomOccupancy?.AdultCount ??
+            1,
+          fitForChildren:
+            roomDetail?.ChildCount ??
+            plan?.RoomOccupancy?.ChildCount ??
+            0,
+          facilities,
+          variations: [variation],
+        });
       } else {
-        setMergedRooms(mergedArray);
-        setBaseFilteredRooms(mergedArray);
-        setFilteredRooms(mergedArray);
+        // Existing room → add variation
+        grouped.get(roomKey).variations.push(variation);
       }
+    });
 
-      setLoading(false);
-      toast.info(`${(mergedArray.length || room_info.length)} room(s) available`, { autoClose: 1500 });
-      console.log("Merged grouped rooms:", mergedArray);
-    } catch (err) {
-      console.error("Failed to parse selectedHotel:", err);
-      setLoading(false);
-      toast.error("Failed to load room data", { autoClose: 2000 });
+    const mergedArray = Array.from(grouped.values());
+
+    // Fallback: rooms exist but grouped is empty
+    if (mergedArray.length === 0 && Array.isArray(room_info) && room_info.length > 0) {
+      const fallback = room_info.map((r) => ({
+        id: r.id,
+        roomTypeId: r.id,
+        title: r.name ?? r.RoomName ?? "Room",
+        roomDetails: r,
+        fitForAdults:
+          r.maxOccupancy ??
+          r.StandardOccupancy ??
+          1,
+        fitForChildren: r.ChildCount ?? 0,
+        facilities: [
+          ...(r.hasWifi ? ["Free WiFi"] : []),
+          ...(r.hasWindow ? ["Window"] : []),
+          ...(r.size ? [`Size: ${r.size}`] : []),
+        ],
+        variations: [],
+      }));
+
+      setMergedRooms(fallback);
+      setBaseFilteredRooms(fallback);
+      setFilteredRooms(fallback);
+    } else {
+      setMergedRooms(mergedArray);
+      setBaseFilteredRooms(mergedArray);
+      setFilteredRooms(mergedArray);
     }
-  }, []);
+
+    setLoading(false);
+    toast.info(
+      `${mergedArray.length || room_info.length} room(s) available`,
+      { autoClose: 1500 }
+    );
+
+    console.log("Merged grouped rooms:", mergedArray);
+  } catch (err) {
+    console.error("Failed to parse selectedHotel:", err);
+    setLoading(false);
+    toast.error("Failed to load room data", { autoClose: 2000 });
+  }
+}, []);
+
 
   // handle filter change (simple)
   const handleFilterChange = ({ roomName, mealType } = {}) => {
@@ -229,7 +289,7 @@ export default function HotelView() {
 
         <div style={{ marginTop: 12 }}>
           {loading ? (
-            <p>Loading rooms...</p>
+            <p style={{textAlign:"center"}}>Loading rooms...</p>
           ) : filteredRooms && filteredRooms.length > 0 ? (
             filteredRooms.map((room) => (
               <RoomCard

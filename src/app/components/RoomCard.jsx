@@ -66,6 +66,20 @@ const mealLabel = (code, amount) => {
   return "N/A";
 };
 
+// ⭐ BED LABEL (similar to mealLabel)
+
+const bedOptions = dictionary?.bedTypes?.data || [];
+
+const bedLabel = (code, amount) => {
+  const found = bedOptions.find((m) => m.code == code);
+  if (found) {
+    return amount ? `${found.name} (${amount})` : found.name;
+  }
+
+  return "N/A";
+};
+
+
 
 
   return (
@@ -73,16 +87,22 @@ const mealLabel = (code, amount) => {
       {/* LEFT: room info */}
       <div className="room-left" style={{ flex: 1 }}>
         <h3 className="room-title">{room.roomDetails?.name ?? room.title}</h3>
+      
+         {
+          room.variations.map((variation) => {
+               return(
+                <div key={variation.ratePlanId}>
+                    <p style={{color:"#7e7e7eff", fontSize:"13px"}}>🛏 {bedLabel(variation.raw?.BedType
+                    )}</p>
 
-        {/* small slider preview (first image only to keep simple) */}
-        <div style={{ margin: "8px 0" }}>
-          <img src={images[1]} alt="room" style={{ width: 160, height: 100, objectFit: "cover", borderRadius: 8 }} />
-        </div>
+                    
 
-        <div className="room-details">
+                    
+                     <div className="room-details">
           <h4 style={{ fontSize: 14, borderTop: "1px solid #eee", paddingTop: 6 }}>Room Details</h4>
           <p style={{ fontSize: 12 }}>
-            🛏 Sleeps {room.fitForAdults ?? room.roomDetails?.maxOccupancy ?? 1} | 📐 {room.roomDetails?.size ?? "N/A"}
+            🛏 Sleeps {variation.raw?.StandardOccupancy
+                    } | 📐 {room.roomDetails?.size ?? "Not Specified"}
           </p>
 
           <h4 style={{ fontSize: 14 }}>Amenities</h4>
@@ -107,6 +127,21 @@ const mealLabel = (code, amount) => {
             </p>
           )}
         </div>
+
+
+                  
+                </div>
+               );
+
+          })
+         }
+
+        {/* small slider preview (first image only to keep simple) */}
+        {/* <div style={{ margin: "8px 0" }}>
+          <img src={images[1]} alt="room" style={{ width: 160, height: 100, objectFit: "cover", borderRadius: 8 }} />
+        </div> */}
+
+       
       </div>
 
       {/* RIGHT: variations */}
@@ -121,6 +156,9 @@ const mealLabel = (code, amount) => {
                 <div className="variation-info" style={{ maxWidth: "60%" }}>
                   <h4 style={{ margin: 0, fontWeight: 600, fontSize: 14 }}>{variation.ratePlanName} - {room.id}</h4>
                   <div style={{ fontSize: 13, color: "#666" }}>{mealLabel(variation.mealType, )}</div>
+                  <div style={{ fontSize: 13, color: "#444", marginTop: 3 }}>
+                   
+</div>
 
                   <div style={{ marginTop: 6 }}>
                     <span style={{ fontSize: 12, color: variation.refundable ? "#2d8a4b" : "#c23d3d" }}>{variation.refundable ? "✔ Refundable" : "✖ Non-refundable"}</span>

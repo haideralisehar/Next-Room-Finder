@@ -8,6 +8,7 @@ import "./login.css";
 import Lottie from "lottie-react";
 import ErrorSvg from "../../../lotti-img/error.json";
 import SuccessSvg from "../../../lotti-img/upload.json"; 
+import Image from "next/image";
 
 const Login = () => {
   const router = useRouter();
@@ -95,13 +96,21 @@ const Login = () => {
   return (
     <>
       {/* Loading Spinner */}
-      {isLoggingIn && (
-        <div className="loading-overlay">
-          <div className="loading-box">
-            <div className="spinner"></div>
-          </div>
+       {isLoggingIn && (
+             <div className="loading-container">
+        <div className="box">
+          <Image
+            className="circular-left-right"
+            src="/loading_ico.png"
+            alt="Loading"
+            width={200}
+            height={200}
+          />
+          <p style={{ fontSize: "13px" }}>Please Wait...</p>
         </div>
-      )}
+      </div>
+      
+            )}
 
       {/* ❌ Error Popup */}
       {isShowError && (

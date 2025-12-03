@@ -25,9 +25,6 @@ export function middleware(req) {
     const response = NextResponse.redirect(new URL("/authentication/login", req.url));
     response.cookies.set("token", "", { maxAge: 0, path: "/" });
     response.cookies.set("userId", "", { maxAge: 0, path: "/" });
-    sessionStorage.removeItem('dictionaryTypes');
-    sessionStorage.removeItem('hotelData');
-    sessionStorage.removeItem('selectedHotel');
     return response;
   }
 
@@ -55,9 +52,6 @@ export function middleware(req) {
     const response = NextResponse.redirect(new URL("/authentication/login", req.url));
     response.cookies.set("token", "", { maxAge: 0, path: "/" });
     response.cookies.set("userId", "", { maxAge: 0, path: "/" });
-    sessionStorage.removeItem('dictionaryTypes');
-    sessionStorage.removeItem('hotelData');
-    sessionStorage.removeItem('selectedHotel');
     return response;
   }
 
@@ -71,10 +65,7 @@ export function middleware(req) {
     const response = NextResponse.next();
     response.cookies.set("token", "", { maxAge: 0, path: "/" });
     response.cookies.set("userId", "", { maxAge: 0, path: "/" });
-    sessionStorage.removeItem('dictionaryTypes');
-    sessionStorage.removeItem('hotelData');
-    sessionStorage.removeItem('selectedHotel');
-    return response;
+    
   }
 
   // ✅ Default: allow

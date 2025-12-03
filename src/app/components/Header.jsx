@@ -10,7 +10,8 @@ import { FaChartBar, FaUserCircle, FaSuitcaseRolling, FaSignOutAlt } from "react
 import Cookies from "js-cookie";
 import { useRouter } from "next/navigation";
 import Lottie from "lottie-react"
-import ErrorSvg from "../../lotti-img/error.json"
+import ErrorSvg from "../../lotti-img/error.json";
+
 
 
 const Header = () => {
@@ -76,15 +77,20 @@ const Header = () => {
 
     <>
     {isLoggingOut && (
-        <div className="loading-overlay">
-  <div className="loading-box">
-    <div className="spinner"></div>
-      {/* <Lottie animationData={ErrorSvg} /> */}
-    {/* <p className="loading-text">Logging Out...</p> */}
-  </div>
-</div>
-
-      )}
+                         <div className="loading-container">
+                    <div className="box">
+                      <Image
+                        className="circular-left-right"
+                        src="/loading_ico.png"
+                        alt="Loading"
+                        width={200}
+                        height={200}
+                      />
+                      <p style={{ fontSize: "13px" }}>Signing Out...</p>
+                    </div>
+                  </div>
+                  
+                        )}
     
     <header className="header">
       <div className="header-container">

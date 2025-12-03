@@ -7,6 +7,7 @@ import { useRouter } from "next/navigation";
 import Lottie from "lottie-react";
 import SuccessSvg from "../../../lotti-img/upload.json";
 import ErrorSvg from "../../../lotti-img/error.json";
+import Image from "next/image";
 
 export default function RegistrationForm() {
   const [form, setForm] = useState({
@@ -26,6 +27,7 @@ export default function RegistrationForm() {
   const [isShowError, setIsShowError] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const [isRegistering, setisRegistering] = useState(false);
 
   const router = useRouter();
 
@@ -59,11 +61,13 @@ export default function RegistrationForm() {
     const validation = validate();
     setErrors(validation);
     if (Object.keys(validation).length > 0) return;
+    
 
     setSubmitting(true);
     setErrorMessage("");
 
     try {
+      setisRegistering(true)
       const res = await fetch("/api/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -75,6 +79,7 @@ export default function RegistrationForm() {
       if (res.ok) {
         // ✅ Registration successful
         setSuccessPopup(true);
+        setisRegistering(false);
         setForm({
           username: "",
           password: "",
@@ -98,6 +103,7 @@ export default function RegistrationForm() {
           "An unexpected error occurred. Please try again.";
         setErrorMessage(message);
         setIsShowError(true);
+        setisRegistering(false)
 
         // Close popup after delay
         setTimeout(() => setIsShowError(false), 5000);
@@ -106,9 +112,11 @@ export default function RegistrationForm() {
       console.error("Network error:", error);
       setErrorMessage("Network error. Please check your connection.");
       setIsShowError(true);
+      setisRegistering(false)
       setTimeout(() => setIsShowError(false), 5000);
     } finally {
       setSubmitting(false);
+      setisRegistering(false)
     }
   };
 
@@ -125,6 +133,22 @@ export default function RegistrationForm() {
             </div>
           </div>
         )}
+
+        {isRegistering && (
+                     <div className="loading-container">
+                <div className="box">
+                  <Image
+                    className="circular-left-right"
+                    src="/loading_ico.png"
+                    alt="Loading"
+                    width={200}
+                    height={200}
+                  />
+                  <p style={{ fontSize: "13px" }}>Please Wait...</p>
+                </div>
+              </div>
+              
+                    )}
 
         {/* ❌ Error Popup */}
         {isShowError && (
