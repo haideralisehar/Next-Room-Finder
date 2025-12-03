@@ -88,7 +88,7 @@ const bedLabel = (code, amount) => {
       <div className="room-left" style={{ flex: 1 }}>
         <h3 className="room-title">{room.roomDetails?.name ?? room.title}</h3>
       
-         {
+         {/* {
           room.variations.map((variation) => {
                return(
                 <div key={variation.ratePlanId}>
@@ -97,12 +97,22 @@ const bedLabel = (code, amount) => {
 
                     
 
-                    
-                     <div className="room-details">
+            
+                </div>
+               );
+
+          })
+         } */}
+
+        {/* small slider preview (first image only to keep simple) */}
+        {/* <div style={{ margin: "8px 0" }}>
+          <img src={images[1]} alt="room" style={{ width: 160, height: 100, objectFit: "cover", borderRadius: 8 }} />
+        </div> */}
+
+         <div className="room-details">
           <h4 style={{ fontSize: 14, borderTop: "1px solid #eee", paddingTop: 6 }}>Room Details</h4>
           <p style={{ fontSize: 12 }}>
-            🛏 Sleeps {variation.raw?.StandardOccupancy
-                    } | 📐 {room.roomDetails?.size ?? "Not Specified"}
+             📐 {room.roomDetails?.size ?? "Not Specified"}
           </p>
 
           <h4 style={{ fontSize: 14 }}>Amenities</h4>
@@ -128,19 +138,6 @@ const bedLabel = (code, amount) => {
           )}
         </div>
 
-
-                  
-                </div>
-               );
-
-          })
-         }
-
-        {/* small slider preview (first image only to keep simple) */}
-        {/* <div style={{ margin: "8px 0" }}>
-          <img src={images[1]} alt="room" style={{ width: 160, height: 100, objectFit: "cover", borderRadius: 8 }} />
-        </div> */}
-
        
       </div>
 
@@ -154,7 +151,8 @@ const bedLabel = (code, amount) => {
             return (
               <div key={variation.ratePlanId} className="room-type-box" style={{ width: "100%", padding: 12, border: "1px solid #f0f0f0", borderRadius: 8, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                 <div className="variation-info" style={{ maxWidth: "60%" }}>
-                  <h4 style={{ margin: 0, fontWeight: 600, fontSize: 14 }}>{variation.ratePlanName} - {room.id}</h4>
+                  <h4 style={{ margin: 0, fontWeight: 600, fontSize: 14 }}>{variation.ratePlanName} - {bedLabel(variation.raw?.BedType
+                    )}</h4>
                   <div style={{ fontSize: 13, color: "#666" }}>{mealLabel(variation.mealType, )}</div>
                   <div style={{ fontSize: 13, color: "#444", marginTop: 3 }}>
                    
