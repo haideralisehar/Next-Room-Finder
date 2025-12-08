@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, cache } from "react";
 import styles from "../booking/Booking.module.css";
 import "../booking/booking.css";
 import { FaStar, FaRegStar } from "react-icons/fa"; // ⭐ Icons
@@ -11,6 +11,7 @@ import StarRating from "../components/rating";
 import { useBhdCurrency } from "../Context/BHDCurrency";
 import TermsAndConditions from "../terms-conditions/page";
 import CountrySelector from "../components/CountrySelector";
+import { useSelector } from "react-redux";
 
 export default function BookingPage() {
   const { Bhdcurrency, convertPrice } = useBhdCurrency();
@@ -22,13 +23,103 @@ export default function BookingPage() {
   const [showWarningPopup, setShowWarningPopup] = useState(false);
   const [loading, setLoading] = useState(false);
 
+  const priceConfirmResponse = useSelector(
+  (state) => state.priceConfirm.priceConfirmData
+);
+
+  const [starRating, setstarRating] = useState("");
+  const [location, setlocation] = useState("");
+  const [hotelName, sethotelName] = useState("");
+
+  console.log("selected_datas",priceConfirmResponse);
+
+  function applyDiscountAndMarkup(priceConfirmResponse) {
+  const hotel =
+    priceConfirmResponse?.parsedObject?.Success?.PriceDetails?.HotelList?.[0];
+
+  if (!hotel) {
+    console.error("HotelList[0] not found");
+    return null;
+  }
+
+  let totalPrice = hotel.TotalPrice;
+
+  const discount = priceConfirmResponse?.Discounts;
+  const markup = priceConfirmResponse?.Markups;
+
+  // ------------------------------
+  // Apply DISCOUNT
+  // ------------------------------
+  if (discount) {
+    if (discount.type === "Percentage") {
+      totalPrice = totalPrice - (totalPrice * discount.value) / 100;
+    } else if (discount.type === "Amount") {
+      totalPrice = totalPrice - discount.value;
+    }
+  }
+
+  // ------------------------------
+  // Apply MARKUP
+  // ------------------------------
+  if (markup) {
+    if (markup.type === "Percentage") {
+      totalPrice = totalPrice + (totalPrice * markup.value) / 100;
+    } else if (markup.type === "Amount") {
+      totalPrice = totalPrice + markup.value;
+    }
+  }
+
+  return totalPrice;
+}
+
+const finalPrice = applyDiscountAndMarkup(priceConfirmResponse);
+
+console.log(finalPrice);
+
+
   // Load from localStorage on mount
   useEffect(() => {
     const storedAck = localStorage.getItem("acknowledged");
     if (storedAck === "true") {
       setAcknowledged(true);
     }
+
+    if(!priceConfirmResponse){
+    console.log("No Data Fount for this room confirmation");
+  }
+
+  try{
+    const apiResponse = priceConfirmResponse;
+    const rating_star = apiResponse.rating || "";
+    const address = apiResponse.address || "";
+    const hotel_name =
+  apiResponse?.parsedObject?.Success?.PriceDetails?.HotelList?.[0]?.HotelName || "";
+  
+
+  // const checkIn =
+  // apiResponse?.parsedObject?.Success?.PriceDetails?.CheckInDate || "";
+
+
+
+
+
+    sethotelName(hotel_name);
+    setlocation(address);
+    setstarRating(rating_star);
+
+
+  }
+  catch(err){
+    console.error("Failed to parse selectedHotel:", err);
+    setLoading(false);
+
+  }
   }, []);
+
+  console.log(starRating);
+  console.log(priceConfirmResponse?.image)
+
+  
 
   const handleTermsCheckbox = (e) => {
     if (!acknowledged) {
@@ -51,7 +142,7 @@ export default function BookingPage() {
     id: searchParams.get("id"),
     name: searchParams.get("name"),
     location: searchParams.get("location"),
-    price: searchParams.get("price"),
+    price: 100,
     image: searchParams.get("image"),
     from: searchParams.get("from"),
     to: searchParams.get("to"),
@@ -72,7 +163,7 @@ export default function BookingPage() {
       : [],
   };
 
-  const rume = JSON.stringify(hotel.rooms);
+  // const rume = JSON.stringify(hotel.rooms);
 
   // console.log("Hotel Data:", hotel.SelectedRoom);
 
@@ -205,6 +296,7 @@ export default function BookingPage() {
           <h2 style={{ fontSize: "18px", fontWeight: "bold" }}>
             Guests Details & Payment
           </h2>
+          
 
           <div className={styles.inputGroup}>
             <label>First Name *</label>
@@ -360,7 +452,19 @@ export default function BookingPage() {
             Booking Summary
           </h2>
           <div className={styles.hotelCard}>
-            <img src={hotel.image} alt="Hotel" className={styles.hotelImg} />
+            <img
+                                src={
+                                  priceConfirmResponse?.image ||
+                                  "/no-image.jpg"
+                                }
+                                alt={hotel.name}
+                                className={styles.hotelImg}
+                                onError={(e) => {
+                                  e.target.src =
+                                    "https://www.freeiconspng.com/thumbs/no-image-icon/no-image-icon-6.png";
+                                }}
+                              />
+            {/* <img src={priceConfirmResponse?.image} alt="Hotel" className={styles.hotelImg} /> */}
             <div>
               {/* ⭐ Rating Row */}
               {/* <div className={styles.rating}>
@@ -371,15 +475,15 @@ export default function BookingPage() {
         <FaRegStar className={styles.star} />
       </div> */}
               <div style={{ paddingBottom: "5px" }}>
-                <StarRating rating={hotel.rating} />
+                <StarRating rating={starRating} />
               </div>
 
               <h4 style={{ display: "flex", justifyContent: "flex-start" }}>
-                {hotel.name}
+                {hotelName}
               </h4>
               <div className="loc-ico" style={{ display: "flex", gap: "5px" }}>
                 <IoLocationOutline />
-                <p style={{ marginTop: "-2px" }}>{hotel.location}</p>
+                <p style={{ marginTop: "-2px" }}>{location}</p>
               </div>
 
               {/* <p>Check-in: Sep 7, 2025</p>
@@ -396,13 +500,14 @@ export default function BookingPage() {
                 Check-in & Check-out
               </p>
             </div>
+            
 
             <p style={{ padding: "7px 0px 5px 1px", color: "#2c2c2cff" }}>
-              {hotel.from ? formatDate(hotel.from) : "N/A"} -{" "}
-              {hotel.to ? formatDate(hotel.to) : "N/A"} (
-              {hotel.nights > 1
-                ? `${hotel.nights} Nights`
-                : `${hotel.nights} Night`}
+              {priceConfirmResponse?.parsedObject?.Success?.PriceDetails?.CheckInDate.split(" ")[0] || ""} -{" "}
+              {priceConfirmResponse?.parsedObject?.Success?.PriceDetails?.CheckOutDate.split(" ")[0]} (
+              {priceConfirmResponse?.nights > 1
+                ? `${priceConfirmResponse?.nights} Nights`
+                : `${priceConfirmResponse?.nights} Night`}
               )
             </p>
             <div
@@ -530,13 +635,15 @@ export default function BookingPage() {
               
               <p>
                 {/* {convertPrice(hotel.roomCost)} {Bhdcurrency} / Night x{" "} */}
-                {hotel.totalRooms} Room(s) x {hotel.nights} Night(s)
+                {priceConfirmResponse?.parsedObject?.Success?.PriceDetails?.HotelList?.length} Room(s) x {priceConfirmResponse?.nights} Night(s)
               </p>
             </div>
             <div className={styles.totalBoxee}>
               Total Amount
               <h4>
-                {(convertPrice(totalPrice) * hotel.nights).toFixed(2)}{" "}
+                
+                {/* {(convertPrice(priceConfirmResponse?.parsedObject?.Success?.PriceDetails?.HotelList?.[0]?.TotalPrice))}{" "} */}
+                {(convertPrice(finalPrice))}{" "}
                 {Bhdcurrency}
                 {/* {" "}
                 {convertPrice(
@@ -549,8 +656,17 @@ export default function BookingPage() {
 
           <div className={styles.policy}>
             <h4>Cancellation Policy</h4>
-            <p>Non-Refundable</p>
-          </div>
+
+{priceConfirmResponse?.parsedObject?.Success?.PriceDetails?.HotelList?.[0]
+  ?.CancellationPolicyList?.map((policy, index) => (
+    <div key={index}>
+      <p>Amount: {policy?.Amount}</p>
+      <p>From Date: {policy?.FromDate}</p>
+    </div>
+))}
+
+</div>
+
 
           <div className={styles.policy}>
             <h4>Important Information</h4>

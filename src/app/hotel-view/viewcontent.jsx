@@ -9,11 +9,28 @@ import RoomSelection from "../components/ChooseRoom";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import "../hotel-view/hotel.css";
+import { useHotelData } from "../Context/SelectHotelContext";
+import { useSelector } from "react-redux";
+import { useDispatch } from "react-redux";
+import Image from "next/image";
+import {
+  priceConfirmStart,
+  priceConfirmSuccess,
+  priceConfirmFailure
+} from "../redux/roomslice.js";
+
 
 export default function HotelView() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const buttonRef = useRef(null);
+
+  const dispatch = useDispatch();
+
+    const selectedHotelData = useSelector((state) => state.hotel.selectedHotel);
+    console.log("selected_data",selectedHotelData);
+
+  // const { apiResultsData, selectedHotelData } = useHotelData();
 
   const hotel_id = searchParams.get("hotelId");
 
@@ -39,19 +56,36 @@ export default function HotelView() {
   const [selectedRoomsInfo, setSelectedRoomsInfo] = useState(Array(requiredRooms).fill(null)); // slots
   const [currentRoomIndex, setCurrentRoomIndex] = useState(0);
   const [shake, setShake] = useState(false);
+  const [hotelId, sethotelId] = useState("");
+  const [checkIn, setcheckIn] = useState("");
+  const [checkOut, setcheckOut] = useState("");
+  const [loadingfetch, setLoadingfetch] = useState(false);
+  
 
   // --- useEffect: merge price_info + room_info into grouped rooms with variations
 useEffect(() => {
-  const s_hotel = sessionStorage.getItem("selectedHotel");
+  // const s_hotel = sessionStorage.getItem("selectedHotel");
 
-  if (!s_hotel) {
+  if (!selectedHotelData) {
     console.error("No rooms data found in sessionStorage.selectedHotel");
     setLoading(false);
     return;
   }
 
   try {
-    const apiResponse = JSON.parse(s_hotel);
+    const apiResponse = selectedHotelData;
+
+    const checkIn = apiResponse.checkIn || "";
+    const checkOut = apiResponse.checkOut || "";
+    const address = apiResponse.location?.address || "";
+
+    const hotel_Id = apiResponse.id || "";
+    sethotelId(hotel_Id);
+    setcheckIn(checkIn);
+    setcheckOut(checkOut);
+
+
+    const rating = apiResponse.starRating || "";
 
     const price_info = apiResponse.priceInfo?.RatePlanList || [];
     const room_info = apiResponse.rooms || [];
@@ -166,6 +200,12 @@ useEffect(() => {
             0,
           facilities,
           variations: [variation],
+
+          checkIn,
+          checkOut,
+          hotel_Id,
+          rating
+
         });
       } else {
         // Existing room → add variation
@@ -202,6 +242,7 @@ useEffect(() => {
       setMergedRooms(mergedArray);
       setBaseFilteredRooms(mergedArray);
       setFilteredRooms(mergedArray);
+      
     }
 
     setLoading(false);
@@ -211,12 +252,18 @@ useEffect(() => {
     );
 
     console.log("Merged grouped rooms:", mergedArray);
+    // console.log("Merged grouped rooms:", mergedArray[0].checkIn.split(" ")[0]);
   } catch (err) {
     console.error("Failed to parse selectedHotel:", err);
     setLoading(false);
     toast.error("Failed to load room data", { autoClose: 2000 });
   }
 }, []);
+
+// console.log(address);
+console.log("nights", selectedHotelData)
+
+
 
 
   // handle filter change (simple)
@@ -238,16 +285,98 @@ useEffect(() => {
     selectedRoomsInfo.some((s, idx) => s?.parentRoomId === roomId && idx !== currentRoomIndex);
 
   // handle choose variation for current slot
-  const handleChooseRoom = (parentRoomId, variation) => {
-    const updated = [...selectedRoomsInfo];
-    updated[currentRoomIndex] = { ...variation, parentRoomId };
-    setSelectedRoomsInfo(updated);
+ const handleChooseRoom = async (parentRoomId, variation) => {
+  const updated = [...selectedRoomsInfo];
+  updated[currentRoomIndex] = { ...variation, parentRoomId };
 
-    // auto-advance to next slot if available
-    if (currentRoomIndex < requiredRooms - 1) {
-      setCurrentRoomIndex((p) => p + 1);
+  // Log selected room
+  console.log("Selected room in current slot:", updated[currentRoomIndex]);
+  console.log("All selected rooms so far:", updated[0].metaData);
+  console.log("nights:", updated[0].nights);
+
+  setSelectedRoomsInfo(updated);
+
+  const allSelected = updated.filter(Boolean).length === requiredRooms;
+
+  // If all required rooms selected → call API
+  if (allSelected) {
+    try {
+      setLoadingfetch(true);
+
+      const body = {
+        PreBook: true,
+        CheckInDate: checkIn.split(" ")[0],
+        CheckOutDate: checkOut.split(" ")[0],
+        NumOfRooms: 1,
+        HotelID: hotelId,
+        OccupancyDetails: [
+          {
+            AdultCount: updated[0].adults,
+            ChildCount: updated[0].childs,
+            RoomNum: updated[0].RoomNum,
+            ChildAgeDetails: updated[0].childAges
+          }
+        ],
+        Currency: "USD",
+        Nationality: "PK",
+        RatePlanID:  updated[0].ratePlanId,
+        IsNeedOnRequest: false,
+        Metadata: updated[0].metaData
+      };
+
+      const res = await fetch("/api/priceConfirm", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify(body)
+      });
+
+      if (!res.ok) {
+        alert("API Error: Something went wrong!");
+        return;
+      }
+
+      const data = await res.json();
+      const modifiedData = {
+  ...data,
+  address: selectedHotelData.location?.address || "",
+  rating: selectedHotelData.starRating || "",
+  nights: updated[0].nights || "",
+  image: selectedHotelData.images[0].url,
+  Discounts: selectedHotelData.Discount,
+  Markups: selectedHotelData.Markup,
+
+};
+      dispatch(priceConfirmSuccess(modifiedData)); 
+      console.log(modifiedData);
+
+      if (!data.success) {
+        alert(`Error: ${data.error || "Unknown error"}`);
+        dispatch(priceConfirmFailure(data.error));
+        setLoadingfetch(false);
+        return;
+      }
+
+      router.push("/booking");
+    } catch (err) {
+      console.error(err);
+      alert("Network error! Please try again.");
+      setLoadingfetch(false);
+    } finally {
+      setLoadingfetch(false);
     }
-  };
+    return; // stop further execution
+  }
+
+  // If not all rooms selected, move to next room slot
+  if (currentRoomIndex < requiredRooms - 1) {
+    setCurrentRoomIndex((prev) => prev + 1);
+  }
+};
+
+
+
 
   // auto-scroll + shake when ready
   useEffect(() => {
@@ -261,20 +390,38 @@ useEffect(() => {
     }
   }, [selectedRoomsInfo, requiredRooms]);
 
+
   // proceed to booking
-  const proceedToBooking = () => {
-    const query = {
-      id: hotel.id,
-      nights: hotel.nights,
-      selectedRoom: JSON.stringify(selectedRoomsInfo.filter(Boolean)),
-    };
-    const qs = new URLSearchParams(query).toString();
-    router.push(`/booking?${qs}`);
-  };
+  // const proceedToBooking = () => {
+    
+  //   const query = {
+  //     id: hotel.id,
+  //     nights: hotel.nights,
+  //     selectedRoom: JSON.stringify(selectedRoomsInfo.filter(Boolean)),
+
+  //   };
+  //   const qs = new URLSearchParams(query).toString();
+  //   router.push(`/booking?${qs}`);
+  // };
 
   return (
     <>
       <Header />
+      {loadingfetch && (
+              <div className="loading-container">
+                <div className="box">
+                  <Image
+                    className="circular-left-right"
+                    src="/loading_ico.png"
+                    alt="Loading"
+                    width={200}
+                    height={200}
+                  />
+                  <p style={{ fontSize: "13px" }}>Please Wait...</p>
+                </div>
+              </div>
+            )}
+      
       <div className="hotel-view-container" style={{ padding: 12 }}>
         <h2 style={{ fontWeight: "bold", fontSize: 20 }}>Room Choice</h2>
 
@@ -285,7 +432,7 @@ useEffect(() => {
 
         <RoomSelection rooms={hotel.rooms} currentRoomIndex={currentRoomIndex} onRoomClick={setCurrentRoomIndex} />
 
-        <HotelFilterBar onFilterChange={handleFilterChange} />
+        {/* <HotelFilterBar onFilterChange={handleFilterChange} /> */}
 
         <div style={{ marginTop: 12 }}>
           {loading ? (
@@ -309,7 +456,7 @@ useEffect(() => {
           )}
         </div>
 
-        {selectedRoomsInfo.filter(Boolean).length === requiredRooms && (
+        {/* {selectedRoomsInfo.filter(Boolean).length === requiredRooms && (
           <div style={{ textAlign: "right", marginTop: 12 }}>
             <button
               ref={buttonRef}
@@ -328,7 +475,7 @@ useEffect(() => {
               Proceed to Booking
             </button>
           </div>
-        )}
+        )} */}
       </div>
 
       <Footer />

@@ -11,9 +11,9 @@ export function middleware(req) {
   const isMobileWallet = url.pathname.startsWith("/mobilewallet");
 
   // Detect if device is mobile using user-agent
-  const isMobile = /Android|iPhone|iPad|iPod|Opera Mini|IEMobile|WPDesktop/i.test(
-    userAgent
-  );
+  // const isMobile = /Android|iPhone|iPad|iPod|Opera Mini|IEMobile|WPDesktop/i.test(
+  //   userAgent
+  // );
 
   const isProtectedRoute =
     url.pathname.startsWith("/profile") ||
@@ -38,10 +38,10 @@ export function middleware(req) {
       return response;
     }
 
-    // Logged in but not on mobile → redirect to homepage
-    if (isLoggedIn && !isMobile) {
-      return NextResponse.redirect(new URL("/", req.url));
-    }
+    // // Logged in but not on mobile → redirect to homepage
+    // if (isLoggedIn && !isMobile) {
+    //   return NextResponse.redirect(new URL("/", req.url));
+    // }
 
     // Logged in and on mobile → allow access
     return NextResponse.next();

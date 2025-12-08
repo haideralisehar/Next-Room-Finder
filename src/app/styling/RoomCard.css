@@ -25,7 +25,8 @@
 
 
 .room-right {
-  flex: 2;
+  flex: 3;
+  
   border-left: 1px solid #eee;
   padding-left: 20px;
   display: flex;
@@ -127,8 +128,9 @@
 /* Variation box */
 .room-type-box {
   display: flex;
+  
   justify-content: space-between;
-  align-items: flex-start;
+  /* align-items: flex-start; */
   border-bottom: 1px solid #eee;
   padding: 0px 0px 15px 0px;
 }

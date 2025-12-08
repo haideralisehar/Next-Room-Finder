@@ -11,6 +11,7 @@ class WalletPopup extends Component {
       availableBalance: 0,
       creditBalance: 0,
       debitBalance: 0,
+       loyaltyPoints: 0,
       isMounted: false,
       loading: false,
       error: null,
@@ -43,26 +44,40 @@ class WalletPopup extends Component {
   };
 
   fetchWalletData = async (agencyId) => {
-    this.setState({ loading: true, error: null });
-    try {
-      const res = await fetch(`/api/wallet?agencyId=${agencyId}`);
-      if (!res.ok) {
-        console.log("Failed to fetch wallet balances");
-      }
+  this.setState({ loading: true, error: null });
 
-      const data = await res.json();
-      this.setState({
-        availableBalance: data.availableBalance,
-        creditBalance: data.creditBalance,
-        debitBalance: data.debitBalance,
-      });
-    } catch (err) {
-      console.error("Error fetching wallet:", err);
-      this.setState({ error: err.message });
-    } finally {
-      this.setState({ loading: false });
+  try {
+    // Call both API requests at the same time
+    const [walletRes, loyaltyRes] = await Promise.all([
+      fetch(`/api/wallet?agencyId=${agencyId}`),
+      fetch(`/api/getLotality?agencyId=${agencyId}`)
+    ]);
+
+    if (!walletRes.ok || !loyaltyRes.ok) {
+      console.log("Failed to fetch wallet or loyalty data");
     }
-  };
+
+    const walletData = await walletRes.json();
+    const loyaltyData = await loyaltyRes.json();
+
+    console.log(loyaltyData[0].value);
+
+    // Update state
+    this.setState({
+      availableBalance: walletData.availableBalance ?? 0,
+      creditBalance: walletData.creditBalance ?? 0,
+      debitBalance: walletData.debitBalance ?? 0,
+      loyaltyPoints: loyaltyData[0].value ?? 0, // coming from second API
+    });
+
+  } catch (err) {
+    console.error("Error fetching wallet:", err);
+    this.setState({ error: err.message });
+  } finally {
+    this.setState({ loading: false });
+  }
+};
+
 
   render() {
     if (!this.state.isMounted) return null;
@@ -72,6 +87,7 @@ class WalletPopup extends Component {
       availableBalance,
       creditBalance,
       debitBalance,
+      loyaltyPoints,
       loading,
       error,
     } = this.state;
@@ -84,7 +100,7 @@ class WalletPopup extends Component {
 
         {showPopup && (
           <div className="wallet-dropdown">
-            <h2>My Wallet</h2>
+            {/* <h2>My Wallet</h2> */}
             
 
 
@@ -98,26 +114,38 @@ class WalletPopup extends Component {
             ) : (
               <div className="wallet-balance-container">
                 <div className="wallet-balance">
-                  <span className="wallet-icon">💰</span>
+                  {/* <span className="wallet-icon">💰</span> */}
                   <div className="wallet-info">
+                    <h3>{availableBalance}</h3>
                     <p>Available Balance</p>
-                    <h3>${availableBalance}</h3>
+                    
                   </div>
                 </div>
 
                 <div className="wallet-balance credit">
-                  <span className="wallet-icon">🏛️</span>
+                  {/* <span className="wallet-icon">🏛️</span> */}
                   <div className="wallet-info">
+                    <h3>{creditBalance}</h3>
                     <p>Credit Balance</p>
-                    <h3>${creditBalance}</h3>
+                    
                   </div>
                 </div>
 
                 <div className="wallet-balance credit">
-                  <span className="wallet-icon">💸</span>
+                  {/* <span className="wallet-icon">💸</span> */}
                   <div className="wallet-info">
+                     <h3 style={{ color: "green" }}>{debitBalance}</h3>
                     <p>Debit Balance</p>
-                    <h3 style={{ color: "green" }}>${debitBalance}</h3>
+                   
+                  </div>
+                </div>
+
+                <div className="wallet-balance credit">
+                  {/* <span className="wallet-icon">💸</span> */}
+                  <div className="wallet-info">
+                    <h3 style={{ color: "rgba(36, 36, 36, 1)" }}>{loyaltyPoints}</h3>
+                    <p>Loyality Points</p>
+                    
                   </div>
                 </div>
               </div>

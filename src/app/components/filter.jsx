@@ -35,6 +35,9 @@ export default function Filters({
 
     setFilters((prev) => ({
       ...prev,
+      title: "",
+     rating: "",
+     minPrice: 0,
       priceRange: fullRange,
       maxPrice: computedMax,
     }));

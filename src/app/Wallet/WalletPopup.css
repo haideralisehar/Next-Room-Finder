@@ -45,12 +45,14 @@
   font-size: 15px;
   font-weight: 600;
   color: #333;
-  border-bottom: 1px solid #eee;
+  /* border-bottom: 1px solid #eee; */
   margin: 0;
 }
 
 .wallet-balance-container {
   padding: 8px 12px;
+  display: flex;
+  gap: 3px;
 }
 
 /* Balance blocks */

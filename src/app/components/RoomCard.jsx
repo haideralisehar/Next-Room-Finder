@@ -2,6 +2,7 @@
 import React, { useState } from "react";
 import "../styling/RoomCard.css";
 import { useCurrency } from "../Context/CurrencyContext";
+import { useSelector } from "react-redux";
 
 /**
  * Props:
@@ -24,12 +25,15 @@ export default function RoomCard({
   hotel_id
 }) {
   // currency context (fallbacks if missing)
-  const currencyCtx = useCurrency?.();
-  const currencyLabel = currencyCtx?.currency ?? "USD";
-  const convertPrice = currencyCtx?.convertPrice ?? ((v) => v);
+  // const currencyCtx = useCurrency?.();
+  // const currencyLabel = currencyCtx?.currency ?? "USD";
+  // const convertPrice = currencyCtx?.convertPrice ?? ((v) => v);
+
+  const { currency, convertPrice } = useCurrency();
 
   const [current, setCurrent] = useState(0);
   const [showAmenitiesPopup, setShowAmenitiesPopup] = useState(false);
+   const dictionaryTypes = useSelector((state) => state.search.dictionaryTypes);
 
   // images from room.roomDetails.images or fallback
   const images = room.roomDetails?.images?.length > 0
@@ -47,8 +51,8 @@ export default function RoomCard({
   if (typeof window === "undefined") return {};
 
   try {
-    const raw = sessionStorage.getItem("dictionaryTypes");
-    return raw ? JSON.parse(raw) : {};
+    const raw = dictionaryTypes;
+    return raw ;
   } catch (err) {
     console.error("Failed to parse dictionary types", err);
     return {};
@@ -165,8 +169,8 @@ const bedLabel = (code, amount) => {
                 </div>
 
                 <div className="price-box" style={{ textAlign: "right" }}>
-                  <div style={{ fontSize: 18, fontWeight: 700 }}>{variation.currency ?? currencyLabel} {convertPrice(variation.price).toFixed ? convertPrice(variation.price).toFixed(2) : variation.price}</div>
-                  <div style={{ fontSize: 13, color: "#666" }}>for {nights} night{nights > 1 ? "s" : ""}</div>
+                  <div style={{ fontSize: 18, fontWeight: 700 }}>{currency} {convertPrice(variation.raw?.TotalPrice)}</div>
+                  <div style={{ fontSize: 13, color: "#666" }}>for {variation.raw?.PriceList?.length} night{nights > 1 ? "s" : ""}</div>
 
                   <button
                     className={`choose-btn ${isThisSelected ? "active" : ""} ${isTaken ? "taken" : ""}`}
@@ -183,6 +187,22 @@ const bedLabel = (code, amount) => {
                       currency: variation.currency,
                       refundable: variation.refundable,
                       cancellation: variation.cancellation,
+                      metaData: variation.raw?.Metadata,
+                      nights: variation.raw?.PriceList?.length,
+                      adults: variation?.raw?.RoomOccupancy?.AdultCount,
+                      childs: variation?.raw?.RoomOccupancy?.ChildCount,
+                      childAges: variation?.raw?.RoomOccupancy?.ChildAgeDetails,
+                      RoomNum: variation?.raw?.RoomOccupancy?.RoomNum
+
+                      
+
+
+
+                      
+                      
+                      
+
+                      
                     })}
                     style={{
                       marginTop: 8,
@@ -230,3 +250,7 @@ const bedLabel = (code, amount) => {
     </div>
   );
 }
+
+
+
+

@@ -4,10 +4,10 @@ import React, { createContext, useContext, useState, useEffect } from "react";
 
 // Conversion rates (base: BHD)
 const conversionRates = {
-  BHD: 1,
-  USD: 2.65,
-  EUR: 2.45,
-  SAR: 9.95,
+  USD: 1,
+  BHD: 0.37736,
+  EUR: 0.8538,
+  SAR: 3.7,
 };
 
 const BhdCurrencyContext = createContext();

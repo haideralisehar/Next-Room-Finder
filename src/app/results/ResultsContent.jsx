@@ -1,8 +1,9 @@
+// src/app/results/page (or wherever your ResultsContent file is located) — replace the top-level imports to redux version
 "use client";
+
 import React, { useState, useEffect, useMemo } from "react";
 import { useSearchParams } from "next/navigation";
 import HotelSearchBar from "../components/RoomSearch";
-import { hotelsData } from "../HotelDetails/hoteldata.js";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
 import "../results/ResultsPage.css";
@@ -20,15 +21,29 @@ import HotelTabs from "../components/tabs";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 
+import { useSelector, useDispatch } from "react-redux";
+import {
+  setSelectedHotel,
+  setApiResults,
+} from "../redux/hotelSlice";
+
+import {setDictionaryTypes} from "../redux/searchSlice";
+
 const MapWithPrices = dynamic(() => import("../MapView/MapShow"), {
   ssr: false,
 });
 
 export default function ResultsContent() {
   const router = useRouter();
-
   const searchParams = useSearchParams();
   const { currency, convertPrice } = useCurrency();
+  const dispatch = useDispatch();
+
+  // get apiResults from redux
+  const apiResults = useSelector((s) => s.search.apiResults);
+  console.log(apiResults);
+  const loadingSearch = useSelector((s) => s.search.loading);
+
   const [loadingfetch, setLoadingfetch] = useState(false); // loader
 
   const [loading, setLoading] = useState(true);
@@ -42,15 +57,16 @@ export default function ResultsContent() {
   const [description, setDescription] = useState("");
   const handlePopupToggle = () => setShowPopup(!showPopup);
   const [showMap, setShowMap] = useState(true);
-  const [selectedHotel, setSelectedHotel] = useState(null);
+  const [selectedHotelLocal, setSelectedHotelLocal] = useState(null);
   const [starRating, setstarRating] = useState("");
+  const [selectedHotelData, setSelectedHotelData] = useState(null);
 
-  // Filters state (maxPrice will be set once results load)
+  // filters...
   const [filters, setFilters] = useState({
     title: "",
     rating: "",
     minPrice: 0,
-    maxPrice: 2000, // stored in CURRENT currency
+    maxPrice: 2000,
     priceRange: [0, 2000],
   });
 
@@ -65,84 +81,46 @@ export default function ResultsContent() {
 
   const [sortOption, setSortOption] = useState("price-low");
 
-  // Helpful: turn convertPrice output into a plain number robustly
   const parseConvertedNumber = (val) => {
     if (val === null || val === undefined) return 0;
-    // convertPrice may return a number or a formatted string like "1,234.56"
     const s = String(val);
-    // remove all except digits, dot and minus
     const cleaned = s.replace(/[^0-9.\-]/g, "");
     const n = parseFloat(cleaned);
     return Number.isFinite(n) ? n : 0;
   };
 
-  // Load and merge incoming API data
-  // useEffect(() => {
-  //   const stored = sessionStorage.getItem("hotelData");
-
-  //   if (!stored) {
-  //     console.error("No hotel data found in sessionStorage");
-  //     setLoading(false);
-  //     return;
-  //   }
-
-  //   const apiResponse = JSON.parse(stored);
-  //   const hotels = apiResponse.hotelDetails?.data || [];
-  //   const hotelList = apiResponse.prices?.Success?.PriceDetails?.HotelList || [];
-  //   const hotelListMap = new Map(hotelList.map((h) => [h.HotelID, h]));
-  //   const mergedHotels = hotels
-  //     .filter((hotel) => hotelListMap.has(hotel.id))
-  //     .map((hotel) => ({ ...hotel, priceInfo: hotelListMap.get(hotel.id) }));
-
-  //   setTimeout(() => {
-  //     const dest = searchParams.get("destination") || "";
-  //     const f = searchParams.get("checkIn") || "";
-  //     const t = searchParams.get("checkOut") || "";
-  //     const d = searchParams.get("description");
-
-  //     let r = [];
-  //     try {
-  //       r = searchParams.get("rooms")
-  //         ? JSON.parse(decodeURIComponent(searchParams.get("rooms")))
-  //         : [];
-  //     } catch (e) {
-  //       console.error("Invalid rooms data:", e);
-  //     }
-
-  //     setDestination(dest);
-  //     setFrom(f);
-  //     setTo(t);
-  //     setNights(searchParams.get("nights") || "");
-  //     setRooms(r);
-  //     setDescription(d);
-
-  //     setResults(mergedHotels);
-
-  //     setLoading(false);
-
-  //   }, 300);
-  //   // eslint-disable-next-line react-hooks/exhaustive-deps
-  // }, [searchParams]);
-
   useEffect(() => {
     const loadData = () => {
-      const stored = sessionStorage.getItem("hotelData");
-
-      if (!stored) {
-        console.error("No hotel data found in sessionStorage");
+      if (!apiResults) {
+        console.log("No hotel data found in redux");
         setLoading(false);
         return;
       }
 
-      const apiResponse = JSON.parse(stored);
-      const hotels = apiResponse.hotelDetails?.data || [];
-      const hotelList =
-        apiResponse.prices?.Success?.PriceDetails?.HotelList || [];
-      const hotelListMap = new Map(hotelList.map((h) => [h.HotelID, h]));
+      
 
-      const mergedHotels = hotels
-        .filter((hotel) => hotelListMap.has(hotel.id))
-        .map((hotel) => ({ ...hotel, priceInfo: hotelListMap.get(hotel.id) }));
+
+      const date_check_in =
+  apiResults.prices?.Success?.PriceDetails?.CheckInDate || "";
+const date_check_out =
+  apiResults.prices?.Success?.PriceDetails?.CheckOutDate || "";
+
+const hotels = apiResults.hotelDetails?.data || [];
+const hotelList =
+  apiResults.prices?.Success?.PriceDetails?.HotelList || [];
+
+const hotelListMap = new Map(hotelList.map((h) => [h.HotelID, h]));
+
+// ✅ Add check-in / check-out inside mergedHotels
+const mergedHotels = hotels
+  .filter((hotel) => hotelListMap.has(hotel.id))
+  .map((hotel) => ({
+    ...hotel,
+    priceInfo: hotelListMap.get(hotel.id),
+    checkIn: date_check_in,
+    checkOut: date_check_out,
+  }));
+
 
       setTimeout(() => {
         const dest = searchParams.get("destination") || "";
@@ -173,26 +151,20 @@ export default function ResultsContent() {
       }, 300);
     };
 
-    // 🔹 first load when page opens
     loadData();
 
-    // 🔹 update when new search happens from results page
     const handleUpdate = () => {
       loadData();
-      clearFilters();
     };
 
     window.addEventListener("hotelDataUpdated", handleUpdate);
-
     return () => window.removeEventListener("hotelDataUpdated", handleUpdate);
+  }, [searchParams.toString(), apiResults]);
 
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [searchParams]);
+  console.log("hotels",apiResults);
 
-  // Recompute converted prices and maxPrice whenever results OR currency change
   useEffect(() => {
     if (!results || results.length === 0) {
-      // if no results, keep defaults but ensure priceRange consistent
       setFilters((prev) => ({
         ...prev,
         maxPrice: prev.maxPrice || 2000,
@@ -203,32 +175,24 @@ export default function ResultsContent() {
       return;
     }
 
-    // compute converted numeric price for each hotel
     const convertedPrices = results
       .map((h) => {
         const raw = Number(h?.priceInfo?.LowestPrice?.Value) || 0;
-        const conv = parseConvertedNumber(convertPrice(raw)); // number in current currency
+        const conv = parseConvertedNumber(convertPrice(raw));
         return Number.isFinite(conv) && conv > 0 ? conv : 0;
       })
       .filter((p) => p > 0);
 
-    const highest = convertedPrices.length
-      ? Math.ceil(Math.max(...convertedPrices))
-      : 2000;
+    const highest = convertedPrices.length ? Math.ceil(Math.max(...convertedPrices)) : 2000;
 
     setFilters((prev) => {
       const newMax = Math.max(highest, 1);
-      const prevMin = Array.isArray(prev.priceRange)
-        ? Number(prev.priceRange[0] || 0)
-        : 0;
-      const prevMax = Array.isArray(prev.priceRange)
-        ? Number(prev.priceRange[1] || newMax)
-        : newMax;
+      const prevMin = Array.isArray(prev.priceRange) ? Number(prev.priceRange[0] || 0) : 0;
+      const prevMax = Array.isArray(prev.priceRange) ? Number(prev.priceRange[1] || newMax) : newMax;
 
       const clampedMax = Math.min(prevMax, newMax);
       const clampedMin = Math.min(Math.max(prevMin, 0), clampedMax);
 
-      // only update when necessary
       if (
         prev.maxPrice === newMax &&
         prev.priceRange?.[0] === clampedMin &&
@@ -243,10 +207,8 @@ export default function ResultsContent() {
         priceRange: [clampedMin, clampedMax],
       };
     });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [results, currency]);
 
-  // Filter + sort results using converted prices
   const filteredResults = useMemo(() => {
     if (!results) return [];
 
@@ -258,7 +220,6 @@ export default function ResultsContent() {
     let data = results.filter((hotel) => {
       const convPrice = applyConvertedPrice(hotel);
 
-      // Title filter
       if (
         filters.title &&
         !hotel?.name?.toLowerCase().includes(filters.title.toLowerCase())
@@ -266,7 +227,6 @@ export default function ResultsContent() {
         return false;
       }
 
-      // Rating
       const r = Number(hotel?.starRating || 0);
       if (filters.rating) {
         if (filters.rating === "4+" && r < 4) return false;
@@ -275,19 +235,15 @@ export default function ResultsContent() {
         if (filters.rating === "1+" && r < 1) return false;
       }
 
-      // Price range (compare converted prices)
       const [minP = 0, maxP = filters.maxPrice || 0] = filters.priceRange || [];
       if (convPrice < minP || convPrice > maxP) return false;
 
       return true;
     });
 
-    // Sorting: use converted prices for price sorts
     if (sortOption) {
       const getConv = (h) =>
-        parseConvertedNumber(
-          convertPrice(Number(h?.priceInfo?.LowestPrice?.Value || 0))
-        );
+        parseConvertedNumber(convertPrice(Number(h?.priceInfo?.LowestPrice?.Value || 0)));
       data = [...data].sort((a, b) => {
         const pa = getConv(a);
         const pb = getConv(b);
@@ -310,7 +266,7 @@ export default function ResultsContent() {
   }, [results, filters, sortOption, currency]);
 
   console.log("Hotel_List", results);
-  console.log("selected_Hotel", selectedHotel);
+  console.log("selected_Hotel", selectedHotelLocal);
 
   if (loading) {
     return (
@@ -337,6 +293,7 @@ export default function ResultsContent() {
     <>
       <Header />
       <HotelSearchBar
+
         initialData={{
           destination: destination,
           checkIn: from,
@@ -348,7 +305,9 @@ export default function ResultsContent() {
               ? rooms
               : [{ adults: 1, children: 0, childrenAges: [] }],
         }}
+        onClearFilters={clearFilters}   // ⭐ ADD THIS
       />
+      
 
       {loadingfetch && (
         <div className="loading-container">
@@ -551,7 +510,7 @@ export default function ResultsContent() {
                                     fontSize: "13px",
                                     paddingLeft: "3px",
                                   }}
-                                  onClick={() => setSelectedHotel(hotel)}
+                                  onClick={() => setSelectedHotelData(hotel)}
                                 >
                                   See More
                                 </p>
@@ -577,54 +536,47 @@ export default function ResultsContent() {
                                     marginTop: "10px",
                                     cursor: "pointer",
                                   }}
-                                  //   onClick={() => {
+                                 onClick={async () => {
+  try {
+    setLoadingfetch(true);
 
-                                  //     sessionStorage.setItem(
-                                  //       "selectedHotel",
-                                  //       JSON.stringify(hotel)
-                                  //     );
-                                  //     router.push(
-                                  //       `/hotel-view?hotelId=${hotel.id}`
-                                  //     );
-                                  //   }}
-                                  // >
+    // 1️⃣ Call API
+    const res = await fetch("/api/all_types");
+    const data = await res.json();
 
-                                  onClick={async () => {
-                                    try {
-                                      setLoadingfetch(true);
-                                      // 1️⃣ Fetch API
-                                      const res = await fetch("/api/all_types");
-                                      const data = await res.json();
+    if (!data.success) {
+      console.error("API Error:", data.error);
+      setLoadingfetch(false);
+      return;
+    }
 
-                                      if (!data.success) {
-                                        console.error("API Error:", data.error);
-                                        setLoadingfetch(false);
-                                        return;
-                                      }
+    const modiData = {
+      ...hotel,
+      Discount: apiResults.appliedDiscount || "",
+      Markup: apiResults.appliedMarkup || "",
+      
 
-                                      setLoadingfetch(false);
+    }
 
-                                      // 2️⃣ Save selected hotel
-                                      sessionStorage.setItem(
-                                        "selectedHotel",
-                                        JSON.stringify(hotel)
-                                      );
+    // 2️⃣ Save selected hotel in Redux
+    dispatch(setSelectedHotel(modiData));
 
-                                      // 3️⃣ Save API response
-                                      sessionStorage.setItem(
-                                        "dictionaryTypes",
-                                        JSON.stringify(data.data)
-                                      );
+    // 3️⃣ Save dictionary / types / API results
+    dispatch(setDictionaryTypes(data.data));
+    dispatch(setApiResults(data.data));
 
-                                      // 4️⃣ Redirect
-                                      router.push(
-                                        `/hotel-view?hotelId=${hotel.id}`
-                                      );
-                                    } catch (error) {
-                                      console.error("Failed to fetch:", error);
-                                      setLoadingfetch(false);
-                                    }
-                                  }}
+    setLoadingfetch(false);
+
+    // 4️⃣ Redirect to hotel-view page
+    // router.push(`/hotel-view?hotelId=${hotel.id}`);
+    window.open(`/hotel-view?hotelId=${hotel.id}`, "_blank");
+
+  } catch (error) {
+    console.error("Failed to fetch:", error);
+    setLoadingfetch(false);
+  }
+}}
+
                                 >
                                   Book Now
                                 </button>
@@ -634,7 +586,7 @@ export default function ResultsContent() {
                         );
                       })}
 
-                      {selectedHotel && (
+                      {selectedHotelData && (
                         <div className="popup-overlay-room">
                           <div className="popup-content-room">
                             <button

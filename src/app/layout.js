@@ -1,37 +1,46 @@
 import "./globals.css";
 import GoogleTranslateLoader from "../app/components/GoogleTranslateLoader";
 import LanguageSwitcher from "../app/components/LanguageSwitcher";
-import {Jost} from "next/font/google";
+import { Jost } from "next/font/google";
 import { CurrencyProvider } from "../app/Context/CurrencyContext";
-import {BhdCurrencyProvider} from "../app/Context/BHDCurrency"
+import { BhdCurrencyProvider } from "../app/Context/BHDCurrency";
 // import { HotelProvider } from "../app/Context/HotelContext";
+import { HotelSearchProvider } from "../app/Context/HotelSearchContext";
+import { HotelProvider } from "../app/Context/SelectHotelContext";
+import  Providers  from "../app/providers";
 
 
 const jost = Jost({
-  subsets:['latin']
-})
+  subsets: ["latin"],
+});
 
 export default function RootLayout({ children }) {
   return (
     <html lang="en">
-      
       <head>
         <title>City In Booking</title>
-        <meta name="description" content="This is my awesome Next.js application" />
+        <meta
+          name="description"
+          content="This is my awesome Next.js application"
+        />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
-        
       </head>
       <body className={jost.className}>
         {/* Load hidden Google widget */}
-       
+
         <GoogleTranslateLoader />
         <BhdCurrencyProvider>
-        <CurrencyProvider>
-           {/* <HotelProvider> */}
-           
-        {children}
-        {/* </HotelProvider> */}
-        </CurrencyProvider>
+          <CurrencyProvider>
+            {/* <HotelSearchProvider>
+               <HotelProvider> */}
+            <Providers>
+              
+                {children}
+              
+            </Providers>
+            {/* </HotelProvider>
+        </HotelSearchProvider> */}
+          </CurrencyProvider>
         </BhdCurrencyProvider>
       </body>
     </html>

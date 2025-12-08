@@ -1,3 +1,4 @@
+// src/components/RoomSearch.jsx  (replace your existing file)
 "use client";
 import React, { useState, useEffect } from "react";
 import { DateRange } from "react-date-range";
@@ -6,30 +7,35 @@ import Image from "next/image";
 import {
   FaSearch,
   FaUser,
-  FaUserAlt ,
-
   FaMinus,
   FaPlus,
   FaTrash,
   FaCalendarAlt,
 } from "react-icons/fa";
-
 import { MdPerson } from "react-icons/md";
 import "react-date-range/dist/styles.css";
 import "react-date-range/dist/theme/default.css";
 import "../styling/HotelSearchBar.css";
 import CountrySelector from "../components/CountrySelector";
 
-export default function HotelSearchBar({ initialData }) {
-  const router = useRouter();
+import { useDispatch, useSelector } from "react-redux";
+import {
+  setSearchPayload,
+  performSearchThunk,
+} from "../redux/searchSlice";
 
-  const [loadingfetch, setLoadingfetch] = useState(false); // loader
+export default function HotelSearchBar({ initialData, onClearFilters }) {
+  const router = useRouter();
+  const dispatch = useDispatch();
+  const searchState = useSelector((s) => s.search);
+
+  const [loadingfetch, setLoadingfetch] = useState(false);
 
   const [formData, setFormData] = useState({
     destination: initialData?.destination || "",
     checkIn: initialData?.checkIn || "",
     checkOut: initialData?.checkOut || "",
-    starRating: initialData?.starRating || "3",   // ⭐ NEW FIELD
+    starRating: initialData?.starRating || "3",
     rooms:
       initialData?.rooms && Array.isArray(initialData.rooms) && initialData.rooms.length > 0
         ? initialData.rooms
@@ -38,7 +44,6 @@ export default function HotelSearchBar({ initialData }) {
 
   const [showRoomPopup, setShowRoomPopup] = useState(false);
   const [showDatePicker, setShowDatePicker] = useState(false);
-  
 
   const today = new Date();
   const tomorrow = new Date();
@@ -56,8 +61,6 @@ export default function HotelSearchBar({ initialData }) {
     }));
   }, [dateRange]);
 
- 
-
   const formatDate = (date) => {
     const d = date.getDate();
     const m = date.getMonth() + 1;
@@ -65,9 +68,6 @@ export default function HotelSearchBar({ initialData }) {
     return `${y}-${String(m).padStart(2, "0")}-${String(d).padStart(2, "0")}`;
   };
 
-  // ----------------------------
-  // Room management functions (added back)
-  // ----------------------------
   const handleAddRoom = () => {
     setFormData((prev) => ({
       ...prev,
@@ -110,9 +110,7 @@ export default function HotelSearchBar({ initialData }) {
     updated[roomIndex].childrenAges[childIndex] = newAge;
     setFormData((prev) => ({ ...prev, rooms: updated }));
   };
-  // ----------------------------
 
-  // Submit search -> call backend route, save response to sessionStorage, navigate
   const submitSearch = async () => {
     if (!formData.destination && !formData.starRating) {
       alert("Please select a destination!");
@@ -122,48 +120,41 @@ export default function HotelSearchBar({ initialData }) {
     setLoadingfetch(true);
 
     const totalRooms = formData.rooms.length;
-    
     const totalAdults = formData.rooms.reduce((s, r) => s + r.adults, 0);
-    
-    console.log(totalRooms);
+    const totalChildren = formData.rooms.reduce((s, r) => s + r.children, 0);
+
+    const allChildAges = formData.rooms
+      .flatMap((r) => r.childrenAges)
+      .map((age) => Number(age));
+
+
     const requestBody = {
       countryCode: formData.destination,
       checkIn: formData.checkIn,
       checkOut: formData.checkOut,
       rooms: totalRooms,
       adults: totalAdults,
+      children: totalChildren,
+      childAges: allChildAges,
       currency: "USD",
       nationality: formData.destination,
-      starRating: formData.starRating ? Number(formData.starRating) : null, // ⭐ NEW
+      starRating: formData.starRating ? Number(formData.starRating) : null,
     };
 
-    try {
-      const res = await fetch("/api/hotelsearch", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(requestBody),
-      });
+    // Save request for reuse in Redux
+    dispatch(setSearchPayload(requestBody));
 
-      const data = await res.json();
-      console.log("API Response:", data);
+    // Dispatch thunk to perform search and save results in Redux
+    await dispatch(performSearchThunk(requestBody));
 
-      sessionStorage.setItem("hotelData", JSON.stringify(data));
-      
-window.dispatchEvent(new Event("hotelDataUpdated"));
+    // navigate to results page (keeps previous query string behavior)
+    router.push(
+      `/results?destination=${formData.destination}&checkIn=${formData.checkIn}&checkOut=${formData.checkOut}&rooms=${encodeURIComponent(
+        JSON.stringify(formData.rooms)
+      )}&starRating=${formData.starRating}`
+    );
 
-    
-
-      router.push(
-        `/results?destination=${formData.destination}&checkIn=${formData.checkIn}&checkOut=${formData.checkOut}&rooms=${encodeURIComponent(
-          JSON.stringify(formData.rooms)
-        )}&starRating=${formData.starRating}`
-      );
-    } catch (error) {
-      console.error("Search API error:", error);
-      alert("Error fetching hotel data.");
-    } finally {
-      setLoadingfetch(false);
-    }
+    setLoadingfetch(false);
   };
 
   const handleCountrySelect = (countryName) => {
@@ -172,6 +163,8 @@ window.dispatchEvent(new Event("hotelDataUpdated"));
       destination: countryName.code,
     }));
   };
+
+  
 
   const getRoomSummary = () => {
     const totalRooms = formData.rooms.length;
@@ -184,27 +177,25 @@ window.dispatchEvent(new Event("hotelDataUpdated"));
 
   return (
     <>
-      {/* loader overlay */}
       {loadingfetch && (
-       <div className="loading-container">
-  <div className="box">
-    <Image
-      className="circular-left-right"
-      src="/loading_ico.png"
-      alt="Loading"
-      width={200}
-      height={200}
-    />
-    <p style={{ fontSize: "13px" }}>Please Wait...</p>
-  </div>
-</div>
-
+        <div className="loading-container">
+          <div className="box">
+            <Image
+              className="circular-left-right"
+              src="/loading_ico.png"
+              alt="Loading"
+              width={200}
+              height={200}
+            />
+            <p style={{ fontSize: "13px" }}>Please Wait...</p>
+          </div>
+        </div>
       )}
- {/* <div className="spinner"></div> */}
+
       <div className={`search-bar ${loadingfetch ? "disabled" : ""}`}>
         <div className="search-box">
           <FaSearch className="icon" />
-          
+
           <CountrySelector
             selectedCountry={formData.destination}
             onCountrySelect={handleCountrySelect}
@@ -212,11 +203,8 @@ window.dispatchEvent(new Event("hotelDataUpdated"));
           />
         </div>
 
-        {/* DATE RANGE SELECTOR */}
         <div className="search-box date-box">
           <FaCalendarAlt className="icon" />
-          
-           {/* 𝄜 */}
           <input
             readOnly
             value={
@@ -264,48 +252,35 @@ window.dispatchEvent(new Event("hotelDataUpdated"));
           )}
         </div>
 
-        {/*startRaTING */}
+        <div className="search-box-rate">
+          <select
+            value={formData.starRating}
+            onChange={(e) =>
+              setFormData((prev) => ({ ...prev, starRating: e.target.value }))
+            }
+          >
+            <option value="">Star Rating</option>
+            <option value="1">1+ star</option>
+            <option value="2">2+ star</option>
+            <option value="3">3+ star</option>
+            <option value="4">4+ star</option>
+            <option value="5">5+ star</option>
+          </select>
+        </div>
 
-        {/* STAR RATING DROPDOWN */}
-<div className="search-box-rate">
-  <select
-    value={formData.starRating}
-    onChange={(e) =>
-      setFormData((prev) => ({ ...prev, starRating: e.target.value }))
-    }
-  >
-    <option value="">Star Rating</option>
-    <option value="1">1+ star</option>
-    <option value="2">2+ star</option>
-    <option value="3">3+ star</option>
-    <option value="4">4+ star</option>
-    <option value="5">5+ star</option>
-  </select>
-</div>
-
-
-        {/* ROOMS */}
         <div
           className="search-box"
           onClick={() => !loadingfetch && setShowRoomPopup(true)}
         >
-          <MdPerson size={17}  className="icon" />
-          {/* <p style={{color:"black"}}>👤</p> */}
+          <MdPerson size={17} className="icon" />
           <input readOnly value={getRoomSummary()} />
         </div>
 
-        {/* SEARCH BUTTON */}
-        <button
-          className="search-btn"
-          onClick={submitSearch}
-          disabled={loadingfetch}
-        >
-          {/* <FaSearch />  */}
+        <button className="search-btn" onClick={submitSearch} disabled={loadingfetch}>
           Search
         </button>
       </div>
 
-      {/* ROOM POPUP (If Not Loading) */}
       {!loadingfetch && showRoomPopup && (
         <div className="popup-overlay">
           <div className="popup">
@@ -321,16 +296,12 @@ window.dispatchEvent(new Event("hotelDataUpdated"));
                 <div className="room-header">
                   <h3>Room {index + 1}</h3>
                   {index > 0 && (
-                    <button
-                      className="delete-room-btn"
-                      onClick={() => handleRemoveRoom(index)}
-                    >
+                    <button className="delete-room-btn" onClick={() => handleRemoveRoom(index)}>
                       <FaTrash /> Delete
                     </button>
                   )}
                 </div>
 
-                {/* Adults */}
                 <div className="counter">
                   <label>Adults</label>
                   <button onClick={() => handleCounter(index, "adults", -1)}>
@@ -342,7 +313,6 @@ window.dispatchEvent(new Event("hotelDataUpdated"));
                   </button>
                 </div>
 
-                {/* Children */}
                 <div className="counter">
                   <label>Children</label>
                   <button onClick={() => handleCounter(index, "children", -1)}>
@@ -354,7 +324,6 @@ window.dispatchEvent(new Event("hotelDataUpdated"));
                   </button>
                 </div>
 
-                {/* Children Ages */}
                 {room.children > 0 && (
                   <div className="children-ages">
                     {room.childrenAges.map((age, i) => (
@@ -362,9 +331,7 @@ window.dispatchEvent(new Event("hotelDataUpdated"));
                         <label>Child {i + 1} Age</label>
                         <select
                           value={age}
-                          onChange={(e) =>
-                            handleChildrenAgeChange(index, i, e.target.value)
-                          }
+                          onChange={(e) => handleChildrenAgeChange(index, i, e.target.value)}
                         >
                           {Array.from({ length: 18 }).map((_, ageVal) => (
                             <option key={ageVal} value={ageVal}>
@@ -382,10 +349,7 @@ window.dispatchEvent(new Event("hotelDataUpdated"));
             <button className="add-room-btn" onClick={handleAddRoom}>
               + Add Room
             </button>
-            <button
-              className="close-btn-do"
-              onClick={() => setShowRoomPopup(false)}
-            >
+            <button className="close-btn-do" onClick={() => setShowRoomPopup(false)}>
               Done
             </button>
           </div>
