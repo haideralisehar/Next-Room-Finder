@@ -314,7 +314,7 @@ console.log("nights", selectedHotelData)
             AdultCount: updated[0].adults,
             ChildCount: updated[0].childs,
             RoomNum: updated[0].RoomNum,
-            ChildAgeDetails: updated[0].childAges
+            ChildAgeDetails: updated[0].childAges || []
           }
         ],
         Currency: "USD",
