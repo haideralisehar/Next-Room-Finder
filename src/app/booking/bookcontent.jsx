@@ -12,6 +12,7 @@ import { useBhdCurrency } from "../Context/BHDCurrency";
 import TermsAndConditions from "../terms-conditions/page";
 import CountrySelector from "../components/CountrySelector";
 import { useSelector } from "react-redux";
+import Image from "next/image";
 
 export default function BookingPage() {
   const { Bhdcurrency, convertPrice } = useBhdCurrency();
@@ -30,12 +31,23 @@ export default function BookingPage() {
   const [starRating, setstarRating] = useState("");
   const [location, setlocation] = useState("");
   const [hotelName, sethotelName] = useState("");
-
+  const [loadingfetch, setLoadingfetch] = useState(false);
+  const room =
+    priceConfirmResponse?.parsedObject?.Success?.PriceDetails?.HotelList?.[0]?.RatePlanList?.[0]?.RoomOccupancy;
+    const Room_Name =
+    priceConfirmResponse?.parsedObject?.Success?.PriceDetails?.HotelList?.[0]?.RatePlanList?.[0]?.RatePlanName;
+console.log("room, ", room);
   console.log("selected_datas",priceConfirmResponse);
 
   function applyDiscountAndMarkup(priceConfirmResponse) {
   const hotel =
     priceConfirmResponse?.parsedObject?.Success?.PriceDetails?.HotelList?.[0];
+    
+
+    
+    
+
+
 
   if (!hotel) {
     console.error("HotelList[0] not found");
@@ -75,6 +87,7 @@ export default function BookingPage() {
 const finalPrice = applyDiscountAndMarkup(priceConfirmResponse);
 
 console.log(finalPrice);
+
 
 
   // Load from localStorage on mount
@@ -187,7 +200,7 @@ console.log(finalPrice);
   const handleCountrySelect = (countryName) => {
     setFormData((prev) => ({
       ...prev,
-      countryCode: countryName,
+      countryCode: countryName.code,
     }));
   };
 
@@ -211,9 +224,12 @@ console.log(finalPrice);
     }
 
     setLoading(true);
+    setLoadingfetch(true);
 
     try {
-      const amount = (convertPrice(totalPrice) * hotel.nights).toFixed(2);
+      const finalPrice = applyDiscountAndMarkup(priceConfirmResponse);
+      const reference =
+    priceConfirmResponse?.parsedObject?.Success?.PriceDetails?.ReferenceNo;
 
       const response = await fetch("/api/tap/create", {
         method: "POST",
@@ -221,7 +237,7 @@ console.log(finalPrice);
         body: JSON.stringify({
           studentId: 101,
           logId: 5001,
-          amount,
+          amount: convertPrice(finalPrice),
           customer: {
             firstName: formData.firstName,
             lastName: formData.lastName,
@@ -230,15 +246,23 @@ console.log(finalPrice);
             country_Code: formData.countryCode,
           },
 
+          metadata: {
+        booking_reference: reference,
+        room_num: room?.RoomNum
+      },
+
           
         }),
       });
 
       const data = await response.json();
+      setLoadingfetch(false);
+      
 
       // ✅ Handle Tap API response clearly
       if (response.ok && data?.url) {
         window.location.href = data.url;
+         setLoadingfetch(false);
       } else {
         console.error("Payment Error:", data);
         const message =
@@ -246,12 +270,15 @@ console.log(finalPrice);
             ? JSON.stringify(data.error)
             : data.error || "Unable to process payment.";
         alert("Error: " + message);
+         setLoadingfetch(false);
       }
     } catch (err) {
       console.error("Payment Exception:", err);
       alert("Payment failed: " + err.message);
+       setLoadingfetch(false);
     } finally {
       setLoading(false);
+       setLoadingfetch(false);
     }
   };
 
@@ -289,6 +316,21 @@ console.log(finalPrice);
         </div>
       ))}
     </div> */}
+
+    {loadingfetch && (
+            <div className="loading-container">
+              <div className="box">
+                <Image
+                  className="circular-left-right"
+                  src="/loading_ico.png"
+                  alt="Loading"
+                  width={200}
+                  height={200}
+                />
+                <p style={{ fontSize: "13px" }}>Please Wait...</p>
+              </div>
+            </div>
+          )}
 
       <div className={styles.container}>
         {/* Left Form */}
@@ -522,109 +564,66 @@ console.log(finalPrice);
               {/* <h4>Selected Rooms:</h4> */}
               <div className="selected-rooms">
                 {/* <h4>Selected Rooms:</h4> */}
-                {hotel.rooms.length > 0 && hotel.SelectedRoom.length > 0 ? (
-                  hotel.rooms.map((r, i) => {
-                    const selectedRoomData = hotel.SelectedRoom[i]; // Match by index
-                    return (
-                      <div key={i} style={{ padding: "5px 0px" }}>
-                        <div
-                          style={{
-                            display: "flex",
-                            flexDirection: "column",
-                            gap: "5px",
-                            borderTop: "1px solid #ebebeb",
-                            paddingTop: "15px",
-                            paddingBottom: "0px",
-                          }}
-                        >
-                          {/* Room number & guest info */}
-                          <div
-                            style={{
-                              display: "flex",
-                              gap: "10px",
-                              alignItems: "center",
-                            }}
-                          >
-                            <div
-                              style={{
-                                backgroundColor: "#dcebecff",
-                                padding: "0.5px 10px",
-                                borderRadius: "30px",
-                              }}
-                            >
-                              <p style={{ color: "black" }}>Room {i + 1}</p>
-                            </div>
+               {room ? (
+  <div
+    style={{
+      display: "flex",
+      alignItems: "center",
+      gap: "6px",
+      padding: "10px 0",
+      flexWrap: "wrap",
+    }}
+  >
+    {/* Room Number */}
+    <div
+      style={{
+        backgroundColor: "#dcebecff",
+        padding: "4px 14px",
+        borderRadius: "30px",
+      }}
+    >
+      <p style={{ margin: 0, color: "black" }}>Room {room.RoomNum || 1}</p>
+    </div>
 
-                            <p style={{ color: "black" }}>
-                              {r.adults > 1
-                                ? `${r.adults} Adults`
-                                : `${r.adults} Adult`}
-                            </p>
+    
+      
+    {/* Adults */}
+    <p style={{ margin: 0, color: "black" }}>
+      {room.AdultCount > 1
+        ? `${room.AdultCount} Adults`
+        : `${room.AdultCount} Adult`}
+    </p>
 
-                            {r.children > 0 && (
-                              <ul
-                                style={{
-                                  display: "flex",
-                                  gap: "10px",
-                                  listStyle: "none",
-                                  padding: 0,
-                                  margin: 0,
-                                  flexWrap: "wrap",
-                                }}
-                              >
-                                {r.childrenAges?.map((age, idx) => (
-                                  <p key={idx} style={{ color: "black" }}>
-                                    {idx + 1} Child ({age}y)
-                                  </p>
-                                ))}
-                              </ul>
-                            )}
-                          </div>
+     
+    
 
-                          {/* Room title & price */}
-                          {selectedRoomData && (
-                            <div style={{ marginTop: "10px" }}>
-                              <p
-                                style={{
-                                  fontWeight: "bold",
-                                  color: "black",
-                                  paddingBottom: "10px",
-                                  paddingLeft: "10px",
-                                  paddingRight: "10px",
-                                }}
-                              >
-                                {selectedRoomData.roomName} (
-                                {selectedRoomData.mealPlan})
-                              </p>
-                              <div
-                                style={{
-                                  display: "flex",
-                                  justifyContent: "space-between",
-                                  paddingLeft: "10px",
-                                  paddingRight: "10px",
-                                }}
-                              >
-                                <p>
-                                  {convertPrice(selectedRoomData.price)}{" "}
-                                  {Bhdcurrency} per night
-                                </p>
-                                <p
-                                  style={{ fontWeight: "bold", color: "black" }}
-                                >
-                                  {convertPrice(selectedRoomData.price)}{" "}
-                                  {Bhdcurrency}
-                                  {/* {hotel.roomprice}</p> */}{" "}
-                                </p>
-                              </div>
-                            </div>
-                          )}
-                        </div>
-                      </div>
-                    );
-                  })
-                ) : (
-                  <p>No rooms selected</p>
-                )}
+    {/* Children + Ages */}
+    {room.ChildCount > 0 && (
+      <div
+        style={{
+          display: "flex",
+          gap: "10px",
+          flexWrap: "wrap",
+          alignItems: "center",
+        }}
+      >
+        {room.ChildAgeDetails?.map((age, index) => (
+          <p key={index} style={{ margin: 0, color: "black" }}>
+            Child {index + 1} ({age}y)
+          </p>
+        ))}
+      </div>
+    )}
+  </div>
+) : (
+  <p>No room data</p>
+)}
+
+<p style={{fontWeight:"bold", color:"black", padding:"6px 0px 0px 4px"}}>{Room_Name}</p>
+
+
+
+
               </div>
             </div>
           </div>

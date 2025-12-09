@@ -78,7 +78,7 @@ export default function CountrySelector({ show_label=true,selectedCountry, onCou
         onFocus={() => {
           if (!justSelectedRef.current && search) setShowSuggestions(true);
         }}
-        className={styles.searchInput}
+        className={styles.searchInputs}
         autoComplete="off"
       />
 

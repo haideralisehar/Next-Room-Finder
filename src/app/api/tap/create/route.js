@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 
 export async function POST(req) {
   try {
-    const { studentId, logId, amount, customer } = await req.json();
+    const { studentId, logId, amount, customer, metadata  } = await req.json();
 
     const payment = {
       amount: parseFloat(amount),
@@ -18,6 +18,9 @@ export async function POST(req) {
           country_code: customer.country_Code, // ✔ FIXED (INDIA numeric code)
           number: customer.phone,
         },
+      },
+      metadata: {
+        referenceNo: metadata?.booking_reference,
       },
 
       receipt: {

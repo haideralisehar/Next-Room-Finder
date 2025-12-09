@@ -5,6 +5,7 @@ import Cookies from "js-cookie";
 import Header from "../components/Header";
 import "../bookingPage/mybooking.css";
 import "../profile/profile.css";
+import Image from "next/image";
 import CountryCodeSelector from "../components/countryCode"
 
 export default function ProfilePage() {
@@ -30,6 +31,7 @@ export default function ProfilePage() {
   const [selectedFile, setSelectedFile] = useState(null);
   const [preview, setPreview] = useState(null);
   const [countryCode, setCountryCode] = useState("");
+  const [loadingfetch, setLoadingfetch] = useState(false);
 
   // ✅ Handle input change
   const handleChange = (e) => {
@@ -56,15 +58,18 @@ export default function ProfilePage() {
 
     async function fetchProfile() {
       try {
+         setLoadingfetch(true);
         const res = await fetch("/api/getAgency");
         const data = await res.json();
 
         if (!res.ok || !data.agency?.data) {
           throw new Error(data.error || "Failed to load profile");
+           setLoadingfetch(false);
         }
 
         const ag = data.agency.data;
-        console.log(ag.password);
+         setLoadingfetch(false);
+        
 
         setAgency({
           userName: ag.userName || "",
@@ -83,9 +88,11 @@ export default function ProfilePage() {
         
       } catch (err) {
         console.error("Profile fetch error:", err);
+         setLoadingfetch(false);
         setError("Failed to load profile details.");
       } finally {
         setLoading(false);
+         setLoadingfetch(false);
       }
     }
 
@@ -132,15 +139,29 @@ export default function ProfilePage() {
   return (
     <>
       <Header />
+      {loadingfetch && (
+                  <div className="loading-container">
+                    <div className="box">
+                      <Image
+                        className="circular-left-right"
+                        src="/loading_ico.png"
+                        alt="Loading"
+                        width={200}
+                        height={200}
+                      />
+                      <p style={{ fontSize: "13px" }}>Please Wait...</p>
+                    </div>
+                  </div>
+                )}
       <div className="rprt">My Account</div>
 
       {/* ✅ Loading Overlay */}
-      {loading && (
+      {/* {loading && (
         <div className="loading-overlay">
           <div className="spinner"></div>
           <p className="loading-text">Loading your profile...</p>
         </div>
-      )}
+      )} */}
 
       {loadings && (
         <div className="update-overlay">

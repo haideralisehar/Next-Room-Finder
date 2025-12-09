@@ -193,7 +193,7 @@ export default function HotelSearchBar({ initialData, onClearFilters }) {
       )}
 
       <div className={`search-bar ${loadingfetch ? "disabled" : ""}`}>
-        <div className="search-box">
+        <div className="search-boxes">
           <FaSearch className="icon" />
 
           <CountrySelector
