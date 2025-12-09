@@ -311,10 +311,10 @@ console.log("nights", selectedHotelData)
         HotelID: hotelId,
         OccupancyDetails: [
           {
-            AdultCount: updated[0].adults,
-            ChildCount: updated[0].childs,
-            RoomNum: updated[0].RoomNum,
-            ChildAgeDetails: updated[0].childAges || []
+            AdultCount: updated[0]?.adults,
+            ChildCount: updated[0]?.childs,
+            RoomNum: updated[0]?.RoomNum,
+            ChildAgeDetails: updated[0]?.childAges || []
           }
         ],
         Currency: "USD",
@@ -337,8 +337,25 @@ console.log("nights", selectedHotelData)
         return;
       }
 
+      
+
       const data = await res.json();
-      const modifiedData = {
+
+      if(data?.parsedObject?.Error){
+        alert(data?.parsedObject?.Error?.Message);
+         
+     
+      
+      if (!data.success) {
+        alert(`Error: ${data.error || "Unknown error"}`);
+        dispatch(priceConfirmFailure(data.error));
+        setLoadingfetch(false);
+        return;
+      }
+
+       }else{
+
+        const modifiedData = {
   ...data,
   address: selectedHotelData.location?.address || "",
   rating: selectedHotelData.starRating || "",
@@ -351,14 +368,13 @@ console.log("nights", selectedHotelData)
       dispatch(priceConfirmSuccess(modifiedData)); 
       console.log(modifiedData);
 
-      if (!data.success) {
-        alert(`Error: ${data.error || "Unknown error"}`);
-        dispatch(priceConfirmFailure(data.error));
-        setLoadingfetch(false);
-        return;
-      }
-
       router.push("/booking");
+
+       
+
+       }
+
+      
     } catch (err) {
       console.error(err);
       alert("Network error! Please try again.");
