@@ -304,25 +304,26 @@ console.log("nights", selectedHotelData)
       setLoadingfetch(true);
 
       const body = {
-        PreBook: true,
-        CheckInDate: checkIn.split(" ")[0],
-        CheckOutDate: checkOut.split(" ")[0],
-        NumOfRooms: 1,
-        HotelID: hotelId,
-        OccupancyDetails: [
-          {
-            AdultCount: updated[0]?.adults,
-            ChildCount: updated[0]?.childs,
-            RoomNum: updated[0]?.RoomNum,
-            ChildAgeDetails: updated[0]?.childAges || []
-          }
-        ],
-        Currency: "USD",
-        Nationality: "PK",
-        RatePlanID:  updated[0].ratePlanId,
-        IsNeedOnRequest: false,
-        Metadata: updated[0].metaData
-      };
+  PreBook: true,
+  CheckInDate: checkIn.split(" ")[0],
+  CheckOutDate: checkOut.split(" ")[0],
+  NumOfRooms: selectedHotelData?.room_count?.length || 1,
+  HotelID: hotelId,
+
+  OccupancyDetails: selectedHotelData?.room_count?.map((room, index) => ({
+    AdultCount: room.adults,
+    ChildCount: room.children,
+    RoomNum: index + 1,                  // Auto-generated room number ✔️
+    ChildAgeDetails: room.childrenAges || []
+  })) || [],
+
+  Currency: "USD",
+  Nationality: "PK",
+  RatePlanID: updated[0].ratePlanId,
+  IsNeedOnRequest: false,
+  Metadata: updated[0].metaData
+};
+
 
       const res = await fetch("/api/priceConfirm", {
         method: "POST",
@@ -363,6 +364,7 @@ console.log("nights", selectedHotelData)
   image: selectedHotelData.images[0].url,
   Discounts: selectedHotelData.Discount,
   Markups: selectedHotelData.Markup,
+  room_cont: selectedHotelData?.room_count,
 
 };
       dispatch(priceConfirmSuccess(modifiedData)); 
@@ -465,6 +467,7 @@ console.log("nights", selectedHotelData)
                 isSelected={selectedRoomsInfo[currentRoomIndex]?.parentRoomId === room.id}
                 selectedVariation={selectedRoomsInfo[currentRoomIndex]}
                 isTaken={isTaken(room.id)}
+                count_room={selectedHotelData?.room_count?.length}
               />
             ))
           ) : (

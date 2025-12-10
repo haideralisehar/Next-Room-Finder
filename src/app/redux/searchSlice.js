@@ -3,11 +3,6 @@
 
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 
-/**
- * performSearchThunk
- * Accepts payload: { countryCode, checkIn, checkOut, rooms, adults, currency, nationality, starRating }
- * You already have an API route used in context (performSearch). This thunk calls /api/search (or adapt to your endpoint).
- */
 export const performSearchThunk = createAsyncThunk(
   "search/performSearch",
   async (payload, { rejectWithValue }) => {
@@ -19,10 +14,6 @@ export const performSearchThunk = createAsyncThunk(
       });
 
       const json = await res.json();
-
-      // if your backend returns success flag
-      // if (!json.success) return rejectWithValue(json);
-
       return json;
     } catch (err) {
       return rejectWithValue(err.message || "Network error");
@@ -31,12 +22,12 @@ export const performSearchThunk = createAsyncThunk(
 );
 
 const initialState = {
-  searchPayload: null,        // last request body
-  apiResults: null,          // API response for hotels (hotelDetails + prices)
+  searchPayload: null,
+  apiResults: null,
   loading: false,
   error: null,
-  selectedHotel: null,       // hotel object user clicked
-  dictionaryTypes: null,     // additional API response used in your Book flow (all_types)
+  selectedHotel: null,
+  dictionaryTypes: null,
 };
 
 const slice = createSlice({
@@ -72,7 +63,12 @@ const slice = createSlice({
       })
       .addCase(performSearchThunk.fulfilled, (state, action) => {
         state.loading = false;
-        state.apiResults = action.payload;
+
+        // ⭐ Correct place to add room array into apiResults ⭐
+        state.apiResults = {
+          ...action.payload,                           // API response
+          room: state.searchPayload?.room || [],       // requestBody.rooms from submitSearch
+        };
       })
       .addCase(performSearchThunk.rejected, (state, action) => {
         state.loading = false;

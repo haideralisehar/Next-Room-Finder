@@ -32,6 +32,29 @@ export default function BookingPage() {
   const [location, setlocation] = useState("");
   const [hotelName, sethotelName] = useState("");
   const [loadingfetch, setLoadingfetch] = useState(false);
+  const [guestForms, setGuestForms] = useState([]);
+//   const [contactInfo, setContactInfo] = useState({
+//   countryCode: "",
+//   phone: "",
+//   email: "",
+// });
+
+const [formData, setFormData] = useState({
+    firstName: "",
+    lastName: "",
+    countryCode: "",
+    phone: "",
+    email: "",
+    guestType: "Myself",
+    specialRequest: "",
+    termsAccepted: false,
+    paymentMethod: "card",
+  });
+
+
+
+
+
   const room =
     priceConfirmResponse?.parsedObject?.Success?.PriceDetails?.HotelList?.[0]?.RatePlanList?.[0]?.RoomOccupancy;
     const Room_Name =
@@ -42,6 +65,44 @@ console.log("room, ", room);
   function applyDiscountAndMarkup(priceConfirmResponse) {
   const hotel =
     priceConfirmResponse?.parsedObject?.Success?.PriceDetails?.HotelList?.[0];
+
+   
+
+
+
+    useEffect(() => {
+  if (!room) return;
+
+  const guests = [];
+
+  // Adults
+  for (let i = 0; i < room.AdultCount; i++) {
+    guests.push({
+      type: "adult",
+      firstName: "",
+      lastName: "",
+      age: null,
+      isAdult: true,
+    });
+  }
+
+  // Children
+  room.ChildAgeDetails?.forEach((age) => {
+    guests.push({
+      type: "child",
+      firstName: "",
+      lastName: "",
+      age: age,
+      isAdult: false,
+    });
+  });
+
+  setGuestForms(guests);
+}, [room]);
+
+
+
+
     
 
     
@@ -185,17 +246,7 @@ console.log(finalPrice);
     return acc + Number(room.price); // Convert price to number just in case
   }, 0);
 
-  const [formData, setFormData] = useState({
-    firstName: "",
-    lastName: "",
-    countryCode: "",
-    phone: "",
-    email: "",
-    guestType: "Myself",
-    specialRequest: "",
-    termsAccepted: false,
-    paymentMethod: "card",
-  });
+  
 
   const handleCountrySelect = (countryName) => {
     setFormData((prev) => ({
@@ -296,6 +347,75 @@ console.log(finalPrice);
     });
   };
 
+   const handleGuestChange = (index, field, value) => {
+  setGuestForms((prev) => {
+    const updated = [...prev];
+    updated[index][field] = value;
+    return updated;
+  });
+};
+
+
+let adultCounter = 0;
+let childCounter = 0;
+
+const handleSubmits = async (e) => {
+  e.preventDefault();
+
+  let adultIndex = 0;
+
+  const guestInfoList = guestForms.map((g) => {
+    let guest = {
+      name: { first: g.firstName, last: g.lastName },
+      isAdult: g.isAdult,
+      age: g.isAdult ? null : g.age,
+    };
+
+    // FIRST ADULT → Replace name with formData
+    if (g.type === "adult") {
+      adultIndex++;
+
+      if (adultIndex === 1) {
+        guest.name.first = g.firstName;
+        guest.name.last = g.lastName;
+
+        setFormData({
+  ...formData,
+  firstName: g.firstName,
+  lastName: g.lastName
+});
+
+
+      }
+    }
+
+    return guest;
+  });
+
+  const guestList = [
+    {
+      roomNum: room.RoomNum,
+      guestInfo: guestInfoList,
+    },
+  ];
+
+  const payload = {
+    checkInDate: "2025-12-01",
+    checkOutDate: "2025-12-12",
+    numOfRooms: "2",
+    guestList,
+    clientReference: "ABC123",
+    referenceNo: "XYZ456",
+  };
+
+  console.log("FINAL PAYLOAD:", payload);
+  console.log("extra", formData);
+};
+
+
+
+
+
   return (
     <>
       <Header />
@@ -334,12 +454,12 @@ console.log(finalPrice);
 
       <div className={styles.container}>
         {/* Left Form */}
-        <form onSubmit={handleSubmit} className={styles.form}>
+        <form onSubmit={handleSubmits} className={styles.form}>
           <h2 style={{ fontSize: "18px", fontWeight: "bold" }}>
             Guests Details & Payment
           </h2>
           
-
+{/* <div className={styles.row}>
           <div className={styles.inputGroup}>
             <label>First Name *</label>
             <input
@@ -361,23 +481,27 @@ console.log(finalPrice);
               required
             />
           </div>
-
+</div>
           <div className={styles.row}>
-            <CountrySelector
-              selectedCountry={formData.countryCode}
-              onCountrySelect={handleCountrySelect}
-            />
-            <div className={styles.inputGroup}>
-              <label>Phone Number *</label>
-              <input
-                type="tel"
-                name="phone"
-                value={formData.phone}
-                onChange={handleChange}
-                required
-              />
-            </div>
-          </div>
+  <div className={styles.countryGroup}>
+    <CountrySelector
+      selectedCountry={formData.countryCode}
+      onCountrySelect={handleCountrySelect}
+    />
+  </div>
+
+  <div className={`${styles.inputGroup} ${styles.phoneGroup}`}>
+    <label>Phone Number *</label>
+    <input
+      type="tel"
+      name="phone"
+      value={formData.phone}
+      onChange={handleChange}
+      required
+    />
+  </div>
+</div>
+
 
           <div className={styles.inputGroup}>
             <label>Email *</label>
@@ -388,7 +512,114 @@ console.log(finalPrice);
               onChange={handleChange}
               required
             />
+          </div> */}
+
+          
+
+
+
+{/* Show Room Number ONE TIME */}
+<p className={styles.roomNum}>Room: {room.RoomNum}</p>
+
+{guestForms.map((guest, index) => {
+  if (guest.type === "adult") adultCounter++;
+  if (guest.type === "child") childCounter++;
+
+  return (
+    <div key={index} className={styles.inputGroup}>
+      
+      <h4 style={{ padding: "10px 0 0 5px", fontWeight: "bold" }}>
+        {guest.type === "adult"
+          ? `Adult ${adultCounter}`
+          : `Child ${childCounter} (Age: ${guest.age})`}
+      </h4>
+
+      {/* NAME FIELDS */}
+      <div className={styles.row}>
+        <div className={styles.inputGroup}>
+          <input
+            type="text"
+            value={guest.firstName}
+            placeholder="first name"
+            onChange={(e) =>
+              handleGuestChange(index, "firstName", e.target.value)
+            }
+            required
+          />
+        </div>
+
+        <div className={styles.inputGroup}>
+          <input
+            type="text"
+            value={guest.lastName}
+            placeholder="last name"
+            onChange={(e) =>
+              handleGuestChange(index, "lastName", e.target.value)
+            }
+            required
+          />
+        </div>
+      </div>
+
+      {/* EXTRA FIELDS ONLY FOR FIRST ADULT */}
+      {guest.type === "adult" && adultCounter === 1 && (
+        <>
+          <div className={styles.row} style={{ margin: "-8px 0 0 0" }}>
+            {/* Country Selector */}
+            <div className={styles.countryGroup}>
+              <CountrySelector
+                selectedCountry={formData.countryCode}
+                show_label={false}
+                placeholder={false}
+                onCountrySelect={(code) =>
+                  setFormData((prev) => ({
+                    ...prev,
+                    countryCode: code,
+                  }))
+                }
+              />
+            </div>
+
+            {/* Phone */}
+            <div className={styles.inputGroup}>
+              <input
+                type="tel"
+                placeholder="phone"
+                value={formData.phone}
+                onChange={(e) =>
+                  setFormData((prev) => ({
+                    ...prev,
+                    phone: e.target.value,
+                  }))
+                }
+              />
+            </div>
           </div>
+
+          {/* Email */}
+          <div className={styles.inputGroup}>
+            <input
+              type="email"
+              placeholder="email"
+              value={formData.email}
+              onChange={(e) =>
+                setFormData((prev) => ({
+                  ...prev,
+                  email: e.target.value,
+                }))
+              }
+            />
+          </div>
+        </>
+      )}
+    </div>
+  );
+})}
+
+
+
+
+
 
           <h3>Guests</h3>
           <div className={styles.toggle}>
@@ -562,69 +793,94 @@ console.log(finalPrice);
               }}
             >
               {/* <h4>Selected Rooms:</h4> */}
-              <div className="selected-rooms">
-                {/* <h4>Selected Rooms:</h4> */}
-               {room ? (
-  <div
-    style={{
-      display: "flex",
-      alignItems: "center",
-      gap: "6px",
-      padding: "10px 0",
-      flexWrap: "wrap",
-    }}
-  >
-    {/* Room Number */}
-    <div
-      style={{
-        backgroundColor: "#dcebecff",
-        padding: "4px 14px",
-        borderRadius: "30px",
-      }}
-    >
-      <p style={{ margin: 0, color: "black" }}>Room {room.RoomNum || 1}</p>
-    </div>
+           <div className="selected-rooms">
 
-    
-      
-    {/* Adults */}
-    <p style={{ margin: 0, color: "black" }}>
-      {room.AdultCount > 1
-        ? `${room.AdultCount} Adults`
-        : `${room.AdultCount} Adult`}
-    </p>
-
+  {priceConfirmResponse?.room_cont?.length > 0 &&
+   priceConfirmResponse?.parsedObject?.Success?.PriceDetails?.HotelList?.[0]?.RatePlanList ? (
      
-    
+    priceConfirmResponse.room_cont.map((room, index) => {
+      
+      const ratePlanList =
+        priceConfirmResponse.parsedObject.Success.PriceDetails.HotelList[0].RatePlanList;
 
-    {/* Children + Ages */}
-    {room.ChildCount > 0 && (
-      <div
-        style={{
-          display: "flex",
-          gap: "10px",
-          flexWrap: "wrap",
-          alignItems: "center",
-        }}
-      >
-        {room.ChildAgeDetails?.map((age, index) => (
-          <p key={index} style={{ margin: 0, color: "black" }}>
-            Child {index + 1} ({age}y)
-          </p>
-        ))}
-      </div>
-    )}
-  </div>
-) : (
-  <p>No room data</p>
-)}
+      // Safe access for RoomName for each room
+      const roomName = ratePlanList?.[index]?.RoomName || "Room";
 
-<p style={{fontWeight:"bold", color:"black", padding:"6px 0px 0px 4px"}}>{Room_Name}</p>
+      return (
+        <div
+          key={index}
+          style={{
+            display: "flex",
+            flexDirection: "column",
+            gap: "4px",
+            padding: "5px 0",
+          }}
+        >
+          {/* ROOM INFO ROW */}
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: "6px",
+              flexWrap: "wrap",
+            }}
+          >
+            {/* Room Number */}
+            <div
+              style={{
+                backgroundColor: "#dcebecff",
+                padding: "4px 14px",
+                borderRadius: "30px",
+              }}
+            >
+              <p style={{ margin: 0, color: "black" }}>
+                Room {room.roomNum || index + 1}
+              </p>
+            </div>
 
+            {/* Adults */}
+            <p style={{ margin: 0, color: "black" }}>
+              {room.adults > 1 ? `${room.adults} Adults` : `${room.adults} Adult`}
+            </p>
 
-
-
+            {/* Children + Ages */}
+            {room.children > 0 && (
+              <div
+                style={{
+                  display: "flex",
+                  gap: "10px",
+                  alignItems: "center",
+                  flexWrap: "wrap",
+                }}
+              >
+                {room.childrenAges?.map((age, i) => (
+                  <p key={i} style={{ margin: 0, color: "black" }}>
+                    Child {i + 1} ({age}y)
+                  </p>
+                ))}
               </div>
+            )}
+          </div>
+
+          {/* ROOM NAME FROM RatePlanList */}
+          <p
+            style={{
+              fontWeight: "bold",
+              color: "black",
+              padding: "6px 0px 0px 4px",
+            }}
+          >
+            {roomName}
+          </p>
+        </div>
+      );
+    })
+  ) : (
+    <p>No room data</p>
+  )}
+</div>
+
+
             </div>
           </div>
 
@@ -634,7 +890,7 @@ console.log(finalPrice);
               
               <p>
                 {/* {convertPrice(hotel.roomCost)} {Bhdcurrency} / Night x{" "} */}
-                {priceConfirmResponse?.parsedObject?.Success?.PriceDetails?.HotelList?.length} Room(s) x {priceConfirmResponse?.nights} Night(s)
+                {priceConfirmResponse?.room_cont?.length} Room(s) x {priceConfirmResponse?.nights} Night(s)
               </p>
             </div>
             <div className={styles.totalBoxee}>

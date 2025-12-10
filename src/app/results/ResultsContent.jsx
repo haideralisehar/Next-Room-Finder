@@ -22,12 +22,9 @@ import { useRouter } from "next/navigation";
 import Image from "next/image";
 
 import { useSelector, useDispatch } from "react-redux";
-import {
-  setSelectedHotel,
-  setApiResults,
-} from "../redux/hotelSlice";
+import { setSelectedHotel, setApiResults } from "../redux/hotelSlice";
 
-import {setDictionaryTypes} from "../redux/searchSlice";
+import { setDictionaryTypes } from "../redux/searchSlice";
 
 const MapWithPrices = dynamic(() => import("../MapView/MapShow"), {
   ssr: false,
@@ -97,30 +94,29 @@ export default function ResultsContent() {
         return;
       }
 
-      
-
-
       const date_check_in =
-  apiResults.prices?.Success?.PriceDetails?.CheckInDate || "";
-const date_check_out =
-  apiResults.prices?.Success?.PriceDetails?.CheckOutDate || "";
+        apiResults.prices?.Success?.PriceDetails?.CheckInDate || "";
+      const date_check_out =
+        apiResults.prices?.Success?.PriceDetails?.CheckOutDate || "";
 
-const hotels = apiResults.hotelDetails?.data || [];
-const hotelList =
-  apiResults.prices?.Success?.PriceDetails?.HotelList || [];
+      const hotels = apiResults.hotelDetails?.data || [];
+      const hotelList =
+        apiResults.prices?.Success?.PriceDetails?.HotelList || [];
 
-const hotelListMap = new Map(hotelList.map((h) => [h.HotelID, h]));
+      const room_count = apiResults?.room;
 
-// ✅ Add check-in / check-out inside mergedHotels
-const mergedHotels = hotels
-  .filter((hotel) => hotelListMap.has(hotel.id))
-  .map((hotel) => ({
-    ...hotel,
-    priceInfo: hotelListMap.get(hotel.id),
-    checkIn: date_check_in,
-    checkOut: date_check_out,
-  }));
+      const hotelListMap = new Map(hotelList.map((h) => [h.HotelID, h]));
 
+      // ✅ Add check-in / check-out inside mergedHotels
+      const mergedHotels = hotels
+        .filter((hotel) => hotelListMap.has(hotel.id))
+        .map((hotel) => ({
+          ...hotel,
+          priceInfo: hotelListMap.get(hotel.id),
+          checkIn: date_check_in,
+          checkOut: date_check_out,
+          room_count: room_count,
+        }));
 
       setTimeout(() => {
         const dest = searchParams.get("destination") || "";
@@ -161,7 +157,7 @@ const mergedHotels = hotels
     return () => window.removeEventListener("hotelDataUpdated", handleUpdate);
   }, [searchParams.toString(), apiResults]);
 
-  console.log("hotels",apiResults);
+  console.log("hotels", apiResults);
 
   useEffect(() => {
     if (!results || results.length === 0) {
@@ -183,12 +179,18 @@ const mergedHotels = hotels
       })
       .filter((p) => p > 0);
 
-    const highest = convertedPrices.length ? Math.ceil(Math.max(...convertedPrices)) : 2000;
+    const highest = convertedPrices.length
+      ? Math.ceil(Math.max(...convertedPrices))
+      : 2000;
 
     setFilters((prev) => {
       const newMax = Math.max(highest, 1);
-      const prevMin = Array.isArray(prev.priceRange) ? Number(prev.priceRange[0] || 0) : 0;
-      const prevMax = Array.isArray(prev.priceRange) ? Number(prev.priceRange[1] || newMax) : newMax;
+      const prevMin = Array.isArray(prev.priceRange)
+        ? Number(prev.priceRange[0] || 0)
+        : 0;
+      const prevMax = Array.isArray(prev.priceRange)
+        ? Number(prev.priceRange[1] || newMax)
+        : newMax;
 
       const clampedMax = Math.min(prevMax, newMax);
       const clampedMin = Math.min(Math.max(prevMin, 0), clampedMax);
@@ -243,7 +245,9 @@ const mergedHotels = hotels
 
     if (sortOption) {
       const getConv = (h) =>
-        parseConvertedNumber(convertPrice(Number(h?.priceInfo?.LowestPrice?.Value || 0)));
+        parseConvertedNumber(
+          convertPrice(Number(h?.priceInfo?.LowestPrice?.Value || 0))
+        );
       data = [...data].sort((a, b) => {
         const pa = getConv(a);
         const pb = getConv(b);
@@ -293,7 +297,6 @@ const mergedHotels = hotels
     <>
       <Header />
       <HotelSearchBar
-
         initialData={{
           destination: destination,
           checkIn: from,
@@ -305,9 +308,8 @@ const mergedHotels = hotels
               ? rooms
               : [{ adults: 1, children: 0, childrenAges: [] }],
         }}
-        onClearFilters={clearFilters}   // ⭐ ADD THIS
+        onClearFilters={clearFilters} // ⭐ ADD THIS
       />
-      
 
       {loadingfetch && (
         <div className="loading-container">
@@ -466,7 +468,13 @@ const mergedHotels = hotels
                           Number(hotel?.priceInfo?.LowestPrice?.Value) || 0;
                         const convPrice =
                           parseFloat(
-                            String(convertPrice(raw)).replace(/[^0-9.\-]/g, "")
+                            String(
+                              convertPrice(
+                                raw *
+                                  hotel?.priceInfo?.RatePlanList?.[0]?.PriceList
+                                    .length * apiResults?.room?.length
+                              )
+                            ).replace(/[^0-9.\-]/g, "")
                           ) || 0;
                         return (
                           <div className="hotel-card" key={hotel.id}>
@@ -536,47 +544,47 @@ const mergedHotels = hotels
                                     marginTop: "10px",
                                     cursor: "pointer",
                                   }}
-                                 onClick={async () => {
-  try {
-    setLoadingfetch(true);
+                                  onClick={async () => {
+                                    try {
+                                      setLoadingfetch(true);
 
-    // 1️⃣ Call API
-    const res = await fetch("/api/all_types");
-    const data = await res.json();
+                                      // 1️⃣ Call API
+                                      const res = await fetch("/api/all_types");
+                                      const data = await res.json();
 
-    if (!data.success) {
-      console.error("API Error:", data.error);
-      setLoadingfetch(false);
-      return;
-    }
+                                      if (!data.success) {
+                                        console.error("API Error:", data.error);
+                                        setLoadingfetch(false);
+                                        return;
+                                      }
 
-    const modiData = {
-      ...hotel,
-      Discount: apiResults.appliedDiscount || "",
-      Markup: apiResults.appliedMarkup || "",
-      
+                                      const modiData = {
+                                        ...hotel,
+                                        Discount:
+                                          apiResults.appliedDiscount || "",
+                                        Markup: apiResults.appliedMarkup || "",
+                                      };
 
-    }
+                                      // 2️⃣ Save selected hotel in Redux
+                                      dispatch(setSelectedHotel(modiData));
 
-    // 2️⃣ Save selected hotel in Redux
-    dispatch(setSelectedHotel(modiData));
+                                      // 3️⃣ Save dictionary / types / API results
+                                      dispatch(setDictionaryTypes(data.data));
+                                      dispatch(setApiResults(data.data));
 
-    // 3️⃣ Save dictionary / types / API results
-    dispatch(setDictionaryTypes(data.data));
-    dispatch(setApiResults(data.data));
+                                      setLoadingfetch(false);
 
-    setLoadingfetch(false);
-
-    // 4️⃣ Redirect to hotel-view page
-    // router.push(`/hotel-view?hotelId=${hotel.id}`);
-    window.open(`/hotel-view?hotelId=${hotel.id}`, "_blank");
-
-  } catch (error) {
-    console.error("Failed to fetch:", error);
-    setLoadingfetch(false);
-  }
-}}
-
+                                      // 4️⃣ Redirect to hotel-view page
+                                      // router.push(`/hotel-view?hotelId=${hotel.id}`);
+                                      window.open(
+                                        `/hotel-view?hotelId=${hotel.id}`,
+                                        "_blank"
+                                      );
+                                    } catch (error) {
+                                      console.error("Failed to fetch:", error);
+                                      setLoadingfetch(false);
+                                    }
+                                  }}
                                 >
                                   Book Now
                                 </button>

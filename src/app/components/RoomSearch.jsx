@@ -44,6 +44,8 @@ export default function HotelSearchBar({ initialData, onClearFilters }) {
 
   const [showRoomPopup, setShowRoomPopup] = useState(false);
   const [showDatePicker, setShowDatePicker] = useState(false);
+  const [maxPeopleRoom, setMaxPeopleRoom] = useState([]);
+
 
   const today = new Date();
   const tomorrow = new Date();
@@ -89,21 +91,71 @@ export default function HotelSearchBar({ initialData, onClearFilters }) {
     setFormData((prev) => ({ ...prev, rooms: updated }));
   };
 
-  const handleCounter = (index, field, value) => {
-    const updated = [...formData.rooms];
+   const getMaxPeopleRoom = () => {
+  if (!formData.rooms || formData.rooms.length === 0) return [];
 
-    if (field === "children") {
-      updated[index].children = Math.max(0, updated[index].children + value);
-      updated[index].childrenAges = Array.from(
-        { length: updated[index].children },
-        (_, i) => updated[index].childrenAges[i] ?? "0"
-      );
-    } else {
-      updated[index][field] = Math.max(1, updated[index][field] + value);
+  const sorted = [...formData.rooms].sort((a, b) => {
+    const totalA = a.adults + a.children;
+    const totalB = b.adults + b.children;
+    return totalB - totalA;
+  });
+
+  return [sorted[0]]; // return as array 👈 IMPORTANT
+  
+};
+
+
+console.log(formData.rooms)
+
+ const handleCounter = (index, field, value) => {
+  const updated = formData.rooms.map((room, i) => {
+    if (i !== index) return room; // keep unchanged
+
+    const currentTotal = room.adults + room.children;
+
+    // If trying to increase and total is already 4 → STOP
+    if (value === 1 && currentTotal >= 4) {
+      return room;
     }
 
-    setFormData((prev) => ({ ...prev, rooms: updated }));
-  };
+    if (field === "children") {
+      const newChildren = Math.max(0, room.children + value);
+
+      // If adding a child makes total > 4 → STOP
+      if (room.adults + newChildren > 4) return room;
+
+      return {
+        ...room,
+        children: newChildren,
+        childrenAges: Array.from(
+          { length: newChildren },
+          (_, i) => room.childrenAges[i] ?? "0"
+        ),
+      };
+    }
+
+    if (field === "adults") {
+      const newAdults = Math.max(1, room.adults + value);
+
+      // If adding an adult makes total > 4 → STOP
+      if (newAdults + room.children > 4) return room;
+
+      return {
+        ...room,
+        adults: newAdults,
+      };
+    }
+
+    return room; // fallback
+  });
+
+  setFormData((prev) => ({
+    ...prev,
+    rooms: updated,
+  }));
+};
+
+
 
   const handleChildrenAgeChange = (roomIndex, childIndex, newAge) => {
     const updated = [...formData.rooms];
@@ -112,7 +164,7 @@ export default function HotelSearchBar({ initialData, onClearFilters }) {
   };
 
   const submitSearch = async () => {
-    if (!formData.destination && !formData.starRating) {
+    if (!formData.destination) {
       alert("Please select a destination!");
       return;
     }
@@ -127,22 +179,29 @@ export default function HotelSearchBar({ initialData, onClearFilters }) {
       .flatMap((r) => r.childrenAges)
       .map((age) => Number(age));
 
+      
+
 
     const requestBody = {
       countryCode: formData.destination,
       checkIn: formData.checkIn,
       checkOut: formData.checkOut,
       rooms: totalRooms,
-      adults: totalAdults,
-      children: totalChildren,
-      childAges: allChildAges,
+       room: formData.rooms,
+      adults: maxPeopleRoom?.[0]?.adults,
+      children: maxPeopleRoom?.[0]?.children,
+      childAges: maxPeopleRoom?.[0]?.childrenAges,
       currency: "USD",
       nationality: formData.destination,
       starRating: formData.starRating ? Number(formData.starRating) : null,
     };
 
+    
+
     // Save request for reuse in Redux
     dispatch(setSearchPayload(requestBody));
+
+   
 
     // Dispatch thunk to perform search and save results in Redux
     await dispatch(performSearchThunk(requestBody));
@@ -174,6 +233,11 @@ export default function HotelSearchBar({ initialData, onClearFilters }) {
       totalChildren > 0 ? `, ${totalChildren} Children` : ""
     }`;
   };
+
+ 
+
+
+
 
   return (
     <>
@@ -349,9 +413,23 @@ export default function HotelSearchBar({ initialData, onClearFilters }) {
             <button className="add-room-btn" onClick={handleAddRoom}>
               + Add Room
             </button>
-            <button className="close-btn-do" onClick={() => setShowRoomPopup(false)}>
-              Done
-            </button>
+            <button
+  className="close-btn-do"
+  onClick={() => {
+    const maxRoom = getMaxPeopleRoom(); // returns array
+
+    setMaxPeopleRoom(maxRoom); // update state once
+
+    // console.log("Updated value:", maxRoom);
+
+    setShowRoomPopup(false);
+  }}
+>
+  Done
+</button>
+
+
+
           </div>
         </div>
       )}
