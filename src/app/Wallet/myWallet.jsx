@@ -61,6 +61,8 @@ class WalletPopup extends Component {
     const loyaltyData = await loyaltyRes.json();
 
     console.log(loyaltyData[0].value);
+console.log("wallet_id",walletData?.id,agencyId );
+
 
     // Update state
     this.setState({

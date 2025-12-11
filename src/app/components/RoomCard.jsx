@@ -285,7 +285,7 @@ export default function RoomCard({
                                   <strong>From:</strong> {p.FromDate}
                                 </div>
                                 <div>
-                                  <strong>Amount:</strong> {p.Amount}
+                                  <strong>Amount:</strong> {p.Amount * count_room}
                                 </div>
                               </div>
                             ))}
@@ -304,7 +304,7 @@ export default function RoomCard({
                     {currency}{" "}
                     {convertPrice(
                       variation.raw?.TotalPrice /
-                        variation.raw?.PriceList?.length
+                        variation.raw?.PriceList?.length * count_room
                     )}
                     /night{nights > 1 ? "s" : ""}
                   </div>

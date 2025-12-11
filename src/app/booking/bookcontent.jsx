@@ -13,8 +13,10 @@ import TermsAndConditions from "../terms-conditions/page";
 import CountrySelector from "../components/CountrySelector";
 import { useSelector } from "react-redux";
 import Image from "next/image";
+import {useRouter } from "next/navigation";
 
 export default function BookingPage() {
+  const router = useRouter();
   const { Bhdcurrency, convertPrice } = useBhdCurrency();
   const searchParams = useSearchParams();
   const [showAmenitiesPopup, setShowAmenitiesPopup] = useState(false);
@@ -35,7 +37,7 @@ export default function BookingPage() {
 
   const [rooms, setRooms] = useState([]);
 const [guestForms, setGuestForms] = useState([]);
-
+const [booking, setBooking] = useState([]);
 
 //   const [contactInfo, setContactInfo] = useState({
 //   countryCode: "",
@@ -372,15 +374,129 @@ console.log(finalPrice);
   });
 };
 
+const resetAllFields = () => {
+  setGuestForms((prev) =>
+    prev.map((roomGuests) =>
+      roomGuests.map((g) => ({
+        ...g,
+        firstName: "",
+        lastName: "",
+        age: g.isAdult ? null : g.age, // keep child age only
+      }))
+    )
+  );
+
+  setFormData({
+    firstName: "",
+    lastName: "",
+    email: "",
+    phone: "",
+    countryCode: "",
+    specialRequest: "",
+    guestType: "Myself",
+    paymentMethod: "card",
+    termsAccepted: false,
+  });
+};
 
 
 
 
+
+
+
+
+// const handleSubmits = async (e) => {
+//   e.preventDefault();
+
+//   const finalGuestList = guestForms.map((roomGuests, roomIndex) => {
+//     let adultIndex = 0;
+
+//     const guestInfo = roomGuests.map((g) => {
+//       let guest = {
+//         name: { first: g.firstName, last: g.lastName },
+//         isAdult: g.isAdult,
+//         age: g.isAdult ? null : g.age,
+//       };
+
+//       // FIRST ADULT OF EACH ROOM → Attach Contact Info
+//       if (g.type === "adult") {
+//         adultIndex++;
+      
+//         // Only first room first adult uses contact info
+//         if (roomIndex === 0 && adultIndex === 1) {
+//           guest.name.first = formData.firstName || g.firstName;
+//           guest.name.last = formData.lastName || g.lastName;
+//         }
+//       }
+//       setFormData({
+//         ...formData,
+//         firstName: g.firstName,
+//         lastName: g.lastName
+//       });      
+
+//       return guest;
+//     });
+
+//     return {
+//       roomNum: roomIndex + 1, // room.RoomNum if API gives it
+//       guestInfo,
+//     };
+//   });
+
+
+
+
+
+
+//   setLoadingfetch(true);
+//   const bookingResponse = await fetch('/api/bookingConfirm', {
+//     method: "POST",
+//     headers: { "Content-Type": "application/json" },
+//     body: JSON.stringify({
+//       checkInDate: priceConfirmResponse?.parsedObject?.Success?.PriceDetails?.CheckInDate,
+//       checkOutDate: priceConfirmResponse?.parsedObject?.Success?.PriceDetails?.CheckOutDate,
+//       numOfRooms: priceConfirmResponse?.room_cont.length,
+
+//       // ⭐ Use your dynamically generated finalGuestList
+//       guestList: finalGuestList,
+
+//       contact: {
+//         name: {
+//           first: "John",
+//           last: "Doe",
+//         },
+//         email: "johndoe@example.com",
+//         phone: "+923001234567",
+//       },
+
+//       clientReference: `client-${Date.now() + 10000}`,
+//       referenceNo: priceConfirmResponse?.parsedObject?.Success?.PriceDetails?.ReferenceNo,
+//     }),
+//   });
+
+ 
+
+//   const bookingResult = await bookingResponse.json();
+//   setBooking(bookingResult);
+//   resetAllFields();
+//    setLoadingfetch(false);
+
+//   //  if(bookingResult?.Error){
+    
+
+//   //  }
+//   //  router.replace("/");
+   
+//   console.log("Booking Confirm Result:", bookingResult);
+
+// }
 
 
 const handleSubmits = async (e) => {
   e.preventDefault();
 
+  // Generate final guest list...
   const finalGuestList = guestForms.map((roomGuests, roomIndex) => {
     let adultIndex = 0;
 
@@ -391,24 +507,11 @@ const handleSubmits = async (e) => {
         age: g.isAdult ? null : g.age,
       };
 
-      // FIRST ADULT OF EACH ROOM → Attach Contact Info
       if (g.type === "adult") {
         adultIndex++;
-
-        if (adultIndex === 1) {
-          // guest.countryCode = formData.countryCode;
-          // guest.phone = formData.phone;
-          // guest.email = formData.email;
-
-          // Replace name for first adult from main form fields
+        if (roomIndex === 0 && adultIndex === 1) {
           guest.name.first = formData.firstName || g.firstName;
           guest.name.last = formData.lastName || g.lastName;
-
-          setFormData({
-  ...formData,
-  firstName: g.firstName,
-  lastName: g.lastName
-});
         }
       }
 
@@ -416,70 +519,65 @@ const handleSubmits = async (e) => {
     });
 
     return {
-      roomNum: roomIndex + 1, // room.RoomNum if API gives it
+      roomNum: roomIndex + 1,
       guestInfo,
     };
   });
 
-
-
-
-try {
+  // FULL BOOKING PAYLOAD
+  const bookingPayload = {
+    checkInDate:
+      priceConfirmResponse?.parsedObject?.Success?.PriceDetails?.CheckInDate,
+    checkOutDate:
+      priceConfirmResponse?.parsedObject?.Success?.PriceDetails?.CheckOutDate,
+    numOfRooms: priceConfirmResponse?.room_cont.length,
+    guestList: finalGuestList,
+    contact: {
+      name: {
+        first: "John",
+        last: "Doe",
+      },
+      email: "johndoe@example.com",
+      phone: "+923001234567",
+    },
+    clientReference: `client-${Date.now() + 10000}`,
+    referenceNo:
+      priceConfirmResponse?.parsedObject?.Success?.PriceDetails?.ReferenceNo,
+  };
 
   setLoadingfetch(true);
-  const bookingResponse = await fetch('/api/bookingConfirm', {
+
+  // 🔥 CALL WALLET DEDUCT API ONLY
+  const res = await fetch("/api/walletDeduct", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
-      checkInDate: priceConfirmResponse?.parsedObject?.Success?.PriceDetails?.CheckInDate,
-      checkOutDate: priceConfirmResponse?.parsedObject?.Success?.PriceDetails?.CheckOutDate,
-      numOfRooms: priceConfirmResponse?.room_cont.length,
-
-      // ⭐ Use your dynamically generated finalGuestList
-      guestList: finalGuestList,
-
-      contact: {
-        name: {
-          first: "John",
-          last: "Doe",
-        },
-        email: "johndoe@example.com",
-        phone: "+923001234567",
-      },
-
-      clientReference: `client-${Date.now() + 10000}`,
-      referenceNo: priceConfirmResponse?.parsedObject?.Success?.PriceDetails?.ReferenceNo,
+      orderAmount: convertPrice(finalPrice),
+      bookingPayload,
     }),
   });
 
- 
-
-  const bookingResult = await bookingResponse.json();
-
-   setLoadingfetch(false);
-  console.log("Booking Confirm Result:", bookingResult);
-
-} catch (err) {
-  console.error("Booking error:", err);
+  const data = await res.json();
+  console.log("booking",data);
   setLoadingfetch(false);
-}
 
+  if (!data.success) {
+    alert(data.message);
+    return;
+  }
 
+  alert(data?.message);
 
-
-
-  // const payload = {
-  //   checkInDate: "2025-12-01",
-  //   checkOutDate: "2025-12-12",
-  //   numOfRooms: finalGuestList.length,
-  //   guestList: finalGuestList,
-  //   clientReference: "ABC123",
-  //   referenceNo: "XYZ456",
-  // };
-
-  // console.log("FINAL PAYLOAD:", payload);
-  // console.log("formData", formData);
+  setBooking(data.booking);
+  resetAllFields();
 };
+
+
+
+
+
+
+
 
 
 
@@ -518,6 +616,12 @@ try {
                 />
                 <p style={{ fontSize: "13px" }}>Please Wait...</p>
               </div>
+            </div>
+          )}
+          
+          {booking.Error && (
+            <div>
+              <p>{booking?.Error?.Message}</p>
             </div>
           )}
 
@@ -639,57 +743,57 @@ try {
             </div>
 
             {/* EXTRA FIELDS — ONLY FIRST ADULT OF EACH ROOM */}
-            {guest.type === "adult" && adultCounter === 1 && (
-              <>
-                <div className={styles.row} style={{ margin: "-8px 0 0 0" }}>
+            {guest.type === "adult" && adultCounter === 1 && roomIndex === 0 && (
+  <>
+    <div className={styles.row} style={{ margin: "-8px 0 0 0" }}>
+      <div className={styles.countryGroup}>
+        <CountrySelector
+          selectedCountry={formData.countryCode}
+          show_label={false}
+          placeholder={false}
+          required
+          onCountrySelect={(code) =>
+            setFormData((prev) => ({
+              ...prev,
+              countryCode: code,
+            }))
+          }
+        />
+      </div>
 
-                  {/* Country Selector */}
-                  <div className={styles.countryGroup}>
-                    <CountrySelector
-                      selectedCountry={formData.countryCode}
-                      show_label={false}
-                      placeholder={false}
-                      onCountrySelect={(code) =>
-                        setFormData((prev) => ({
-                          ...prev,
-                          countryCode: code,
-                        }))
-                      }
-                    />
-                  </div>
+      <div className={styles.inputGroup}>
+        <input
+          type="tel"
+          placeholder="phone"
+          value={formData.phone}
+          required
+          onChange={(e) =>
+            setFormData((prev) => ({
+              ...prev,
+              phone: e.target.value,
+            }))
+          }
+        />
+      </div>
+    </div>
 
-                  {/* Phone */}
-                  <div className={styles.inputGroup}>
-                    <input
-                      type="tel"
-                      placeholder="phone"
-                      value={formData.phone}
-                      onChange={(e) =>
-                        setFormData((prev) => ({
-                          ...prev,
-                          phone: e.target.value,
-                        }))
-                      }
-                    />
-                  </div>
-                </div>
+    <div className={styles.inputGroup}>
+      <input
+        type="email"
+        placeholder="email"
+        value={formData.email}
+        required
+        onChange={(e) =>
+          setFormData((prev) => ({
+            ...prev,
+            email: e.target.value,
+          }))
+        }
+      />
+    </div>
+  </>
+)}
 
-                {/* Email */}
-                <div className={styles.inputGroup}>
-                  <input
-                    type="email"
-                    placeholder="email"
-                    value={formData.email}
-                    onChange={(e) =>
-                      setFormData((prev) => ({
-                        ...prev,
-                        email: e.target.value,
-                      }))
-                    }
-                  />
-                </div>
-              </>
-            )}
           </div>
         );
       })}
