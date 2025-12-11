@@ -315,11 +315,11 @@
   .container{
     margin: 10px 0px;
   }
-  .row {
+  /* .row {
   display: block;
   gap: 10px;
   
-}
+} */
 .toggle button {
   flex: 1;
   padding: 7px 4px;

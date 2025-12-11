@@ -32,7 +32,11 @@ export default function BookingPage() {
   const [location, setlocation] = useState("");
   const [hotelName, sethotelName] = useState("");
   const [loadingfetch, setLoadingfetch] = useState(false);
-  const [guestForms, setGuestForms] = useState([]);
+
+  const [rooms, setRooms] = useState([]);
+const [guestForms, setGuestForms] = useState([]);
+
+
 //   const [contactInfo, setContactInfo] = useState({
 //   countryCode: "",
 //   phone: "",
@@ -66,39 +70,52 @@ console.log("room, ", room);
   const hotel =
     priceConfirmResponse?.parsedObject?.Success?.PriceDetails?.HotelList?.[0];
 
+    useEffect(() => {
+  if (priceConfirmResponse?.room_cont) {
+    setRooms(priceConfirmResponse.room_cont);
+  }
+}, [priceConfirmResponse]);
+
    
 
 
 
-    useEffect(() => {
-  if (!room) return;
+   useEffect(() => {
+  if (!rooms || rooms.length === 0) return;
 
-  const guests = [];
+  const allRoomsGuests = rooms.map((room, roomIndex) => {
+    const guests = [];
 
-  // Adults
-  for (let i = 0; i < room.AdultCount; i++) {
-    guests.push({
-      type: "adult",
-      firstName: "",
-      lastName: "",
-      age: null,
-      isAdult: true,
+    // Adults
+    for (let i = 0; i < room.adults; i++) {
+      guests.push({
+        type: "adult",
+        firstName: "",
+        lastName: "",
+        age: null,
+        isAdult: true,
+        roomIndex,
+      });
+    }
+
+    // Children
+    room.childrenAges?.forEach((age) => {
+      guests.push({
+        type: "child",
+        firstName: "",
+        lastName: "",
+        age,
+        isAdult: false,
+        roomIndex,
+      });
     });
-  }
 
-  // Children
-  room.ChildAgeDetails?.forEach((age) => {
-    guests.push({
-      type: "child",
-      firstName: "",
-      lastName: "",
-      age: age,
-      isAdult: false,
-    });
+    return guests;
   });
 
-  setGuestForms(guests);
-}, [room]);
+  setGuestForms(allRoomsGuests);
+}, [rooms]);
+
 
 
 
@@ -338,78 +355,130 @@ console.log(finalPrice);
     return new Date(`${year}-${month}-${day}`);
   };
 
-  const formatDate = (dateString) => {
-    const date = parseDate(dateString);
-    return date.toLocaleDateString("en-US", {
-      month: "short",
-      day: "numeric",
-      year: "numeric",
-    });
-  };
+  // const formatDate = (dateString) => {
+  //   const date = parseDate(dateString);
+  //   return date.toLocaleDateString("en-US", {
+  //     month: "short",
+  //     day: "numeric",
+  //     year: "numeric",
+  //   });
+  // };
 
-   const handleGuestChange = (index, field, value) => {
+   const handleGuestChange = (roomIndex, guestIndex, field, value) => {
   setGuestForms((prev) => {
     const updated = [...prev];
-    updated[index][field] = value;
+    updated[roomIndex][guestIndex][field] = value;
     return updated;
   });
 };
 
 
-let adultCounter = 0;
-let childCounter = 0;
+
+
+
+
 
 const handleSubmits = async (e) => {
   e.preventDefault();
 
-  let adultIndex = 0;
+  const finalGuestList = guestForms.map((roomGuests, roomIndex) => {
+    let adultIndex = 0;
 
-  const guestInfoList = guestForms.map((g) => {
-    let guest = {
-      name: { first: g.firstName, last: g.lastName },
-      isAdult: g.isAdult,
-      age: g.isAdult ? null : g.age,
-    };
+    const guestInfo = roomGuests.map((g) => {
+      let guest = {
+        name: { first: g.firstName, last: g.lastName },
+        isAdult: g.isAdult,
+        age: g.isAdult ? null : g.age,
+      };
 
-    // FIRST ADULT → Replace name with formData
-    if (g.type === "adult") {
-      adultIndex++;
+      // FIRST ADULT OF EACH ROOM → Attach Contact Info
+      if (g.type === "adult") {
+        adultIndex++;
 
-      if (adultIndex === 1) {
-        guest.name.first = g.firstName;
-        guest.name.last = g.lastName;
+        if (adultIndex === 1) {
+          // guest.countryCode = formData.countryCode;
+          // guest.phone = formData.phone;
+          // guest.email = formData.email;
 
-        setFormData({
+          // Replace name for first adult from main form fields
+          guest.name.first = formData.firstName || g.firstName;
+          guest.name.last = formData.lastName || g.lastName;
+
+          setFormData({
   ...formData,
   firstName: g.firstName,
   lastName: g.lastName
 });
-
-
+        }
       }
-    }
 
-    return guest;
+      return guest;
+    });
+
+    return {
+      roomNum: roomIndex + 1, // room.RoomNum if API gives it
+      guestInfo,
+    };
   });
 
-  const guestList = [
-    {
-      roomNum: room.RoomNum,
-      guestInfo: guestInfoList,
-    },
-  ];
 
-  const payload = {
-    checkInDate: "2025-12-01",
-    checkOutDate: "2025-12-12",
-    numOfRooms: "2",
-    guestList,
-    clientReference: "ABC123",
-    referenceNo: "XYZ456",
-  };
 
-  console.log("FINAL PAYLOAD:", payload);
-  console.log("extra", formData);
+
+try {
+
+  setLoadingfetch(true);
+  const bookingResponse = await fetch('/api/bookingConfirm', {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      checkInDate: priceConfirmResponse?.parsedObject?.Success?.PriceDetails?.CheckInDate,
+      checkOutDate: priceConfirmResponse?.parsedObject?.Success?.PriceDetails?.CheckOutDate,
+      numOfRooms: priceConfirmResponse?.room_cont.length,
+
+      // ⭐ Use your dynamically generated finalGuestList
+      guestList: finalGuestList,
+
+      contact: {
+        name: {
+          first: "John",
+          last: "Doe",
+        },
+        email: "johndoe@example.com",
+        phone: "+923001234567",
+      },
+
+      clientReference: `client-${Date.now() + 10000}`,
+      referenceNo: priceConfirmResponse?.parsedObject?.Success?.PriceDetails?.ReferenceNo,
+    }),
+  });
+
+ 
+
+  const bookingResult = await bookingResponse.json();
+
+   setLoadingfetch(false);
+  console.log("Booking Confirm Result:", bookingResult);
+
+} catch (err) {
+  console.error("Booking error:", err);
+  setLoadingfetch(false);
+}
+
+
+
+
+
+  // const payload = {
+  //   checkInDate: "2025-12-01",
+  //   checkOutDate: "2025-12-12",
+  //   numOfRooms: finalGuestList.length,
+  //   guestList: finalGuestList,
+  //   clientReference: "ABC123",
+  //   referenceNo: "XYZ456",
+  // };
+
+  // console.log("FINAL PAYLOAD:", payload);
+  // console.log("formData", formData);
 };
 
 
@@ -519,99 +588,111 @@ const handleSubmits = async (e) => {
 
 
 {/* Show Room Number ONE TIME */}
-<p className={styles.roomNum}>Room: {room.RoomNum}</p>
-
-{guestForms.map((guest, index) => {
-  if (guest.type === "adult") adultCounter++;
-  if (guest.type === "child") childCounter++;
+{guestForms.map((roomGuests, roomIndex) => {
+  let adultCounter = 0;
+  let childCounter = 0;
 
   return (
-    <div key={index} className={styles.inputGroup}>
-      
-      <h4 style={{ padding: "10px 0 0 5px", fontWeight: "bold" }}>
-        {guest.type === "adult"
-          ? `Adult ${adultCounter}`
-          : `Child ${childCounter} (Age: ${guest.age})`}
-      </h4>
+    <div key={roomIndex}>
+      {/* ROOM LABEL */}
+      <p className={styles.roomNum}>Room: {roomIndex + 1}</p>
 
-      {/* NAME FIELDS */}
-      <div className={styles.row}>
-        <div className={styles.inputGroup}>
-          <input
-            type="text"
-            value={guest.firstName}
-            placeholder="first name"
-            onChange={(e) =>
-              handleGuestChange(index, "firstName", e.target.value)
-            }
-            required
-          />
-        </div>
+      {roomGuests.map((guest, guestIndex) => {
+        // Count adults/children up to this guest
+        if (guest.type === "adult") adultCounter++;
+        if (guest.type === "child") childCounter++;
 
-        <div className={styles.inputGroup}>
-          <input
-            type="text"
-            value={guest.lastName}
-            placeholder="last name"
-            onChange={(e) =>
-              handleGuestChange(index, "lastName", e.target.value)
-            }
-            required
-          />
-        </div>
-      </div>
+        return (
+          <div key={guestIndex} className={styles.inputGroup}>
 
-      {/* EXTRA FIELDS ONLY FOR FIRST ADULT */}
-      {guest.type === "adult" && adultCounter === 1 && (
-        <>
-          <div className={styles.row} style={{ margin: "-8px 0 0 0" }}>
-            {/* Country Selector */}
-            <div className={styles.countryGroup}>
-              <CountrySelector
-                selectedCountry={formData.countryCode}
-                show_label={false}
-                placeholder={false}
-                onCountrySelect={(code) =>
-                  setFormData((prev) => ({
-                    ...prev,
-                    countryCode: code,
-                  }))
-                }
-              />
+            <h4 style={{ padding: "10px 0 0 5px", fontWeight: "bold" }}>
+              {guest.type === "adult"
+                ? `Adult ${adultCounter}`
+                : `Child ${childCounter} (Age: ${guest.age})`}
+            </h4>
+
+            {/* NAME FIELDS */}
+            <div className={styles.row}>
+              <div className={styles.inputGroup}>
+                <input
+                  type="text"
+                  value={guest.firstName}
+                  placeholder="first name"
+                  onChange={(e) =>
+                    handleGuestChange(roomIndex, guestIndex, "firstName", e.target.value)
+                  }
+                  required
+                />
+              </div>
+
+              <div className={styles.inputGroup}>
+                <input
+                  type="text"
+                  value={guest.lastName}
+                  placeholder="last name"
+                  onChange={(e) =>
+                    handleGuestChange(roomIndex, guestIndex, "lastName", e.target.value)
+                  }
+                  required
+                />
+              </div>
             </div>
 
-            {/* Phone */}
-            <div className={styles.inputGroup}>
-              <input
-                type="tel"
-                placeholder="phone"
-                value={formData.phone}
-                onChange={(e) =>
-                  setFormData((prev) => ({
-                    ...prev,
-                    phone: e.target.value,
-                  }))
-                }
-              />
-            </div>
-          </div>
+            {/* EXTRA FIELDS — ONLY FIRST ADULT OF EACH ROOM */}
+            {guest.type === "adult" && adultCounter === 1 && (
+              <>
+                <div className={styles.row} style={{ margin: "-8px 0 0 0" }}>
 
-          {/* Email */}
-          <div className={styles.inputGroup}>
-            <input
-              type="email"
-              placeholder="email"
-              value={formData.email}
-              onChange={(e) =>
-                setFormData((prev) => ({
-                  ...prev,
-                  email: e.target.value,
-                }))
-              }
-            />
+                  {/* Country Selector */}
+                  <div className={styles.countryGroup}>
+                    <CountrySelector
+                      selectedCountry={formData.countryCode}
+                      show_label={false}
+                      placeholder={false}
+                      onCountrySelect={(code) =>
+                        setFormData((prev) => ({
+                          ...prev,
+                          countryCode: code,
+                        }))
+                      }
+                    />
+                  </div>
+
+                  {/* Phone */}
+                  <div className={styles.inputGroup}>
+                    <input
+                      type="tel"
+                      placeholder="phone"
+                      value={formData.phone}
+                      onChange={(e) =>
+                        setFormData((prev) => ({
+                          ...prev,
+                          phone: e.target.value,
+                        }))
+                      }
+                    />
+                  </div>
+                </div>
+
+                {/* Email */}
+                <div className={styles.inputGroup}>
+                  <input
+                    type="email"
+                    placeholder="email"
+                    value={formData.email}
+                    onChange={(e) =>
+                      setFormData((prev) => ({
+                        ...prev,
+                        email: e.target.value,
+                      }))
+                    }
+                  />
+                </div>
+              </>
+            )}
           </div>
-        </>
-      )}
+        );
+      })}
     </div>
   );
 })}
@@ -678,7 +759,7 @@ const handleSubmits = async (e) => {
             </label>
           </div>
 
-          <div className={styles.payment}>
+          {/* <div className={styles.payment}>
             <p>Payment Method</p>
             <div className={styles.methods}>
               <label>
@@ -712,9 +793,9 @@ const handleSubmits = async (e) => {
                 <span style={{ marginRight: "8px" }}></span>Google Pay
               </label>
             </div>
-          </div>
+          </div> */}
 
-          <button type="submit" className={styles.submitBtn} disabled={loading}>
+          <button type="submit" className={styles.submitBtn} disabled={loadingfetch}>
             {loading ? "Redirecting to Payment..." : "Proceed To Pay"}
           </button>
         </form>
