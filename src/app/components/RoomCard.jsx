@@ -285,7 +285,7 @@ export default function RoomCard({
                                   <strong>From:</strong> {p.FromDate}
                                 </div>
                                 <div>
-                                  <strong>Amount:</strong> {p.Amount * count_room}
+                                  <strong>Amount:</strong> {convertPrice(p.Amount * count_room)}
                                 </div>
                               </div>
                             ))}

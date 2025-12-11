@@ -1100,7 +1100,7 @@ const handleSubmits = async (e) => {
 {priceConfirmResponse?.parsedObject?.Success?.PriceDetails?.HotelList?.[0]
   ?.CancellationPolicyList?.map((policy, index) => (
     <div key={index}>
-      <p>Amount: {policy?.Amount}</p>
+      <p>Amount: {convertPrice(policy?.Amount)}</p>
       <p>From Date: {policy?.FromDate}</p>
     </div>
 ))}

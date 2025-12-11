@@ -10,7 +10,7 @@ export async function POST(req) {
 
     if (!agencyId) {
       return Response.json(
-        { success: false, message: "Agency ID missing in cookies." },
+        { success: false, message: "Login to proceed!" },
         { status: 400 }
       );
     }
