@@ -181,7 +181,7 @@ export default function RoomCard({
       <div
         className="room-right"
         style={{
-          width: 380,
+          // width: 380,
           display: "flex",
           flexDirection: "column",
           gap: 10,
@@ -296,7 +296,7 @@ export default function RoomCard({
                 </div>
 
                 <div className="price-box" style={{ textAlign: "right" }}>
-                  <div style={{ fontSize: 18, fontWeight: 700 }}>
+                  <div className="price-check">
                     {currency}{" "}
                     {convertPrice(variation.raw?.TotalPrice * count_room)}
                   </div>

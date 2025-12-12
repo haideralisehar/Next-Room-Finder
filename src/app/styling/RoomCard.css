@@ -168,6 +168,11 @@
   font-size: 14px;
   font-weight: bold;
 }
+.price-check{
+    font-size: 18px;
+    font-weight: 700;
+    
+  }
 
 .small-text {
   color: #8a8a8a;
@@ -255,7 +260,7 @@
   display: none;
 }
 
-@media (max-width: 650px) {
+@media (max-width: 850px) {
   .choose-btn-mob {
     width: 100%;
     display: block;
@@ -267,9 +272,17 @@
   .popup-content {
     width: 90%;
   }
-  .choose-btn {
-    display: none;
+  .price-box{
+    font-size: 14px;
   }
+  .price-check{
+    font-size: 14px;
+    font-weight: 700;
+    
+  }
+  /* .choose-btn {
+    display: none;
+  } */
   .new-price {
     font-size: 14px;
   }
