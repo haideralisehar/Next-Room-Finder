@@ -13,7 +13,10 @@ import TermsAndConditions from "../terms-conditions/page";
 import CountrySelector from "../components/CountrySelector";
 import { useSelector } from "react-redux";
 import Image from "next/image";
-import {useRouter } from "next/navigation";
+import { useRouter } from "next/navigation";
+
+import { useDispatch } from "react-redux";
+import { setConfirmedBooking, setConfirmedBookingError } from "../redux/confirmedBookingSlice";
 
 export default function BookingPage() {
   const router = useRouter();
@@ -21,14 +24,15 @@ export default function BookingPage() {
   const searchParams = useSearchParams();
   const [showAmenitiesPopup, setShowAmenitiesPopup] = useState(false);
   const [animateClose, setAnimateClose] = useState(false);
+  const dispatch = useDispatch();
 
   const [acknowledged, setAcknowledged] = useState(false);
   const [showWarningPopup, setShowWarningPopup] = useState(false);
   const [loading, setLoading] = useState(false);
 
   const priceConfirmResponse = useSelector(
-  (state) => state.priceConfirm.priceConfirmData
-);
+    (state) => state.priceConfirm.priceConfirmData
+  );
 
   const [starRating, setstarRating] = useState("");
   const [location, setlocation] = useState("");
@@ -36,16 +40,16 @@ export default function BookingPage() {
   const [loadingfetch, setLoadingfetch] = useState(false);
 
   const [rooms, setRooms] = useState([]);
-const [guestForms, setGuestForms] = useState([]);
-const [booking, setBooking] = useState([]);
+  const [guestForms, setGuestForms] = useState([]);
+  const [booking, setBooking] = useState([]);
 
-//   const [contactInfo, setContactInfo] = useState({
-//   countryCode: "",
-//   phone: "",
-//   email: "",
-// });
+  //   const [contactInfo, setContactInfo] = useState({
+  //   countryCode: "",
+  //   phone: "",
+  //   email: "",
+  // });
 
-const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState({
     firstName: "",
     lastName: "",
     countryCode: "",
@@ -57,118 +61,99 @@ const [formData, setFormData] = useState({
     paymentMethod: "card",
   });
 
-
-
-
-
   const room =
-    priceConfirmResponse?.parsedObject?.Success?.PriceDetails?.HotelList?.[0]?.RatePlanList?.[0]?.RoomOccupancy;
-    const Room_Name =
-    priceConfirmResponse?.parsedObject?.Success?.PriceDetails?.HotelList?.[0]?.RatePlanList?.[0]?.RatePlanName;
-console.log("room, ", room);
-  console.log("selected_datas",priceConfirmResponse);
+    priceConfirmResponse?.parsedObject?.Success?.PriceDetails?.HotelList?.[0]
+      ?.RatePlanList?.[0]?.RoomOccupancy;
+  const Room_Name =
+    priceConfirmResponse?.parsedObject?.Success?.PriceDetails?.HotelList?.[0]
+      ?.RatePlanList?.[0]?.RatePlanName;
+  console.log("room, ", room);
+  console.log("selected_datas", priceConfirmResponse);
 
   function applyDiscountAndMarkup(priceConfirmResponse) {
-  const hotel =
-    priceConfirmResponse?.parsedObject?.Success?.PriceDetails?.HotelList?.[0];
+    const hotel =
+      priceConfirmResponse?.parsedObject?.Success?.PriceDetails?.HotelList?.[0];
 
     useEffect(() => {
-  if (priceConfirmResponse?.room_cont) {
-    setRooms(priceConfirmResponse.room_cont);
-  }
-}, [priceConfirmResponse]);
+      if (priceConfirmResponse?.room_cont) {
+        setRooms(priceConfirmResponse.room_cont);
+      }
+    }, [priceConfirmResponse]);
 
-   
+    useEffect(() => {
+      if (!rooms || rooms.length === 0) return;
 
+      const allRoomsGuests = rooms.map((room, roomIndex) => {
+        const guests = [];
 
+        // Adults
+        for (let i = 0; i < room.adults; i++) {
+          guests.push({
+            type: "adult",
+            firstName: "",
+            lastName: "",
+            age: null,
+            isAdult: true,
+            roomIndex,
+          });
+        }
 
-   useEffect(() => {
-  if (!rooms || rooms.length === 0) return;
+        // Children
+        room.childrenAges?.forEach((age) => {
+          guests.push({
+            type: "child",
+            firstName: "",
+            lastName: "",
+            age,
+            isAdult: false,
+            roomIndex,
+          });
+        });
 
-  const allRoomsGuests = rooms.map((room, roomIndex) => {
-    const guests = [];
-
-    // Adults
-    for (let i = 0; i < room.adults; i++) {
-      guests.push({
-        type: "adult",
-        firstName: "",
-        lastName: "",
-        age: null,
-        isAdult: true,
-        roomIndex,
+        return guests;
       });
+
+      setGuestForms(allRoomsGuests);
+    }, [rooms]);
+
+    if (!hotel) {
+      console.error("HotelList[0] not found");
+      return null;
     }
 
-    // Children
-    room.childrenAges?.forEach((age) => {
-      guests.push({
-        type: "child",
-        firstName: "",
-        lastName: "",
-        age,
-        isAdult: false,
-        roomIndex,
-      });
-    });
+    let totalPrice = hotel.TotalPrice;
 
-    return guests;
-  });
+    const discount = priceConfirmResponse?.Discounts;
+    const markup = priceConfirmResponse?.Markups;
 
-  setGuestForms(allRoomsGuests);
-}, [rooms]);
-
-
-
-
-
-    
-
-    
-    
-
-
-
-  if (!hotel) {
-    console.error("HotelList[0] not found");
-    return null;
-  }
-
-  let totalPrice = hotel.TotalPrice;
-
-  const discount = priceConfirmResponse?.Discounts;
-  const markup = priceConfirmResponse?.Markups;
-
-  // ------------------------------
-  // Apply DISCOUNT
-  // ------------------------------
-  if (discount) {
-    if (discount.type === "Percentage") {
-      totalPrice = totalPrice - (totalPrice * discount.value) / 100;
-    } else if (discount.type === "Amount") {
-      totalPrice = totalPrice - discount.value;
+    // ------------------------------
+    // Apply DISCOUNT
+    // ------------------------------
+    if (discount) {
+      if (discount.type === "Percentage") {
+        totalPrice = totalPrice - (totalPrice * discount.value) / 100;
+      } else if (discount.type === "Amount") {
+        totalPrice = totalPrice - discount.value;
+      }
     }
-  }
 
-  // ------------------------------
-  // Apply MARKUP
-  // ------------------------------
-  if (markup) {
-    if (markup.type === "Percentage") {
-      totalPrice = totalPrice + (totalPrice * markup.value) / 100;
-    } else if (markup.type === "Amount") {
-      totalPrice = totalPrice + markup.value;
+    // ------------------------------
+    // Apply MARKUP
+    // ------------------------------
+    if (markup) {
+      if (markup.type === "Percentage") {
+        totalPrice = totalPrice + (totalPrice * markup.value) / 100;
+      } else if (markup.type === "Amount") {
+        totalPrice = totalPrice + markup.value;
+      }
     }
+
+    return totalPrice;
   }
 
-  return totalPrice;
-}
+  const finalPrice = applyDiscountAndMarkup(priceConfirmResponse);
 
-const finalPrice = applyDiscountAndMarkup(priceConfirmResponse);
-
-console.log(finalPrice);
-
-
+  console.log(finalPrice);
 
   // Load from localStorage on mount
   useEffect(() => {
@@ -177,42 +162,32 @@ console.log(finalPrice);
       setAcknowledged(true);
     }
 
-    if(!priceConfirmResponse){
-    console.log("No Data Fount for this room confirmation");
-  }
+    if (!priceConfirmResponse) {
+      console.log("No Data Fount for this room confirmation");
+    }
 
-  try{
-    const apiResponse = priceConfirmResponse;
-    const rating_star = apiResponse.rating || "";
-    const address = apiResponse.address || "";
-    const hotel_name =
-  apiResponse?.parsedObject?.Success?.PriceDetails?.HotelList?.[0]?.HotelName || "";
-  
+    try {
+      const apiResponse = priceConfirmResponse;
+      const rating_star = apiResponse.rating || "";
+      const address = apiResponse.address || "";
+      const hotel_name =
+        apiResponse?.parsedObject?.Success?.PriceDetails?.HotelList?.[0]
+          ?.HotelName || "";
 
-  // const checkIn =
-  // apiResponse?.parsedObject?.Success?.PriceDetails?.CheckInDate || "";
+      // const checkIn =
+      // apiResponse?.parsedObject?.Success?.PriceDetails?.CheckInDate || "";
 
-
-
-
-
-    sethotelName(hotel_name);
-    setlocation(address);
-    setstarRating(rating_star);
-
-
-  }
-  catch(err){
-    console.error("Failed to parse selectedHotel:", err);
-    setLoading(false);
-
-  }
+      sethotelName(hotel_name);
+      setlocation(address);
+      setstarRating(rating_star);
+    } catch (err) {
+      console.error("Failed to parse selectedHotel:", err);
+      setLoading(false);
+    }
   }, []);
 
   console.log(starRating);
-  console.log(priceConfirmResponse?.image)
-
-  
+  console.log(priceConfirmResponse?.image);
 
   const handleTermsCheckbox = (e) => {
     if (!acknowledged) {
@@ -265,8 +240,6 @@ console.log(finalPrice);
     return acc + Number(room.price); // Convert price to number just in case
   }, 0);
 
-  
-
   const handleCountrySelect = (countryName) => {
     setFormData((prev) => ({
       ...prev,
@@ -299,7 +272,7 @@ console.log(finalPrice);
     try {
       const finalPrice = applyDiscountAndMarkup(priceConfirmResponse);
       const reference =
-    priceConfirmResponse?.parsedObject?.Success?.PriceDetails?.ReferenceNo;
+        priceConfirmResponse?.parsedObject?.Success?.PriceDetails?.ReferenceNo;
 
       const response = await fetch("/api/tap/create", {
         method: "POST",
@@ -317,22 +290,19 @@ console.log(finalPrice);
           },
 
           metadata: {
-        booking_reference: reference,
-        room_num: room?.RoomNum
-      },
-
-          
+            booking_reference: reference,
+            room_num: room?.RoomNum,
+          },
         }),
       });
 
       const data = await response.json();
       setLoadingfetch(false);
-      
 
       // ✅ Handle Tap API response clearly
       if (response.ok && data?.url) {
         window.location.href = data.url;
-         setLoadingfetch(false);
+        setLoadingfetch(false);
       } else {
         console.error("Payment Error:", data);
         const message =
@@ -340,15 +310,15 @@ console.log(finalPrice);
             ? JSON.stringify(data.error)
             : data.error || "Unable to process payment.";
         alert("Error: " + message);
-         setLoadingfetch(false);
+        setLoadingfetch(false);
       }
     } catch (err) {
       console.error("Payment Exception:", err);
       alert("Payment failed: " + err.message);
-       setLoadingfetch(false);
+      setLoadingfetch(false);
     } finally {
       setLoading(false);
-       setLoadingfetch(false);
+      setLoadingfetch(false);
     }
   };
 
@@ -366,137 +336,123 @@ console.log(finalPrice);
   //   });
   // };
 
-   const handleGuestChange = (roomIndex, guestIndex, field, value) => {
-  setGuestForms((prev) => {
-    const updated = [...prev];
-    updated[roomIndex][guestIndex][field] = value;
-    return updated;
-  });
-};
+  const handleGuestChange = (roomIndex, guestIndex, field, value) => {
+    setGuestForms((prev) => {
+      const updated = [...prev];
+      updated[roomIndex][guestIndex][field] = value;
+      return updated;
+    });
+  };
 
-const resetAllFields = () => {
-  setGuestForms((prev) =>
-    prev.map((roomGuests) =>
-      roomGuests.map((g) => ({
-        ...g,
-        firstName: "",
-        lastName: "",
-        age: g.isAdult ? null : g.age, // keep child age only
-      }))
-    )
-  );
+  const resetAllFields = () => {
+    setGuestForms((prev) =>
+      prev.map((roomGuests) =>
+        roomGuests.map((g) => ({
+          ...g,
+          firstName: "",
+          lastName: "",
+          age: g.isAdult ? null : g.age, // keep child age only
+        }))
+      )
+    );
 
-  setFormData({
-    firstName: "",
-    lastName: "",
-    email: "",
-    phone: "",
-    countryCode: "",
-    specialRequest: "",
-    guestType: "Myself",
-    paymentMethod: "card",
-    termsAccepted: false,
-  });
-};
+    setFormData({
+      firstName: "",
+      lastName: "",
+      email: "",
+      phone: "",
+      countryCode: "",
+      specialRequest: "",
+      guestType: "Myself",
+      paymentMethod: "card",
+      termsAccepted: false,
+    });
+  };
 
+  // const handleSubmits = async (e) => {
+  //   e.preventDefault();
 
+  //   const finalGuestList = guestForms.map((roomGuests, roomIndex) => {
+  //     let adultIndex = 0;
 
+  //     const guestInfo = roomGuests.map((g) => {
+  //       let guest = {
+  //         name: { first: g.firstName, last: g.lastName },
+  //         isAdult: g.isAdult,
+  //         age: g.isAdult ? null : g.age,
+  //       };
 
+  //       // FIRST ADULT OF EACH ROOM → Attach Contact Info
+  //       if (g.type === "adult") {
+  //         adultIndex++;
 
+  //         // Only first room first adult uses contact info
+  //         if (roomIndex === 0 && adultIndex === 1) {
+  //           guest.name.first = formData.firstName || g.firstName;
+  //           guest.name.last = formData.lastName || g.lastName;
+  //         }
+  //       }
+  //       setFormData({
+  //         ...formData,
+  //         firstName: g.firstName,
+  //         lastName: g.lastName
+  //       });
 
+  //       return guest;
+  //     });
 
+  //     return {
+  //       roomNum: roomIndex + 1, // room.RoomNum if API gives it
+  //       guestInfo,
+  //     };
+  //   });
 
-// const handleSubmits = async (e) => {
-//   e.preventDefault();
+  //   setLoadingfetch(true);
+  //   const bookingResponse = await fetch('/api/bookingConfirm', {
+  //     method: "POST",
+  //     headers: { "Content-Type": "application/json" },
+  //     body: JSON.stringify({
+  //       checkInDate: priceConfirmResponse?.parsedObject?.Success?.PriceDetails?.CheckInDate,
+  //       checkOutDate: priceConfirmResponse?.parsedObject?.Success?.PriceDetails?.CheckOutDate,
+  //       numOfRooms: priceConfirmResponse?.room_cont.length,
 
-//   const finalGuestList = guestForms.map((roomGuests, roomIndex) => {
-//     let adultIndex = 0;
+  //       // ⭐ Use your dynamically generated finalGuestList
+  //       guestList: finalGuestList,
 
-//     const guestInfo = roomGuests.map((g) => {
-//       let guest = {
-//         name: { first: g.firstName, last: g.lastName },
-//         isAdult: g.isAdult,
-//         age: g.isAdult ? null : g.age,
-//       };
+  //       contact: {
+  //         name: {
+  //           first: "John",
+  //           last: "Doe",
+  //         },
+  //         email: "johndoe@example.com",
+  //         phone: "+923001234567",
+  //       },
 
-//       // FIRST ADULT OF EACH ROOM → Attach Contact Info
-//       if (g.type === "adult") {
-//         adultIndex++;
-      
-//         // Only first room first adult uses contact info
-//         if (roomIndex === 0 && adultIndex === 1) {
-//           guest.name.first = formData.firstName || g.firstName;
-//           guest.name.last = formData.lastName || g.lastName;
-//         }
-//       }
-//       setFormData({
-//         ...formData,
-//         firstName: g.firstName,
-//         lastName: g.lastName
-//       });      
+  //       clientReference: `client-${Date.now() + 10000}`,
+  //       referenceNo: priceConfirmResponse?.parsedObject?.Success?.PriceDetails?.ReferenceNo,
+  //     }),
+  //   });
 
-//       return guest;
-//     });
+  //   const bookingResult = await bookingResponse.json();
+  //   setBooking(bookingResult);
+  //   resetAllFields();
+  //    setLoadingfetch(false);
 
-//     return {
-//       roomNum: roomIndex + 1, // room.RoomNum if API gives it
-//       guestInfo,
-//     };
-//   });
+  //   //  if(bookingResult?.Error){
 
+  //   //  }
+  //   //  router.replace("/");
 
+  //   console.log("Booking Confirm Result:", bookingResult);
 
+  // }
 
-
-
-//   setLoadingfetch(true);
-//   const bookingResponse = await fetch('/api/bookingConfirm', {
-//     method: "POST",
-//     headers: { "Content-Type": "application/json" },
-//     body: JSON.stringify({
-//       checkInDate: priceConfirmResponse?.parsedObject?.Success?.PriceDetails?.CheckInDate,
-//       checkOutDate: priceConfirmResponse?.parsedObject?.Success?.PriceDetails?.CheckOutDate,
-//       numOfRooms: priceConfirmResponse?.room_cont.length,
-
-//       // ⭐ Use your dynamically generated finalGuestList
-//       guestList: finalGuestList,
-
-//       contact: {
-//         name: {
-//           first: "John",
-//           last: "Doe",
-//         },
-//         email: "johndoe@example.com",
-//         phone: "+923001234567",
-//       },
-
-//       clientReference: `client-${Date.now() + 10000}`,
-//       referenceNo: priceConfirmResponse?.parsedObject?.Success?.PriceDetails?.ReferenceNo,
-//     }),
-//   });
-
- 
-
-//   const bookingResult = await bookingResponse.json();
-//   setBooking(bookingResult);
-//   resetAllFields();
-//    setLoadingfetch(false);
-
-//   //  if(bookingResult?.Error){
-    
-
-//   //  }
-//   //  router.replace("/");
-   
-//   console.log("Booking Confirm Result:", bookingResult);
-
-// }
-
-
-const handleSubmits = async (e) => {
+  const handleSubmits = async (e) => {
   e.preventDefault();
 
-  // Generate final guest list...
+  // ---------------------------------------------------
+  // Step 1: Build final guest list
+  // ---------------------------------------------------
   const finalGuestList = guestForms.map((roomGuests, roomIndex) => {
     let adultIndex = 0;
 
@@ -507,6 +463,7 @@ const handleSubmits = async (e) => {
         age: g.isAdult ? null : g.age,
       };
 
+      // Replace first adult in room 1 with primary user name
       if (g.type === "adult") {
         adultIndex++;
         if (roomIndex === 0 && adultIndex === 1) {
@@ -524,63 +481,85 @@ const handleSubmits = async (e) => {
     };
   });
 
-  // FULL BOOKING PAYLOAD
+  // ---------------------------------------------------
+  // Step 2: Build Booking Confirm Payload
+  // ---------------------------------------------------
   const bookingPayload = {
     checkInDate:
       priceConfirmResponse?.parsedObject?.Success?.PriceDetails?.CheckInDate,
     checkOutDate:
       priceConfirmResponse?.parsedObject?.Success?.PriceDetails?.CheckOutDate,
-    numOfRooms: priceConfirmResponse?.room_cont.length,
+    numOfRooms: priceConfirmResponse?.room_cont?.length,
     guestList: finalGuestList,
+
     contact: {
       name: {
-        first: "John",
-        last: "Doe",
+        first: formData.firstName || "John",
+        last: formData.lastName || "Doe",
       },
-      email: "johndoe@example.com",
-      phone: "+923001234567",
+      email: formData.email || "johndoe@example.com",
+      phone: formData.phone || "+923001234567",
     },
-    clientReference: `client-${Date.now() + 10000}`,
+
+    clientReference: `client-${Date.now()}`,
     referenceNo:
       priceConfirmResponse?.parsedObject?.Success?.PriceDetails?.ReferenceNo,
   };
 
   setLoadingfetch(true);
 
-  // 🔥 CALL WALLET DEDUCT API ONLY
-  const res = await fetch("/api/walletDeduct", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      orderAmount: convertPrice(finalPrice),
-      bookingPayload,
-    }),
-  });
+  try {
+    const res = await fetch("/api/walletDeduct", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        orderAmount: convertPrice(finalPrice),
+        bookingPayload,
+      }),
+    });
 
-  const data = await res.json();
-  console.log("booking",data);
-  setLoadingfetch(false);
+    const data = await res.json();
+    setLoadingfetch(false);
 
-  if (!data.success) {
-    alert(data.message);
-    return;
+    console.log("Booking API Response →", data);
+
+    // ---------------------------------------------
+    // ❌ If success is false or error exists
+    // ---------------------------------------------
+    if (!data.success) {
+      dispatch(setConfirmedBookingError(data.message || "Booking failed"));
+      alert(data.message || "Booking failed");
+      return;
+    }
+
+    // ---------------------------------------------
+    // ✔️ Success Case
+    // ---------------------------------------------
+    const finalBookingData = {
+      ...data, // success + message
+      booking: data.booking, // full booking (AuditData + Success)
+      agency: priceConfirmResponse?.agencyDetails, 
+      tel: priceConfirmResponse?.tele_phone,
+      address: priceConfirmResponse?.address
+
+    };
+
+    // Save in Redux
+    dispatch(setConfirmedBooking(finalBookingData));
+
+    console.log("Confirmed Booking Saved →", finalBookingData);
+
+    alert("Payment deducted & booking confirmed!");
+
+    // Redirect user
+    router.replace("/GetVoucher");
+
+  } catch (error) {
+    setLoadingfetch(false);
+    dispatch(setConfirmedBookingError(error.message));
+    alert(error.message);
   }
-
-  alert(data?.message);
-
-  setBooking(data.booking);
-  resetAllFields();
 };
-
-
-
-
-
-
-
-
-
-
 
 
   return (
@@ -604,26 +583,26 @@ const handleSubmits = async (e) => {
       ))}
     </div> */}
 
-    {loadingfetch && (
-            <div className="loading-container">
-              <div className="box">
-                <Image
-                  className="circular-left-right"
-                  src="/loading_ico.png"
-                  alt="Loading"
-                  width={200}
-                  height={200}
-                />
-                <p style={{ fontSize: "13px" }}>Please Wait...</p>
-              </div>
-            </div>
-          )}
-          
-          {booking.Error && (
-            <div>
-              <p>{booking?.Error?.Message}</p>
-            </div>
-          )}
+      {loadingfetch && (
+        <div className="loading-container">
+          <div className="box">
+            <Image
+              className="circular-left-right"
+              src="/loading_ico.png"
+              alt="Loading"
+              width={200}
+              height={200}
+            />
+            <p style={{ fontSize: "13px" }}>Please Wait...</p>
+          </div>
+        </div>
+      )}
+
+      {booking.Error && (
+        <div>
+          <p>{booking?.Error?.Message}</p>
+        </div>
+      )}
 
       <div className={styles.container}>
         {/* Left Form */}
@@ -631,8 +610,8 @@ const handleSubmits = async (e) => {
           <h2 style={{ fontSize: "18px", fontWeight: "bold" }}>
             Guests Details & Payment
           </h2>
-          
-{/* <div className={styles.row}>
+
+          {/* <div className={styles.row}>
           <div className={styles.inputGroup}>
             <label>First Name *</label>
             <input
@@ -687,124 +666,130 @@ const handleSubmits = async (e) => {
             />
           </div> */}
 
-          
+          {/* Show Room Number ONE TIME */}
+          {guestForms.map((roomGuests, roomIndex) => {
+            let adultCounter = 0;
+            let childCounter = 0;
 
+            return (
+              <div key={roomIndex}>
+                {/* ROOM LABEL */}
+                <p className={styles.roomNum}>Room: {roomIndex + 1}</p>
 
+                {roomGuests.map((guest, guestIndex) => {
+                  // Count adults/children up to this guest
+                  if (guest.type === "adult") adultCounter++;
+                  if (guest.type === "child") childCounter++;
 
-{/* Show Room Number ONE TIME */}
-{guestForms.map((roomGuests, roomIndex) => {
-  let adultCounter = 0;
-  let childCounter = 0;
+                  return (
+                    <div key={guestIndex} className={styles.inputGroup}>
+                      <h4
+                        style={{ padding: "10px 0 0 5px", fontWeight: "bold" }}
+                      >
+                        {guest.type === "adult"
+                          ? `Adult ${adultCounter}`
+                          : `Child ${childCounter} (Age: ${guest.age})`}
+                      </h4>
 
-  return (
-    <div key={roomIndex}>
-      {/* ROOM LABEL */}
-      <p className={styles.roomNum}>Room: {roomIndex + 1}</p>
+                      {/* NAME FIELDS */}
+                      <div className={styles.row}>
+                        <div className={styles.inputGroup}>
+                          <input
+                            type="text"
+                            value={guest.firstName}
+                            placeholder="first name"
+                            onChange={(e) =>
+                              handleGuestChange(
+                                roomIndex,
+                                guestIndex,
+                                "firstName",
+                                e.target.value
+                              )
+                            }
+                            required
+                          />
+                        </div>
 
-      {roomGuests.map((guest, guestIndex) => {
-        // Count adults/children up to this guest
-        if (guest.type === "adult") adultCounter++;
-        if (guest.type === "child") childCounter++;
+                        <div className={styles.inputGroup}>
+                          <input
+                            type="text"
+                            value={guest.lastName}
+                            placeholder="last name"
+                            onChange={(e) =>
+                              handleGuestChange(
+                                roomIndex,
+                                guestIndex,
+                                "lastName",
+                                e.target.value
+                              )
+                            }
+                            required
+                          />
+                        </div>
+                      </div>
 
-        return (
-          <div key={guestIndex} className={styles.inputGroup}>
+                      {/* EXTRA FIELDS — ONLY FIRST ADULT OF EACH ROOM */}
+                      {guest.type === "adult" &&
+                        adultCounter === 1 &&
+                        roomIndex === 0 && (
+                          <>
+                            <div
+                              className={styles.row}
+                              style={{ margin: "-8px 0 0 0" }}
+                            >
+                              <div className={styles.countryGroup}>
+                                <CountrySelector
+                                  selectedCountry={formData.countryCode}
+                                  show_label={false}
+                                  placeholder={false}
+                                  required
+                                  onCountrySelect={(code) =>
+                                    setFormData((prev) => ({
+                                      ...prev,
+                                      countryCode: code,
+                                    }))
+                                  }
+                                />
+                              </div>
 
-            <h4 style={{ padding: "10px 0 0 5px", fontWeight: "bold" }}>
-              {guest.type === "adult"
-                ? `Adult ${adultCounter}`
-                : `Child ${childCounter} (Age: ${guest.age})`}
-            </h4>
+                              <div className={styles.inputGroup}>
+                                <input
+                                  type="tel"
+                                  placeholder="phone"
+                                  value={formData.phone}
+                                  required
+                                  onChange={(e) =>
+                                    setFormData((prev) => ({
+                                      ...prev,
+                                      phone: e.target.value,
+                                    }))
+                                  }
+                                />
+                              </div>
+                            </div>
 
-            {/* NAME FIELDS */}
-            <div className={styles.row}>
-              <div className={styles.inputGroup}>
-                <input
-                  type="text"
-                  value={guest.firstName}
-                  placeholder="first name"
-                  onChange={(e) =>
-                    handleGuestChange(roomIndex, guestIndex, "firstName", e.target.value)
-                  }
-                  required
-                />
+                            <div className={styles.inputGroup}>
+                              <input
+                                type="email"
+                                placeholder="email"
+                                value={formData.email}
+                                required
+                                onChange={(e) =>
+                                  setFormData((prev) => ({
+                                    ...prev,
+                                    email: e.target.value,
+                                  }))
+                                }
+                              />
+                            </div>
+                          </>
+                        )}
+                    </div>
+                  );
+                })}
               </div>
-
-              <div className={styles.inputGroup}>
-                <input
-                  type="text"
-                  value={guest.lastName}
-                  placeholder="last name"
-                  onChange={(e) =>
-                    handleGuestChange(roomIndex, guestIndex, "lastName", e.target.value)
-                  }
-                  required
-                />
-              </div>
-            </div>
-
-            {/* EXTRA FIELDS — ONLY FIRST ADULT OF EACH ROOM */}
-            {guest.type === "adult" && adultCounter === 1 && roomIndex === 0 && (
-  <>
-    <div className={styles.row} style={{ margin: "-8px 0 0 0" }}>
-      <div className={styles.countryGroup}>
-        <CountrySelector
-          selectedCountry={formData.countryCode}
-          show_label={false}
-          placeholder={false}
-          required
-          onCountrySelect={(code) =>
-            setFormData((prev) => ({
-              ...prev,
-              countryCode: code,
-            }))
-          }
-        />
-      </div>
-
-      <div className={styles.inputGroup}>
-        <input
-          type="tel"
-          placeholder="phone"
-          value={formData.phone}
-          required
-          onChange={(e) =>
-            setFormData((prev) => ({
-              ...prev,
-              phone: e.target.value,
-            }))
-          }
-        />
-      </div>
-    </div>
-
-    <div className={styles.inputGroup}>
-      <input
-        type="email"
-        placeholder="email"
-        value={formData.email}
-        required
-        onChange={(e) =>
-          setFormData((prev) => ({
-            ...prev,
-            email: e.target.value,
-          }))
-        }
-      />
-    </div>
-  </>
-)}
-
-          </div>
-        );
-      })}
-    </div>
-  );
-})}
-
-
-
-
-
+            );
+          })}
 
           <h3>Guests</h3>
           <div className={styles.toggle}>
@@ -899,7 +884,11 @@ const handleSubmits = async (e) => {
             </div>
           </div> */}
 
-          <button type="submit" className={styles.submitBtn} disabled={loadingfetch}>
+          <button
+            type="submit"
+            className={styles.submitBtn}
+            disabled={loadingfetch}
+          >
             {loading ? "Redirecting to Payment..." : "Proceed To Pay"}
           </button>
         </form>
@@ -911,17 +900,14 @@ const handleSubmits = async (e) => {
           </h2>
           <div className={styles.hotelCard}>
             <img
-                                src={
-                                  priceConfirmResponse?.image ||
-                                  "/no-image.jpg"
-                                }
-                                alt={hotel.name}
-                                className={styles.hotelImg}
-                                onError={(e) => {
-                                  e.target.src =
-                                    "https://www.freeiconspng.com/thumbs/no-image-icon/no-image-icon-6.png";
-                                }}
-                              />
+              src={priceConfirmResponse?.image || "/no-image.jpg"}
+              alt={hotel.name}
+              className={styles.hotelImg}
+              onError={(e) => {
+                e.target.src =
+                  "https://www.freeiconspng.com/thumbs/no-image-icon/no-image-icon-6.png";
+              }}
+            />
             {/* <img src={priceConfirmResponse?.image} alt="Hotel" className={styles.hotelImg} /> */}
             <div>
               {/* ⭐ Rating Row */}
@@ -958,11 +944,18 @@ const handleSubmits = async (e) => {
                 Check-in & Check-out
               </p>
             </div>
-            
 
             <p style={{ padding: "7px 0px 5px 1px", color: "#2c2c2cff" }}>
-              {priceConfirmResponse?.parsedObject?.Success?.PriceDetails?.CheckInDate.split(" ")[0] || ""} -{" "}
-              {priceConfirmResponse?.parsedObject?.Success?.PriceDetails?.CheckOutDate.split(" ")[0]} (
+              {priceConfirmResponse?.parsedObject?.Success?.PriceDetails?.CheckInDate.split(
+                " "
+              )[0] || ""}{" "}
+              -{" "}
+              {
+                priceConfirmResponse?.parsedObject?.Success?.PriceDetails?.CheckOutDate.split(
+                  " "
+                )[0]
+              }{" "}
+              (
               {priceConfirmResponse?.nights > 1
                 ? `${priceConfirmResponse?.nights} Nights`
                 : `${priceConfirmResponse?.nights} Night`}
@@ -978,113 +971,114 @@ const handleSubmits = async (e) => {
               }}
             >
               {/* <h4>Selected Rooms:</h4> */}
-           <div className="selected-rooms">
+              <div className="selected-rooms">
+                {priceConfirmResponse?.room_cont?.length > 0 &&
+                priceConfirmResponse?.parsedObject?.Success?.PriceDetails
+                  ?.HotelList?.[0]?.RatePlanList ? (
+                  priceConfirmResponse.room_cont.map((room, index) => {
+                    const ratePlanList =
+                      priceConfirmResponse.parsedObject.Success.PriceDetails
+                        .HotelList[0].RatePlanList;
 
-  {priceConfirmResponse?.room_cont?.length > 0 &&
-   priceConfirmResponse?.parsedObject?.Success?.PriceDetails?.HotelList?.[0]?.RatePlanList ? (
-     
-    priceConfirmResponse.room_cont.map((room, index) => {
-      
-      const ratePlanList =
-        priceConfirmResponse.parsedObject.Success.PriceDetails.HotelList[0].RatePlanList;
+                    // Safe access for RoomName for each room
+                    const roomName = ratePlanList?.[index]?.RoomName || "Room";
 
-      // Safe access for RoomName for each room
-      const roomName = ratePlanList?.[index]?.RoomName || "Room";
+                    return (
+                      <div
+                        key={index}
+                        style={{
+                          display: "flex",
+                          flexDirection: "column",
+                          gap: "4px",
+                          padding: "5px 0",
+                        }}
+                      >
+                        {/* ROOM INFO ROW */}
+                        <div
+                          style={{
+                            display: "flex",
+                            alignItems: "center",
+                            gap: "6px",
+                            flexWrap: "wrap",
+                          }}
+                        >
+                          {/* Room Number */}
+                          <div
+                            style={{
+                              backgroundColor: "#dcebecff",
+                              padding: "4px 14px",
+                              borderRadius: "30px",
+                            }}
+                          >
+                            <p style={{ margin: 0, color: "black" }}>
+                              Room {room.roomNum || index + 1}
+                            </p>
+                          </div>
 
-      return (
-        <div
-          key={index}
-          style={{
-            display: "flex",
-            flexDirection: "column",
-            gap: "4px",
-            padding: "5px 0",
-          }}
-        >
-          {/* ROOM INFO ROW */}
-          <div
-            style={{
-              display: "flex",
-              alignItems: "center",
-              gap: "6px",
-              flexWrap: "wrap",
-            }}
-          >
-            {/* Room Number */}
-            <div
-              style={{
-                backgroundColor: "#dcebecff",
-                padding: "4px 14px",
-                borderRadius: "30px",
-              }}
-            >
-              <p style={{ margin: 0, color: "black" }}>
-                Room {room.roomNum || index + 1}
-              </p>
-            </div>
+                          {/* Adults */}
+                          <p style={{ margin: 0, color: "black" }}>
+                            {room.adults > 1
+                              ? `${room.adults} Adults`
+                              : `${room.adults} Adult`}
+                          </p>
 
-            {/* Adults */}
-            <p style={{ margin: 0, color: "black" }}>
-              {room.adults > 1 ? `${room.adults} Adults` : `${room.adults} Adult`}
-            </p>
+                          {/* Children + Ages */}
+                          {room.children > 0 && (
+                            <div
+                              style={{
+                                display: "flex",
+                                gap: "10px",
+                                alignItems: "center",
+                                flexWrap: "wrap",
+                              }}
+                            >
+                              {room.childrenAges?.map((age, i) => (
+                                <p
+                                  key={i}
+                                  style={{ margin: 0, color: "black" }}
+                                >
+                                  Child {i + 1} ({age}y)
+                                </p>
+                              ))}
+                            </div>
+                          )}
+                        </div>
 
-            {/* Children + Ages */}
-            {room.children > 0 && (
-              <div
-                style={{
-                  display: "flex",
-                  gap: "10px",
-                  alignItems: "center",
-                  flexWrap: "wrap",
-                }}
-              >
-                {room.childrenAges?.map((age, i) => (
-                  <p key={i} style={{ margin: 0, color: "black" }}>
-                    Child {i + 1} ({age}y)
-                  </p>
-                ))}
+                        {/* ROOM NAME FROM RatePlanList */}
+                        <p
+                          style={{
+                            fontWeight: "bold",
+                            color: "black",
+                            padding: "6px 0px 0px 4px",
+                          }}
+                        >
+                          {roomName}
+                        </p>
+                      </div>
+                    );
+                  })
+                ) : (
+                  <p>No room data</p>
+                )}
               </div>
-            )}
-          </div>
-
-          {/* ROOM NAME FROM RatePlanList */}
-          <p
-            style={{
-              fontWeight: "bold",
-              color: "black",
-              padding: "6px 0px 0px 4px",
-            }}
-          >
-            {roomName}
-          </p>
-        </div>
-      );
-    })
-  ) : (
-    <p>No room data</p>
-  )}
-</div>
-
-
             </div>
           </div>
 
           <div className={styles.totalBoxe}>
             <div className={styles.totalBox}>
               <h5>Total Cal.</h5>
-              
+
               <p>
                 {/* {convertPrice(hotel.roomCost)} {Bhdcurrency} / Night x{" "} */}
-                {priceConfirmResponse?.room_cont?.length} Room(s) x {priceConfirmResponse?.nights} Night(s)
+                {priceConfirmResponse?.room_cont?.length} Room(s) x{" "}
+                {priceConfirmResponse?.nights} Night(s)
               </p>
             </div>
             <div className={styles.totalBoxee}>
               Total Amount
               <h4>
-                
                 {/* {(convertPrice(priceConfirmResponse?.parsedObject?.Success?.PriceDetails?.HotelList?.[0]?.TotalPrice))}{" "} */}
-                {(convertPrice(finalPrice))}{" "}
-                {Bhdcurrency}
+                {convertPrice(finalPrice)} {Bhdcurrency}
                 {/* {" "}
                 {convertPrice(
                   (hotel.roomCost * hotel.nights * hotel.totalRooms).toFixed(2)
@@ -1097,16 +1091,15 @@ const handleSubmits = async (e) => {
           <div className={styles.policy}>
             <h4>Cancellation Policy</h4>
 
-{priceConfirmResponse?.parsedObject?.Success?.PriceDetails?.HotelList?.[0]
-  ?.CancellationPolicyList?.map((policy, index) => (
-    <div key={index}>
-      <p>Amount: {convertPrice(policy?.Amount)}</p>
-      <p>From Date: {policy?.FromDate}</p>
-    </div>
-))}
-
-</div>
-
+            {priceConfirmResponse?.parsedObject?.Success?.PriceDetails?.HotelList?.[0]?.CancellationPolicyList?.map(
+              (policy, index) => (
+                <div key={index}>
+                  <p>Amount: {convertPrice(policy?.Amount)}</p>
+                  <p>From Date: {policy?.FromDate}</p>
+                </div>
+              )
+            )}
+          </div>
 
           <div className={styles.policy}>
             <h4>Important Information</h4>
@@ -1520,3 +1513,18 @@ const handleSubmits = async (e) => {
     </>
   );
 }
+
+
+
+
+
+
+
+
+// const handleSubmits = async (e) => { e.preventDefault();
+   
+//    const finalGuestList = guestForms.map((roomGuests, roomIndex) => { let adultIndex = 0; const guestInfo = roomGuests.map((g) => { let guest = { name: { first: g.firstName, last: g.lastName }, isAdult: g.isAdult, age: g.isAdult ? null : g.age, }; if (g.type === "adult") { adultIndex++; if (roomIndex === 0 && adultIndex === 1) { guest.name.first = formData.firstName || g.firstName; guest.name.last = formData.lastName || g.lastName; } } return guest; }); return { roomNum: roomIndex + 1, guestInfo, }; });  
+//    const bookingPayload = { checkInDate: priceConfirmResponse?.parsedObject?.Success?.PriceDetails?.CheckInDate, checkOutDate: priceConfirmResponse?.parsedObject?.Success?.PriceDetails?.CheckOutDate, numOfRooms: priceConfirmResponse?.room_cont.length, guestList: finalGuestList, contact: { name: { first: "John", last: "Doe", }, email: "johndoe@example.com", phone: "+923001234567", }, clientReference: client-${Date.now() + 10000}, referenceNo: priceConfirmResponse?.parsedObject?.Success?.PriceDetails?.ReferenceNo, }; setLoadingfetch(true); 
+//     const res = await fetch("/api/walletDeduct", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ orderAmount: convertPrice(finalPrice), bookingPayload, }), }); const data = await res.json(); console.log("booking",data); setLoadingfetch(false); if (!data.success) { alert(data.message); return; } if(data.success){ const modidata={ ...data, agency:priceConfirmResponse?.agencyDetails } } alert(data?.message); 
+//      resetAllFields(); 
+//      };

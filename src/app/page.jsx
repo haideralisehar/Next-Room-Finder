@@ -9,7 +9,7 @@ import Cookies from "js-cookie";
 import Testimonials from "../app/gallery/page"
 import AbtSection from "../app/abt/page"
 import StepsSection from "../app/components/StepsSection"
-import Voucher from "../app/print/Voucher/page"
+import Voucher from "./print/Voucher/DownloadBtn"
 
 function page() {
   const token = Cookies.get("token");

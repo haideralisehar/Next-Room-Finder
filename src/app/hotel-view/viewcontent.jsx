@@ -86,6 +86,7 @@ useEffect(() => {
 
 
     const rating = apiResponse.starRating || "";
+    const telePhone = apiResponse.telephone || "";
 
     const price_info = apiResponse.priceInfo?.RatePlanList || [];
     const room_info = apiResponse.rooms || [];
@@ -204,7 +205,8 @@ useEffect(() => {
           checkIn,
           checkOut,
           hotel_Id,
-          rating
+          rating,
+          telePhone
 
         });
       } else {
@@ -300,92 +302,89 @@ console.log("nights", selectedHotelData)
 
   // If all required rooms selected → call API
   if (allSelected) {
-    try {
-      setLoadingfetch(true);
+  try {
+    setLoadingfetch(true);
 
-      const body = {
-  PreBook: true,
-  CheckInDate: checkIn.split(" ")[0],
-  CheckOutDate: checkOut.split(" ")[0],
-  NumOfRooms: selectedHotelData?.room_count?.length || 1,
-  HotelID: hotelId,
+    const body = {
+      PreBook: true,
+      CheckInDate: checkIn.split(" ")[0],
+      CheckOutDate: checkOut.split(" ")[0],
+      NumOfRooms: selectedHotelData?.room_count?.length || 1,
+      HotelID: hotelId,
 
-  OccupancyDetails: selectedHotelData?.room_count?.map((room, index) => ({
-    AdultCount: room.adults,
-    ChildCount: room.children,
-    RoomNum: index + 1,                  // Auto-generated room number ✔️
-    ChildAgeDetails: room.childrenAges || []
-  })) || [],
+      OccupancyDetails:
+        selectedHotelData?.room_count?.map((room, index) => ({
+          AdultCount: room.adults,
+          ChildCount: room.children,
+          RoomNum: index + 1,
+          ChildAgeDetails: room.childrenAges || [],
+        })) || [],
 
-  Currency: "USD",
-  Nationality: "PK",
-  RatePlanID: updated[0].ratePlanId,
-  IsNeedOnRequest: false,
-  Metadata: updated[0].metaData
-};
+      Currency: "USD",
+      Nationality: "PK",
+      RatePlanID: updated[0].ratePlanId,
+      IsNeedOnRequest: false,
+      Metadata: updated[0].metaData,
+    };
 
-
-      const res = await fetch("/api/priceConfirm", {
+    // 🚀 CALL BOTH APIs TOGETHER
+    const [priceRes, agencyRes] = await Promise.all([
+      fetch("/api/priceConfirm", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify(body)
-      });
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body),
+      }),
 
-      if (!res.ok) {
-        alert("API Error: Something went wrong!");
-        return;
-      }
+      fetch("/api/getAgency") // 👈 YOUR API ROUTE
+    ]);
 
-      
+    const priceData = await priceRes.json();
+    const agencyData = await agencyRes.json();
 
-      const data = await res.json();
-
-      if(data?.parsedObject?.Error){
-        alert(data?.parsedObject?.Error?.Message);
-         
-     
-      
-      if (!data.success) {
-        alert(`Error: ${data.error || "Unknown error"}`);
-        dispatch(priceConfirmFailure(data.error));
-        setLoadingfetch(false);
-        return;
-      }
-
-       }else{
-
-        const modifiedData = {
-  ...data,
-  address: selectedHotelData.location?.address || "",
-  rating: selectedHotelData.starRating || "",
-  nights: updated[0].nights || "",
-  image: selectedHotelData.images[0].url,
-  Discounts: selectedHotelData.Discount,
-  Markups: selectedHotelData.Markup,
-  room_cont: selectedHotelData?.room_count,
-
-};
-      dispatch(priceConfirmSuccess(modifiedData)); 
-      console.log(modifiedData);
-
-      router.push("/booking");
-
-       
-
-       }
-
-      
-    } catch (err) {
-      console.error(err);
-      alert("Network error! Please try again.");
+    // ❌ PRICE ERROR
+    if (priceData?.parsedObject?.Error) {
+      alert(priceData?.parsedObject?.Error?.Message);
       setLoadingfetch(false);
-    } finally {
-      setLoadingfetch(false);
+      return;
     }
-    return; // stop further execution
+
+    if (!priceData.success) {
+      dispatch(priceConfirmFailure(priceData.error));
+      alert(priceData.error || "Unknown error");
+      setLoadingfetch(false);
+      return;
+    }
+
+    // 🔥 FINAL MERGED RESULT
+    const modifiedData = {
+      ...priceData,
+      // ...agencyData,
+      agencyDetails: agencyData?.agency || null, 
+      address: selectedHotelData.location?.address || "",
+      rating: selectedHotelData.starRating || "",
+      nights: updated[0].nights || "",
+      image: selectedHotelData.images?.[0]?.url,
+      Discounts: selectedHotelData.Discount,
+      Markups: selectedHotelData.Markup,
+      room_cont: selectedHotelData?.room_count,
+      tele_phone: selectedHotelData?.telephone,
+    };
+
+    dispatch(priceConfirmSuccess(modifiedData));
+    console.log("Final merged data:", modifiedData);
+
+    router.push("/booking");
+
+  } catch (err) {
+    console.error(err);
+    alert("Network error! Please try again.");
+  } finally {
+    setLoadingfetch(false);
   }
+
+  return;
+}
+
 
   // If not all rooms selected, move to next room slot
   if (currentRoomIndex < requiredRooms - 1) {

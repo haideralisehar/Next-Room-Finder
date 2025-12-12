@@ -36,13 +36,17 @@ export async function POST(req) {
       );
     }
 
+    
+
     // 2. Check balance
     const oldBalance = wallet.availableBalance;
+
+   
 
     if (oldBalance < orderAmount) {
       return Response.json({
         success: false,
-        message: "Insufficient Wallet Balance. Please top up your wallet.",
+        message: `Insufficient Wallet Balance. Please top up your wallet`
       });
     }
 
@@ -93,6 +97,7 @@ const bookingRes = await fetch(`${baseUrl}/api/bookingConfirm`, {
           });
 
     }
+
 
     return Response.json({
       success: true,

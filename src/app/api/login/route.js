@@ -164,7 +164,7 @@ export async function POST(req) {
   } catch (error) {
     console.error("❌ Login error:", error);
     return NextResponse.json(
-      { error: "Server connection failed." },
+      { error: "Network connection lost." },
       { status: 500 }
     );
   }
