@@ -1,5 +1,8 @@
 import { NextResponse } from "next/server";
-import puppeteer from "puppeteer";
+import chromium from "@sparticuz/chromium";
+import puppeteer from "puppeteer-core";
+
+export const maxDuration = 60; // allow 60 sec for PDF creation
 
 export async function POST(req) {
   try {
@@ -14,8 +17,8 @@ export async function POST(req) {
       reminders,
     } = payload;
 
-    // Build HTML using your EXACT design
-    const html = `
+    // Your HTML — unchanged
+     const html = `
 <!DOCTYPE html>
 <html>
 <head>
@@ -301,10 +304,12 @@ export async function POST(req) {
 </html>
 `;
 
-    // Puppeteer → PDF
+    // === Puppeteer Vercel Config ===
     const browser = await puppeteer.launch({
-      headless: "new",
-      args: ["--no-sandbox", "--disable-setuid-sandbox"],
+      args: chromium.args,
+      defaultViewport: chromium.defaultViewport,
+      executablePath: await chromium.executablePath(), // ⭐ VERY IMPORTANT
+      headless: chromium.headless,
     });
 
     const page = await browser.newPage();
@@ -318,17 +323,16 @@ export async function POST(req) {
     await browser.close();
 
     return NextResponse.json({
-     html,
       success: true,
+      html,
       pdf: Buffer.from(pdfBuffer).toString("base64"),
     });
+
   } catch (err) {
-    console.error("INVOICE ERROR", err);
+    console.error("PDF ERROR", err);
     return NextResponse.json(
-      { success: false, message: "Failed to generate invoice" },
+      { success: false, message: err.message },
       { status: 500 }
     );
   }
 }
-
-
