@@ -131,7 +131,7 @@ const ImageViewer = ({ images, location }) => {
 
                  
                 <img
-                  style={{ margin: "20px auto", width: "50px", height: "50px" }}
+                  style={{  margin:"13px 10px",width: "30px", height: "30px", maxWidth:"100px" }}
                   src="https://cdn-icons-gif.flaticon.com/16496/16496571.gif"
                   alt="Map Icon"
                 />
