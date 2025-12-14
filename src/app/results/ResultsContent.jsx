@@ -599,7 +599,7 @@ export default function ResultsContent() {
                           <div className="popup-content-room">
                             <button
                               className="popup-close"
-                              onClick={() => setSelectedHotel(null)}
+                              onClick={() => setSelectedHotelData(null)}
                             >
                               ✕
                             </button>
@@ -609,10 +609,10 @@ export default function ResultsContent() {
                                 className="hotel-title"
                                 style={{ padding: "0px 12px 0px 20px" }}
                               >
-                                {selectedHotel.name}
+                                {selectedHotelData.name}
                               </h1>
                               <div className="StartManage">
-                                <StarRating rating={selectedHotel.starRating} />
+                                <StarRating rating={selectedHotelData.starRating} />
                               </div>
                             </div>
 
@@ -621,22 +621,22 @@ export default function ResultsContent() {
                               style={{ padding: "0px 12px 0px 20px" }}
                             >
                               <IoLocationOutline />
-                              <p>{selectedHotel.location?.address}</p>
+                              <p>{selectedHotelData.location?.address}</p>
                             </div>
 
                             <ImageViewer
-                              images={selectedHotel.images.map(
+                              images={selectedHotelData.images.map(
                                 (img) => img.url
                               )}
                               location={[
-                                selectedHotel.location?.coordinate,
-                                selectedHotel.location?.latitude,
+                                selectedHotelData.location?.coordinate,
+                                selectedHotelData.location?.latitude,
                               ]}
                             />
 
                             <HotelTabs
-                              description={selectedHotel?.description}
-                              facility={selectedHotel.facilities}
+                              description={selectedHotelData?.description}
+                              facility={selectedHotelData.facilities}
                             />
                           </div>
                         </div>

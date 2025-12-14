@@ -4,16 +4,7 @@ import "../styling/RoomCard.css";
 import { useCurrency } from "../Context/CurrencyContext";
 import { useSelector } from "react-redux";
 
-/**
- * Props:
- *  - room: grouped room object produced by HotelView
- *  - nights
- *  - roomCount: required number of rooms to select
- *  - onChooseRoom(variation) -> HotelView will call handleChooseRoom(room.id, variation)
- *  - isSelected: whether this parent room is selected for the active slot
- *  - selectedVariation: the selected variation object for the current slot
- *  - isTaken: whether this room is already chosen for a different slot
- */
+
 export default function RoomCard({
   room,
   roomCount,
@@ -25,10 +16,7 @@ export default function RoomCard({
   hotel_id,
   count_room,
 }) {
-  // currency context (fallbacks if missing)
-  // const currencyCtx = useCurrency?.();
-  // const currencyLabel = currencyCtx?.currency ?? "USD";
-  // const convertPrice = currencyCtx?.convertPrice ?? ((v) => v);
+  
 
   const { currency, convertPrice } = useCurrency();
 
@@ -38,15 +26,7 @@ export default function RoomCard({
 
   const dictionaryTypes = useSelector((state) => state.search.dictionaryTypes);
 
-  // images from room.roomDetails.images or fallback
-  const images =
-    room.roomDetails?.images?.length > 0
-      ? room.roomDetails.images
-      : [
-          "https://static.cupid.travel/hotels/508614426.jpg",
-          "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSNfP1r1Ck7b16JdwZnxX-G6xP_bTOYHE3DcA&s",
-        ];
-
+ 
   // meal mapping (standard)
 
   function getDictionaryTypes() {
@@ -285,7 +265,8 @@ export default function RoomCard({
                                   <strong>From:</strong> {p.FromDate}
                                 </div>
                                 <div>
-                                  <strong>Amount:</strong> {convertPrice(p.Amount * count_room)}
+                                  <strong>Amount:</strong>{" "}
+                                  {convertPrice(p.Amount * count_room)}
                                 </div>
                               </div>
                             ))}
@@ -303,8 +284,9 @@ export default function RoomCard({
                   <div style={{ fontSize: 13, color: "#666" }}>
                     {currency}{" "}
                     {convertPrice(
-                      variation.raw?.TotalPrice /
-                        variation.raw?.PriceList?.length * count_room
+                      (variation.raw?.TotalPrice /
+                        variation.raw?.PriceList?.length) *
+                        count_room
                     )}
                     /night{nights > 1 ? "s" : ""}
                   </div>
@@ -319,7 +301,9 @@ export default function RoomCard({
                         parentRoomId: room.id,
                         ratePlanId: variation.ratePlanId,
                         ratePlanName: variation.ratePlanName,
-                        mealType: variation.mealType,
+                        mealType: mealLabel(variation.mealType),
+
+                        bedtpe: bedLabel(variation.raw?.BedType),
                         mealAmount: variation.mealAmount,
                         price: variation.price,
                         hotel_id: hotel_id,

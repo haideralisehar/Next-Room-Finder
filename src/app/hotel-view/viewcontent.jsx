@@ -19,6 +19,8 @@ import {
   priceConfirmFailure
 } from "../redux/roomslice.js";
 
+// import { useSelector } from "react-redux";
+
 
 export default function HotelView() {
   const searchParams = useSearchParams();
@@ -26,6 +28,8 @@ export default function HotelView() {
   const buttonRef = useRef(null);
 
   const dispatch = useDispatch();
+
+  const dictionaryTypes = useSelector((state) => state.search.dictionaryTypes);
 
     const selectedHotelData = useSelector((state) => state.hotel.selectedHotel);
     console.log("selected_data",selectedHotelData);
@@ -265,22 +269,112 @@ useEffect(() => {
 // console.log(address);
 console.log("nights", selectedHotelData)
 
+function getDictionaryTypes() {
+    if (typeof window === "undefined") return {};
+
+    try {
+      const raw = dictionaryTypes;
+      return raw;
+    } catch (err) {
+      console.error("Failed to parse dictionary types", err);
+      return {};
+    }
+  }
+
+  const dictionary = getDictionaryTypes();
+  const mealOptions = dictionary?.mealTypes?.data || [];
+
+  const mealLabel = (code, amount) => {
+    const found = mealOptions.find((m) => m.code == code);
+    if (found) {
+      return amount ? `${found.name} (${amount})` : found.name;
+    }
+    return "N/A";
+  };
+
+  
+
+const MEAL_TYPE_MAP = [
+  "Room Only",
+  "Bed and Breakfast",
+  "Half Board",
+  "Full Board",
+];
+
 
 
 
   // handle filter change (simple)
-  const handleFilterChange = ({ roomName, mealType } = {}) => {
-    if (!baseFilteredRooms.length) return;
-    let list = [...baseFilteredRooms];
-    if (roomName) list = list.filter((r) => r.title?.toLowerCase().includes(roomName.toLowerCase()));
-    if (mealType) {
-      list = list
-        .map((r) => ({ ...r, variations: r.variations.filter((v) => v.mealType?.toString() === mealType.toString()) }))
-        .filter((r) => r.variations && r.variations.length > 0);
-    }
-    setFilteredRooms(list);
-    toast.info(`${list.length} result(s)`, { autoClose: 1200 });
-  };
+const handleFilterChange = ({
+  roomName,
+  roomType,
+  refund,
+  freeCancel,
+} = {}) => {
+  if (!baseFilteredRooms.length) return;
+
+  // ✅ ALWAYS START FROM BASE DATA
+  let filtered = [...baseFilteredRooms];
+
+  // 🔍 Room name filter
+  if (roomName?.trim()) {
+    filtered = filtered.filter((room) =>
+      room.title?.toLowerCase().includes(roomName.toLowerCase())
+    );
+  }
+
+  // 🍽️ Room Type / Meal Type filter
+  if (roomType && MEAL_TYPE_MAP[roomType]) {
+    const allowedCodes = MEAL_TYPE_MAP[roomType];
+
+    filtered = filtered
+      .map((room) => ({
+        ...room,
+        variations: room.variations.filter((v) =>
+          allowedCodes.includes(Number(v.mealType))
+        ),
+      }))
+      .filter((room) => room.variations.length > 0);
+  }
+
+  // 💰 Refund filter
+  if (refund) {
+    const refundableValue = refund === "Refundable";
+
+    filtered = filtered
+      .map((room) => ({
+        ...room,
+        variations: room.variations.filter(
+          (v) => v.refundable === refundableValue
+        ),
+      }))
+      .filter((room) => room.variations.length > 0);
+  }
+
+  // ❌ Cancellation filter
+  if (freeCancel) {
+    const cancelValue = freeCancel === "Free Cancelation";
+
+    filtered = filtered
+      .map((room) => ({
+        ...room,
+        variations: room.variations.filter(
+          (v) => v.cancellation === cancelValue
+        ),
+      }))
+      .filter((room) => room.variations.length > 0);
+  }
+
+  setFilteredRooms(filtered);
+
+  toast.info(`${filtered.length} room(s) found`, {
+    autoClose: 1200,
+  });
+};
+
+
+
+
 
   // is a room already taken by another slot?
   const isTaken = (roomId) =>
@@ -368,6 +462,8 @@ console.log("nights", selectedHotelData)
       Markups: selectedHotelData.Markup,
       room_cont: selectedHotelData?.room_count,
       tele_phone: selectedHotelData?.telephone,
+      bedtpe: updated[0].bedtpe,
+      mealType: updated[0].mealType
     };
 
     dispatch(priceConfirmSuccess(modifiedData));
@@ -449,7 +545,7 @@ console.log("nights", selectedHotelData)
 
         <RoomSelection rooms={hotel.rooms} currentRoomIndex={currentRoomIndex} onRoomClick={setCurrentRoomIndex} />
 
-        {/* <HotelFilterBar onFilterChange={handleFilterChange} /> */}
+        <HotelFilterBar onFilterChange={handleFilterChange} />
 
         <div style={{ marginTop: 12 }}>
           {loading ? (

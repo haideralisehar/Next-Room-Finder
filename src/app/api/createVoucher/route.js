@@ -1,8 +1,10 @@
-import { NextResponse } from "next/server";
-import chromium from "@sparticuz/chromium";
-import puppeteer from "puppeteer-core";
+export const runtime = "nodejs";
 
-export const maxDuration = 60; // allow 60 sec for PDF creation
+import { NextResponse } from "next/server";
+import { chromium as playwrightChromium } from "playwright-core";
+import lambdaChromium from "@sparticuz/chromium";
+
+const isVercel = !!process.env.VERCEL;
 
 export async function POST(req) {
   try {
@@ -17,8 +19,7 @@ export async function POST(req) {
       reminders,
     } = payload;
 
-    // Your HTML — unchanged
-     const html = `
+        const html = `
 <!DOCTYPE html>
 <html>
 <head>
@@ -248,11 +249,11 @@ export async function POST(req) {
         <p class="value">${booking.reference}</p>
       </div>
       <div>
-        <p class="label">CheckIn Date</p>
+        <p class="label">Arrival Date</p>
         <p class="value">${booking.arrival}</p>
       </div>
       <div>
-        <p class="label">CheckOut Date</p>
+        <p class="label">Departure Date</p>
         <p class="value">${booking.departure}</p>
       </div>
     </div>
@@ -276,7 +277,7 @@ export async function POST(req) {
             <td>${index + 1}</td>
             <td>${row.roomType}<br>${row.bedType}</td>
             <td>${row.guestName}</td>
-            <td>${row.adults} adult(s)</td>
+            <td>${row.number}</td>
             <td>${row.mealType}</td>
           </tr>
         `
@@ -304,16 +305,26 @@ export async function POST(req) {
 </html>
 `;
 
-    // === Puppeteer Vercel Config ===
-    const browser = await puppeteer.launch({
-      args: chromium.args,
-      defaultViewport: chromium.defaultViewport,
-      executablePath: await chromium.executablePath(), // ⭐ VERY IMPORTANT
-      headless: chromium.headless,
-    });
+    // -------------------------------
+    // Launch Browser (ENV AWARE)
+    // -------------------------------
+    const browser = await playwrightChromium.launch(
+      isVercel
+        ? {
+            args: lambdaChromium.args,
+            executablePath: await lambdaChromium.executablePath(),
+            headless: lambdaChromium.headless,
+          }
+        : {
+            headless: true, // Local Playwright browser
+          }
+    );
 
     const page = await browser.newPage();
-    await page.setContent(html, { waitUntil: "networkidle0" });
+
+    await page.setContent(html, {
+      waitUntil: "networkidle",
+    });
 
     const pdfBuffer = await page.pdf({
       format: "A4",
@@ -323,15 +334,14 @@ export async function POST(req) {
     await browser.close();
 
     return NextResponse.json({
-      success: true,
-      html,
-      pdf: Buffer.from(pdfBuffer).toString("base64"),
-    });
-
+  success: true,
+  html,
+  pdf: Buffer.from(pdfBuffer).toString("base64"),
+});
   } catch (err) {
-    console.error("PDF ERROR", err);
+    console.error("VOUCHER ERROR:", err);
     return NextResponse.json(
-      { success: false, message: err.message },
+      { success: false, message: "Failed to generate voucher" },
       { status: 500 }
     );
   }

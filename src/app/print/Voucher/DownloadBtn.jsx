@@ -17,9 +17,11 @@ export default function DownloadBtn({ booking }) {
 
 
    useEffect(() => {
-handleGenerate();
+  if (booking?.tableRows?.length) {
+    handleGenerate();
+  }
+}, [booking?.tableRows]);
 
-   },[]);
 
   const handleGenerate = async () => {
     setLoading(true);
@@ -46,13 +48,7 @@ handleGenerate();
             arrival: booking.arrivalDate,
             departure: booking.departureDate,
           },
-          tableRows: booking.roomType.map((_, index) => ({
-            roomType: booking.roomType[index],
-            bedType: "Double Bed",
-            guestName: booking.guestName[index],
-            adults: booking.guests[index],
-            mealType: booking.mealType[index],
-          })),
+          tableRows: booking.tableRows,
           customer: {
             requests: ["No smoking room", "Late checkout"],
           },

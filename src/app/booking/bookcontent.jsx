@@ -540,7 +540,10 @@ export default function BookingPage() {
       booking: data.booking, // full booking (AuditData + Success)
       agency: priceConfirmResponse?.agencyDetails, 
       tel: priceConfirmResponse?.tele_phone,
-      address: priceConfirmResponse?.address
+      address: priceConfirmResponse?.address,
+      mealType: priceConfirmResponse?.mealType,
+      bedtpe: priceConfirmResponse?.bedtpe
+      
 
     };
 
