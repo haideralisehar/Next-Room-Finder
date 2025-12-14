@@ -128,6 +128,8 @@ const ImageViewer = ({ images, location }) => {
                 }}
                 onClick={() => setShowMap(true)}
               >
+
+                 
                 <img
                   style={{ margin: "20px auto", width: "50px", height: "50px" }}
                   src="https://cdn-icons-gif.flaticon.com/16496/16496571.gif"
@@ -136,6 +138,22 @@ const ImageViewer = ({ images, location }) => {
               </div>
             )}
 
+
+
+
+            <img
+                              src={img}
+              alt={`Thumbnail ${index}`}
+              className={`thumbnail ${
+                index === currentIndex ? "active-thumb" : ""
+              }`}
+              onClick={() => handleThumbnailClick(index)}
+                                onError={(e) => {
+                                  e.target.src =
+                                    "https://www.freeiconspng.com/thumbs/no-image-icon/no-image-icon-6.png";
+                                }}
+                              />
+{/* 
             <img
               src={img}
               alt={`Thumbnail ${index}`}
@@ -143,7 +161,7 @@ const ImageViewer = ({ images, location }) => {
                 index === currentIndex ? "active-thumb" : ""
               }`}
               onClick={() => handleThumbnailClick(index)}
-            />
+            /> */}
           </React.Fragment>
         ))}
       </div>

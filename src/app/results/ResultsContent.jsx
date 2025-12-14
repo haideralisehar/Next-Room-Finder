@@ -293,6 +293,28 @@ export default function ResultsContent() {
     );
   }
 
+  const getSafeImageUrl = (url) => {
+  if (!url) return "/no-image.jpg";
+
+  try {
+    // Trim spaces first
+    const cleanUrl = url.trim();
+
+    // Encode only the path, not the whole URL
+    const urlObj = new URL(cleanUrl);
+
+    urlObj.pathname = urlObj.pathname
+      .split("/")
+      .map(segment => encodeURIComponent(segment))
+      .join("/");
+
+    return urlObj.toString();
+  } catch {
+    return "/no-image.jpg";
+  }
+};
+
+
   return (
     <>
       <Header />
@@ -481,8 +503,9 @@ export default function ResultsContent() {
                             <div className="hotel-img-wrapper">
                               <img
                                 src={
+                                  encodeURI(
                                   hotel?.images?.find((img) => img?.url)?.url ||
-                                  "/no-image.jpg"
+                                  "/no-image.jpg")
                                 }
                                 alt={hotel.name}
                                 className="hotel-img"
