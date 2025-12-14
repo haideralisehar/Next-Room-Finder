@@ -94,6 +94,8 @@ class WalletPopup extends Component {
       error,
     } = this.state;
 
+
+
     return (
       <div className="wallet-header" ref={this.wrapperRef}>
         <button className="wallet-btn" onClick={this.togglePopup}>
@@ -103,6 +105,7 @@ class WalletPopup extends Component {
         {showPopup && (
           <div className="wallet-dropdown">
             {/* <h2>My Wallet</h2> */}
+
             
 
 
@@ -112,7 +115,25 @@ class WalletPopup extends Component {
                 <p>Please Wait...</p>
               </div>
             ) : error ? (
-              <p className="error-text">Error: {error}</p>
+              <div
+  style={{
+    padding: "5px",
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "center"
+  }}
+>
+  <p className="error-text">Error: {error}</p>
+
+  <button
+    onClick={() => window.location.reload()}
+    className="reload"
+    style={{ color: "black" }}
+  >
+    ⟳
+  </button>
+</div>
+
             ) : (
               <div className="wallet-balance-container">
                 <div className="wallet-balance">

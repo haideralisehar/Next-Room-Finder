@@ -324,18 +324,19 @@ const handleFilterChange = ({
   }
 
   // 🍽️ Room Type / Meal Type filter
-  if (roomType && MEAL_TYPE_MAP[roomType]) {
-    const allowedCodes = MEAL_TYPE_MAP[roomType];
+  if (roomType !== "") {
+  const mealCode = Number(roomType);
 
-    filtered = filtered
-      .map((room) => ({
-        ...room,
-        variations: room.variations.filter((v) =>
-          allowedCodes.includes(Number(v.mealType))
-        ),
-      }))
-      .filter((room) => room.variations.length > 0);
-  }
+  filtered = filtered
+    .map((room) => ({
+      ...room,
+      variations: room.variations.filter(
+        (v) => Number(v.mealType) === mealCode
+      ),
+    }))
+    .filter((room) => room.variations.length > 0);
+}
+
 
   // 💰 Refund filter
   if (refund) {
@@ -593,7 +594,7 @@ const handleFilterChange = ({
       </div>
 
       <Footer />
-      <ToastContainer />
+      <ToastContainer draggable />
     </>
   );
 }
