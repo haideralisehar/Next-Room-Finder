@@ -641,7 +641,7 @@ export default function ResultsContent() {
 
                             <div
                               className="tit-mng"
-                              style={{ padding: "0px 12px 0px 20px" }}
+                              style={{ padding: "-5px 12px 0px 20px" }}
                             >
                               <IoLocationOutline />
                               <p>{selectedHotelData.location?.address}</p>
@@ -652,8 +652,8 @@ export default function ResultsContent() {
                                 (img) => img.url
                               )}
                               location={[
-                                selectedHotelData.location?.coordinate,
-                                selectedHotelData.location?.latitude,
+                                selectedHotelData.location?.coordinate?.latitude,
+                                selectedHotelData.location?.coordinate?.longitude,
                               ]}
                             />
 
@@ -672,7 +672,8 @@ export default function ResultsContent() {
 
             {!showMap && (
               <div className="map-con">
-                <MapWithPrices hotels={filteredResults} />
+                <MapWithPrices hotels={filteredResults} Discount={apiResults.appliedDiscount || ""} Markup= {apiResults.appliedMarkup || ""}
+                                                                 />
               </div>
             )}
           </>

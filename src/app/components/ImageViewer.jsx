@@ -100,6 +100,11 @@ const ImageViewer = ({ images, location }) => {
           alt="Main"
           style={{ transform: `scale(${zoom})` }}
           className="main-image"
+
+           onError={(e) => {
+                                  e.target.src =
+                                    "https://www.freeiconspng.com/thumbs/no-image-icon/no-image-icon-6.png";
+                                }}
         />
         <div className="controls">
           <button onClick={prevImage}><FaArrowLeft /></button>
@@ -175,13 +180,17 @@ const ImageViewer = ({ images, location }) => {
 
           <MapContainer
             center={position}
-            zoom={17}
+            zoom={3}
             style={{ height: "100%", width: "100%" }}
           >
             <TileLayer
+              attribution='&copy; <a href="https://osm.org/">OpenStreetMap</a>'
               url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
             />
-            <Marker position={position}>
+            <Marker position={[
+                  location[0],
+                  location[1],
+                ]}>
               <Popup>📍 Hotel Location</Popup>
             </Marker>
           </MapContainer>

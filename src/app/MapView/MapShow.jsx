@@ -7,6 +7,11 @@ import "./Map.css";
 import { IoLocationOutline } from "react-icons/io5";
 import { useCurrency } from "../Context/CurrencyContext";
 import Link from "next/link";
+import { useSelector, useDispatch } from "react-redux";
+import { setSelectedHotel, setApiResults } from "../redux/hotelSlice";
+
+import { setDictionaryTypes } from "../redux/searchSlice";
+import Image from "next/image";
 
 // Dynamically import Map components
 const MapContainer = dynamic(
@@ -46,10 +51,12 @@ const createPriceIcon = (price, currency) =>
     popupAnchor: [0, -20],
   });
 
-export default function MapWithPrices({ hotels = [] }) {
+export default function MapWithPrices({ hotels = [], Discount, Markup }) {
   const [showMap, setShowMap] = useState(true);
   const { currency, convertPrice } = useCurrency();
+   const dispatch = useDispatch();
   
+     const [loadingfetch, setLoadingfetch] = useState(false); // loader
 
   // ✅ Compute center for ANY country — based on all hotel coordinates
   const center =
@@ -67,6 +74,23 @@ export default function MapWithPrices({ hotels = [] }) {
       : [20, 0]; // 🌍 fallback (Africa-centered world view)
 
   return (
+
+    <>
+    {loadingfetch && (
+            <div className="loading-container">
+              <div className="box">
+                <Image
+                  className="circular-left-right"
+                  src="/loading_ico.png"
+                  alt="Loading"
+                  width={200}
+                  height={200}
+                />
+                <p style={{ fontSize: "13px" }}>Please Wait...</p>
+              </div>
+            </div>
+          )}
+   
     <div
       style={{
         textAlign: "center",
@@ -134,7 +158,49 @@ export default function MapWithPrices({ hotels = [] }) {
                         {currency}
                       </p>
 
-                      <button className="popup-button">Book Now</button>
+                      <button className="popup-button"
+                       onClick={async () => {
+                                                          try {
+                                                            setLoadingfetch(true);
+                      
+                                                            // 1️⃣ Call API
+                                                            const res = await fetch("/api/all_types");
+                                                            const data = await res.json();
+                      
+                                                            if (!data.success) {
+                                                              console.error("API Error:", data.error);
+                                                              setLoadingfetch(false);
+                                                              return;
+                                                            }
+                      
+                                                            const modiData = {
+                                                              ...hotel,
+                                                              Discount,
+                                                              Markup,
+                                                            };
+                      
+                                                            // 2️⃣ Save selected hotel in Redux
+                                                            dispatch(setSelectedHotel(modiData));
+                      
+                                                            // 3️⃣ Save dictionary / types / API results
+                                                            dispatch(setDictionaryTypes(data.data));
+                                                            dispatch(setApiResults(data.data));
+                      
+                                                            setLoadingfetch(false);
+                      
+                                                            // 4️⃣ Redirect to hotel-view page
+                                                            // router.push(`/hotel-view?hotelId=${hotel.id}`);
+                                                            window.open(
+                                                              `/hotel-view?hotelId=${hotel.id}`,
+                                                              "_blank"
+                                                            );
+                                                          } catch (error) {
+                                                            console.error("Failed to fetch:", error);
+                                                            setLoadingfetch(false);
+                                                          }
+                                                        }}
+                      
+                      >Book Now</button>
                     </div>
                   </div>
                 </Popup>
@@ -144,5 +210,6 @@ export default function MapWithPrices({ hotels = [] }) {
         </div>
       )}
     </div>
+     </>
   );
 }
