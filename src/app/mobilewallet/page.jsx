@@ -5,6 +5,7 @@ import "./mobilewallet.css";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
 import Cookies from "js-cookie";
+import Image from "next/image";
 
 class WalletPage extends Component {
 
@@ -23,6 +24,9 @@ class WalletPage extends Component {
        isMounted: false,
        loading: false,
        error: null,
+        showCancelModal: false, // ✅ add this
+      loadingfetch: false,
+      topupAmount: "", // ✅ add this
        transactions: [
         // { id: 1, title: "Hotel Booking", amount: "-$120.00", date: "Nov 2, 2025" },
         // { id: 2, title: "Flight Credit", amount: "+$80.00", date: "Nov 1, 2025" },
@@ -55,6 +59,81 @@ class WalletPage extends Component {
    togglePopup = () => {
      this.setState((prev) => ({ showPopup: !prev.showPopup }));
    };
+
+   handleTopupAmountChange = (e) => {
+       const value = e.target.value;
+   
+       // allow only numbers
+       if (/^\d*$/.test(value)) {
+         this.setState({ topupAmount: value });
+       }
+     };
+   
+     handleTopup = async () => {
+       const { topupAmount } = this.state;
+   
+       if (!topupAmount || Number(topupAmount) <= 0) {
+         alert("Please enter a valid amount");
+         return;
+       }
+   
+       console.log("Topup Amount:", topupAmount);
+       const agencyId = Cookies.get("agencyId");
+   
+       // TODO: Call topup API here
+   
+       try {
+         this.setState({ loadingfetch: true });
+         const response = await fetch("/api/tap/create", {
+           method: "POST",
+           headers: { "Content-Type": "application/json" },
+           body: JSON.stringify({
+             amount: topupAmount,
+             customer: {
+               firstName: "Haider Ali",
+               lastName: "Sehar",
+               email: "haider@gmail.com",
+               phone: "0345654344",
+               country_Code: "+92",
+             },
+   
+             metadata: {
+               created_at: new Date().toISOString(), // ✅ today date & time
+               ag_id: agencyId,
+             },
+           }),
+         });
+   
+         const data = await response.json();
+         this.setState({ loadingfetch: false });
+   
+         // ✅ Handle Tap API response clearly
+         if (response.ok && data?.url) {
+           window.location.href = data.url;
+           this.setState({ loadingfetch: false });
+         } else {
+           console.error("Payment Error:", data);
+           const message =
+             typeof data.error === "object"
+               ? JSON.stringify(data.error)
+               : data.error || "Unable to process payment.";
+           alert("Error: " + message);
+           this.setState({ loadingfetch: false });
+         }
+       } catch (err) {
+         console.error("Payment Exception:", err);
+         alert("Payment failed: " + err.message);
+         this.setState({ loadingfetch: false });
+       } finally {
+         // setLoading(false);
+         this.setState({ loadingfetch: false });
+       }
+   
+       this.setState({
+         showCancelModal: false,
+         topupAmount: "",
+       });
+     };
  
    fetchWalletData = async (agencyId) => {
    this.setState({ loading: true, error: null });
@@ -109,14 +188,34 @@ class WalletPage extends Component {
        loyaltyPoints,
        loading,
        error,
+       showCancelModal,
+      topupAmount,
+      loadingfetch,
      } = this.state;
 
      
- 
+     const handleCancel = () => {
+      this.setState({ showCancelModal: true });
+    };
 
     return (
       <>
         <Header />
+        {loadingfetch && (
+                  <div className="loading-container">
+                    <div className="box">
+                      <Image
+                        className="circular-left-right"
+                        src="/loading_ico.png"
+                        alt="Loading"
+                        width={200}
+                        height={200}
+                      />
+                      <p style={{ fontSize: "13px", color: "black" }}>Please Wait...</p>
+                    </div>
+                  </div>
+                )}
+        
 
         <div className="wallet-page">
           <div className="wallet-card">
@@ -182,8 +281,17 @@ class WalletPage extends Component {
                         <h3>{loyaltyPoints}</h3>
                       </div>
                     </div>
+                    <button
+                  onClick={() => handleCancel()}
+                  className="topup-btn"
+                  style={{ color: "white", width: "100%", padding: "10px", borderRadius:"4px" }}
+                >
+                  Topup Wallet
+                </button>
                   </div>
                 )}
+
+                
               </>
             ) : (
               <>
@@ -219,6 +327,49 @@ class WalletPage extends Component {
                 </div>
               </>
             )}
+
+             {showCancelModal && (
+          <div className="modal-overlayer">
+            <div className="modal-boxes" onClick={(e) => e.stopPropagation()}>
+              {/* Label */}
+              <div className="modal-row">
+                <label className="modal-labels">Enter Topup Amount (BHD)</label>
+              </div>
+
+              {/* Full width input */}
+              <div className="modal-rows">
+                <input
+                  type="text"
+                  className="modal-input-fields"
+                  placeholder="e.g. 1000"
+                  value={this.state.topupAmount}
+                  onChange={this.handleTopupAmountChange}
+                />
+              </div>
+
+              {/* Buttons */}
+              <div className="modal-actionses">
+                <button
+                  className="btns"
+                  onClick={() =>
+                    this.setState({ showCancelModal: false, topupAmount: "" })
+                  }
+                >
+                  Cancel
+                </button>
+
+                <button
+                
+                  className="btns dangers"
+                  disabled={!this.state.topupAmount}
+                  onClick={this.handleTopup}
+                >
+                  Topup Now
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
           </div>
         </div>
 

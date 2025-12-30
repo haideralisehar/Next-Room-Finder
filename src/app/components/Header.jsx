@@ -190,6 +190,12 @@ const Header = () => {
             <>
               {/* <WalletPopup /> */}
 
+               <Link href="/profile" className="login-btn-1">
+               <button>
+               My Account
+               </button>
+               </Link>
+
               <Link className="login-btn-1" href="/mobilewallet">
               <button >Wallet</button></Link>
               <button className="login-btn-1"><Link href="/dsr">DSR</Link></button>
