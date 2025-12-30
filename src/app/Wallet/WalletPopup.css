@@ -4,7 +4,110 @@
  
   
 } */
- 
+
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  animation: fadeIn 0.3s ease forwards;
+  z-index: 1000;
+}
+
+.modal-box {
+  background: #fff;
+  padding: 20px 24px;
+  border-radius: 10px;
+  width: 360px; /* ✅ fixed clean width */
+  text-align: left; /* ✅ better for form */
+  transform: scale(0.9);
+  animation: scaleIn 0.3s ease forwards;
+}
+
+/* -------- Form Layout -------- */
+
+.modal-row {
+  width: 100%;
+  margin-bottom: 12px;
+}
+
+.modal-label {
+  display: block;
+  font-size: 13px;
+  font-weight: 600;
+  color: #222;
+  margin-bottom: 6px;
+}
+
+.modal-input-field {
+  width: 100%;
+  padding: 10px 12px;
+  border-radius: 6px;
+  border: 1.5px solid #d7d7d7;
+  outline: #007aff;
+  font-size: 14px;
+  outline: none;
+  color: black;
+}
+
+.modal-input-field:focus {
+  border-color: #007aff;
+}
+
+/* -------- Buttons -------- */
+
+.modal-actions {
+  margin-top: 18px;
+  display: flex;
+  justify-content: flex-end; /* ✅ right aligned */
+  gap: 12px;
+}
+
+.btn {
+  padding: 8px 18px;
+  cursor: pointer;
+  background: #ebebeb;
+  color: black;
+  border: 1px solid rgb(207, 207, 207);
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.btn:hover {
+  background-color: rgb(219, 219, 219);
+}
+
+.btn.danger {
+ background: linear-gradient(135deg, #4a90e2, #007aff);
+  border: 1px solid #007aff;
+  color: white;
+}
+
+.btn.danger:hover {
+ background: linear-gradient(135deg, #007aff, #0056b3);
+}
+
+.btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* -------- Animations -------- */
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes scaleIn {
+  from { transform: scale(0.9); }
+  to { transform: scale(1); }
+}
+
 
 /* Wallet button */
 .wallet-btn {
@@ -17,6 +120,14 @@
   cursor: pointer;
   transition: 0.3s;
   transition: background 0.9s ease, transform 0.2s ease;
+}
+.topup-btn{
+    background: linear-gradient(135deg, #4a90e2, #007aff);
+    cursor: pointer;
+}
+.topup-btn:hover{
+   background: linear-gradient(135deg, #007aff, #0056b3);
+  transform: scale(1.03);
 }
 
 .wallet-btn:hover {
@@ -50,7 +161,7 @@
 }
 
 .wallet-balance-container {
-  padding: 8px 12px;
+  padding: 0px 12px;
   display: flex;
   gap: 3px;
 }

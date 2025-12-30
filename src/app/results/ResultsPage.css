@@ -162,7 +162,8 @@
 
 .hotel-header {
   margin-bottom: 0px;
-  margin-top: 0px;
+  padding-top: 5px;
+  
 }
 
 .stars {
@@ -174,14 +175,20 @@
   margin: 0px 0;
   font-weight: bold;
   font-size: 15px;
+  padding: 2px 0px 3px 0px;
 }
 
 .location {
   color: #444;
   font-size: 13px;
-  margin: -3px 0px 0px 3px;
+  margin: -3px 0px 0px 2px;
 }
 
+.lwst-rn{
+color: #444;
+  font-size: 13px;
+  margin: -6px 0px 0px 0px;
+}
 .breakfast {
   color: green;
   font-size: 14px;
@@ -484,6 +491,8 @@
   width: 100%;
  
 }
+
+
 
 .nf-pro p{
   font-size: 16px;

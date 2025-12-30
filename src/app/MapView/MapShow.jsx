@@ -51,7 +51,7 @@ const createPriceIcon = (price, currency) =>
     popupAnchor: [0, -20],
   });
 
-export default function MapWithPrices({ hotels = [], Discount, Markup }) {
+export default function MapWithPrices({ hotels = [], Discount, Markup, roomCount }) {
   const [showMap, setShowMap] = useState(true);
   const { currency, convertPrice } = useCurrency();
    const dispatch = useDispatch();
@@ -104,7 +104,7 @@ export default function MapWithPrices({ hotels = [], Discount, Markup }) {
         <div style={{ borderRadius: "6px", height: "100%" }}>
           <MapContainer
             center={center}
-            zoom={3}
+            zoom={4}
             style={{ height: "90vh", width: "100%" }}
           >
             <TileLayer
@@ -120,8 +120,8 @@ export default function MapWithPrices({ hotels = [], Discount, Markup }) {
                   hotel.location.coordinate.longitude,
                 ]}
                 icon={createPriceIcon(
-                  convertPrice(hotel.priceInfo?.LowestPrice?.Value),
-                  currency
+                  hotel.priceInfo?.LowestPrice?.Value*roomCount.length, "BHD"
+                  // currency
                 )}
               >
                 <Popup>
@@ -154,8 +154,9 @@ export default function MapWithPrices({ hotels = [], Discount, Markup }) {
                       style={{ padding: "3px 10px" }}
                     >
                       <p className="popup-price">
-                        {convertPrice(hotel.priceInfo?.LowestPrice?.Value)}{" "}
-                        {currency}
+                        {/* {convertPrice(hotel.priceInfo?.LowestPrice?.Value)}{" "} */}
+                        {/* {currency} */}
+                        {hotel.priceInfo?.LowestPrice?.Value * roomCount.length} {"BHD"}
                       </p>
 
                       <button className="popup-button"
@@ -175,6 +176,7 @@ export default function MapWithPrices({ hotels = [], Discount, Markup }) {
                       
                                                             const modiData = {
                                                               ...hotel,
+                                                              room_count: roomCount,
                                                               Discount,
                                                               Markup,
                                                             };

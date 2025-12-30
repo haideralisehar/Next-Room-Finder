@@ -61,9 +61,12 @@ export default function BookingPage() {
     paymentMethod: "card",
   });
 
+  const agencyName = priceConfirmResponse?.agencyDetails?.data?.agencyName;
+
   const room =
     priceConfirmResponse?.parsedObject?.Success?.PriceDetails?.HotelList?.[0]
       ?.RatePlanList?.[0]?.RoomOccupancy;
+      const Remark= priceConfirmResponse?.parsedObject?.Success?.PriceDetails?.HotelList?.[0]?.Remark;
   const Room_Name =
     priceConfirmResponse?.parsedObject?.Success?.PriceDetails?.HotelList?.[0]
       ?.RatePlanList?.[0]?.RatePlanName;
@@ -122,18 +125,22 @@ export default function BookingPage() {
     }
 
     let totalPrice = hotel.TotalPrice;
+    console.log(`${totalPrice}`)
 
-    const discount = priceConfirmResponse?.Discounts;
-    const markup = priceConfirmResponse?.Markups;
+    const discount = priceConfirmResponse?.agencyDetails?.Discounts;
+    const markup = priceConfirmResponse?.agencyDetails?.Markups;
+
+     console.log(`${markup.MarkupFee } ${markup.MarkupType}`)
 
     // ------------------------------
     // Apply DISCOUNT
     // ------------------------------
     if (discount) {
-      if (discount.type === "Percentage") {
-        totalPrice = totalPrice - (totalPrice * discount.value) / 100;
-      } else if (discount.type === "Amount") {
-        totalPrice = totalPrice - discount.value;
+      if (discount.DiscountType === "Percentage") {
+        totalPrice = totalPrice - (totalPrice * discount.DiscountFee) / 100;
+        console.log(`${totalPrice}`)
+      } else if (discount.DiscountType === "Amount") {
+        totalPrice = totalPrice - discount.DiscountFee;
       }
     }
 
@@ -141,10 +148,10 @@ export default function BookingPage() {
     // Apply MARKUP
     // ------------------------------
     if (markup) {
-      if (markup.type === "Percentage") {
-        totalPrice = totalPrice + (totalPrice * markup.value) / 100;
-      } else if (markup.type === "Amount") {
-        totalPrice = totalPrice + markup.value;
+      if (markup.MarkupType === "Percentage") {
+        totalPrice = totalPrice + (totalPrice * markup.MarkupFee) / 100;
+      } else if (markup.MarkupType === "Amount") {
+        totalPrice = totalPrice + markup.MarkupFee;
       }
     }
 
@@ -169,7 +176,7 @@ export default function BookingPage() {
     try {
       const apiResponse = priceConfirmResponse;
       const rating_star = apiResponse.rating || "";
-      const address = apiResponse.address || "";
+      const address = apiResponse?.agencyDetails?.address || "";
       const hotel_name =
         apiResponse?.parsedObject?.Success?.PriceDetails?.HotelList?.[0]
           ?.HotelName || "";
@@ -286,7 +293,7 @@ export default function BookingPage() {
             lastName: formData.lastName,
             email: formData.email,
             phone: formData.phone,
-            country_Code: formData.countryCode,
+            country_Code: formData.countryCode, 
           },
 
           metadata: {
@@ -447,7 +454,132 @@ export default function BookingPage() {
 
   // }
 
-  const handleSubmits = async (e) => {
+  const [submitType, setSubmitType] = useState(null);
+
+//   const handleSubmits = async (e) => {
+//   e.preventDefault();
+
+//   // ---------------------------------------------------
+//   // Step 1: Build final guest list
+//   // ---------------------------------------------------
+//   const finalGuestList = guestForms.map((roomGuests, roomIndex) => {
+//     let adultIndex = 0;
+
+//     const guestInfo = roomGuests.map((g) => {
+//       let guest = {
+//         name: { first: g.firstName, last: g.lastName },
+//         isAdult: g.isAdult,
+//         age: g.isAdult ? null : g.age,
+//       };
+
+//       // Replace first adult in room 1 with primary user name
+//       if (g.type === "adult") {
+//         adultIndex++;
+//         if (roomIndex === 0 && adultIndex === 1) {
+//           guest.name.first = formData.firstName || g.firstName;
+//           guest.name.last = formData.lastName || g.lastName;
+//         }
+//       }
+
+//       return guest;
+//     });
+
+//     return {
+//       roomNum: roomIndex + 1,
+//       guestInfo,
+//     };
+//   });
+
+//   // ---------------------------------------------------
+//   // Step 2: Build Booking Confirm Payload
+//   // ---------------------------------------------------
+//   const bookingPayload = {
+//     agencyId: priceConfirmResponse?.agencyDetails?.data?.id,
+//     searchId:priceConfirmResponse?.agencyDetails?.searchId,
+//     checkInDate:
+//       priceConfirmResponse?.parsedObject?.Success?.PriceDetails?.CheckInDate,
+//     checkOutDate:
+//       priceConfirmResponse?.parsedObject?.Success?.PriceDetails?.CheckOutDate,
+//     numOfRooms: priceConfirmResponse?.room_cont?.length,
+//     guestList: finalGuestList,
+
+//     contact: {
+//       name: {
+//         first: formData.firstName || "John",
+//         last: formData.lastName || "Doe",
+//       },
+//       email: formData.email || "johndoe@example.com",
+//       phone: formData.phone || "+923001234567",
+//     },
+
+//     bookingMeta: priceConfirmResponse?.agencyDetails,
+//     clientReference: `client-${Date.now()}`,
+//     referenceNo:
+//       priceConfirmResponse?.parsedObject?.Success?.PriceDetails?.ReferenceNo,
+//   };
+
+//   setLoadingfetch(true);
+
+//   try {
+//     const res = await fetch("/api/walletDeduct", {
+//       method: "POST",
+//       headers: { "Content-Type": "application/json" },
+//       body: JSON.stringify({
+//         orderAmount: convertPrice(finalPrice),
+//         bookingPayload,
+//         agencyName,
+//         searchId: priceConfirmResponse?.agencyDetails?.searchId
+       
+//       }),
+//     });
+
+//     const data = await res.json();
+//     setLoadingfetch(false);
+
+//     console.log("Booking API Response →", data);
+
+//     // ---------------------------------------------
+//     // ❌ If success is false or error exists
+//     // ---------------------------------------------
+//     if (!data.success) {
+//       dispatch(setConfirmedBookingError(data.message || "Booking failed"));
+//       alert(data.message || "Booking failed");
+//       return;
+//     }
+
+//     // ---------------------------------------------
+//     // ✔️ Success Case
+//     // ---------------------------------------------
+//     const finalBookingData = {
+//       ...data, // success + message
+//       booking: data.booking, // full booking (AuditData + Success)
+//       agency: priceConfirmResponse?.agencyDetails?.data, 
+//       tel: priceConfirmResponse?.agencyDetails?.tele_phone,
+//       address: priceConfirmResponse?.agencyDetails?.address,
+//       mealType: priceConfirmResponse?.agencyDetails?.mealType,
+//       bedtpe: priceConfirmResponse?.agencyDetails?.bedtpe
+      
+
+//     };
+
+//     // Save in Redux
+//     dispatch(setConfirmedBooking(finalBookingData));
+
+//     console.log("Confirmed Booking Saved →", finalBookingData);
+
+//     alert("Payment deducted & booking confirmed!");
+
+//     // Redirect user
+//     router.replace("/GetVoucher");
+
+//   } catch (error) {
+//     setLoadingfetch(false);
+//     dispatch(setConfirmedBookingError(error.message));
+//     alert(error.message);
+//   }
+// };
+
+const handleSubmits = async (e) => {
   e.preventDefault();
 
   // ---------------------------------------------------
@@ -485,6 +617,8 @@ export default function BookingPage() {
   // Step 2: Build Booking Confirm Payload
   // ---------------------------------------------------
   const bookingPayload = {
+    agencyId: priceConfirmResponse?.agencyDetails?.data?.id,
+    searchId:priceConfirmResponse?.agencyDetails?.searchId,
     checkInDate:
       priceConfirmResponse?.parsedObject?.Success?.PriceDetails?.CheckInDate,
     checkOutDate:
@@ -501,60 +635,93 @@ export default function BookingPage() {
       phone: formData.phone || "+923001234567",
     },
 
+    customerRequest: formData.specialRequest || "",
+
+
+
+    bookingMeta: priceConfirmResponse?.agencyDetails,
     clientReference: `client-${Date.now()}`,
     referenceNo:
       priceConfirmResponse?.parsedObject?.Success?.PriceDetails?.ReferenceNo,
-  };
 
+      PaymentStatus: submitType === "HOLD" ? "pending" : "paid",
+
+
+
+  };
   setLoadingfetch(true);
 
   try {
-    const res = await fetch("/api/walletDeduct", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        orderAmount: convertPrice(finalPrice),
-        bookingPayload,
-      }),
-    });
+    let res;
+    let data;
 
-    const data = await res.json();
+    // ===================================================
+    // ISSUE BOOKING (Wallet Deduct + Confirm)
+    // ===================================================
+    if (submitType === "BOOK") {
+      res = await fetch("/api/walletDeduct", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          orderAmount: finalPrice,
+          bookingPayload,
+          agencyName,
+          searchId: priceConfirmResponse?.agencyDetails?.searchId,
+        }),
+      });
+
+      data = await res.json();
+    }
+
+    // ===================================================
+    // HOLD BOOKING (No Wallet Deduct)
+    // ===================================================
+    if (submitType === "HOLD") {
+      res = await fetch("/api/holdBooking", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({bookingPayload}),
+      });
+
+      data = await res.json();
+
+     
+    }
+
     setLoadingfetch(false);
 
-    console.log("Booking API Response →", data);
-
-    // ---------------------------------------------
-    // ❌ If success is false or error exists
-    // ---------------------------------------------
-    if (!data.success) {
+    // ---------------------------------------------------
+    // Error handling
+    // ---------------------------------------------------
+    if (!data?.success) {
       dispatch(setConfirmedBookingError(data.message || "Booking failed"));
       alert(data.message || "Booking failed");
       return;
     }
 
-    // ---------------------------------------------
-    // ✔️ Success Case
-    // ---------------------------------------------
+    // ---------------------------------------------------
+    // Success handling
+    // ---------------------------------------------------
     const finalBookingData = {
-      ...data, // success + message
-      booking: data.booking, // full booking (AuditData + Success)
-      agency: priceConfirmResponse?.agencyDetails, 
-      tel: priceConfirmResponse?.tele_phone,
-      address: priceConfirmResponse?.address,
-      mealType: priceConfirmResponse?.mealType,
-      bedtpe: priceConfirmResponse?.bedtpe
-      
-
+      ...data,
+      // booking: data.booking,
+      customerrequest: formData.specialRequest,
+      agency: priceConfirmResponse?.agencyDetails?.data,
+      tel: priceConfirmResponse?.agencyDetails?.tele_phone,
+      address: priceConfirmResponse?.agencyDetails?.address,
+      mealType: priceConfirmResponse?.agencyDetails?.mealType,
+      bedtpe: priceConfirmResponse?.agencyDetails?.bedtpe,
+      bookingType: submitType, // BOOK or HOLD
     };
 
-    // Save in Redux
     dispatch(setConfirmedBooking(finalBookingData));
 
-    console.log("Confirmed Booking Saved →", finalBookingData);
+    alert(
+      submitType === "BOOK"
+        ? "Payment deducted & booking confirmed!"
+        : "Booking placed on hold successfully!"
+    );
 
-    alert("Payment deducted & booking confirmed!");
-
-    // Redirect user
     router.replace("/GetVoucher");
 
   } catch (error) {
@@ -563,6 +730,61 @@ export default function BookingPage() {
     alert(error.message);
   }
 };
+
+
+function formatDateTimeExact(dateString) {
+    const date = new Date(dateString);
+
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    const day = String(date.getDate()).padStart(2, "0");
+
+    const hours = String(date.getHours()).padStart(2, "0");
+    const minutes = String(date.getMinutes()).padStart(2, "0");
+    const seconds = String(date.getSeconds()).padStart(2, "0");
+
+    return `${year}-${month}-${day} at ${hours}:${minutes}:${seconds}`;
+  }
+
+  function minusOneMinute(dateString) {
+    const d = new Date(dateString);
+    d.setMinutes(d.getMinutes() - 1);
+    return formatDateTimeExact(d);
+  }
+
+  // function to get today Date and Time
+  function getTodayDateTime() {
+    const now = new Date();
+
+    const year = now.getFullYear();
+    const month = String(now.getMonth() + 1).padStart(2, "0");
+    const day = String(now.getDate()).padStart(2, "0");
+
+    const hours = String(now.getHours()).padStart(2, "0");
+    const minutes = String(now.getMinutes()).padStart(2, "0");
+    const seconds = String(now.getSeconds()).padStart(2, "0");
+
+    return `${year}-${month}-${day} at ${hours}:${minutes}:${seconds}`;
+  }
+
+  function isPolicyExpired(policyList) {
+  const now = new Date();
+
+  return policyList.some(
+    (p) => new Date(p.FromDate) <= now
+  );
+}
+
+  const policyList =
+  priceConfirmResponse?.parsedObject?.Success?.PriceDetails?.HotelList?.[0]?.CancellationPolicyList || [];
+
+  const expiredPolicy = isPolicyExpired(policyList);
+// const expiredPolicy = isPolicyExpired(policyList);
+
+  
+
+
+
 
 
   return (
@@ -609,10 +831,12 @@ export default function BookingPage() {
 
       <div className={styles.container}>
         {/* Left Form */}
-        <form onSubmit={handleSubmits} className={styles.form}>
-          <h2 style={{ fontSize: "18px", fontWeight: "bold" }}>
+        <form onSubmit={handleSubmits}  className={styles.form}>
+          <h2 style={{ fontSize: "18px", fontWeight: "bold" , padding:"10px 10px"}}>
             Guests Details & Payment
           </h2>
+
+         
 
           {/* <div className={styles.row}>
           <div className={styles.inputGroup}>
@@ -819,7 +1043,8 @@ export default function BookingPage() {
           </div>
 
           <div className={styles.inputGroup}>
-            <label>Any Special Request?</label>
+            <label>Any Special Request? (<span style={{color:"red"}}>Special requests are subject to hotel availability and cannot be guaranteed.</span>)</label>
+            
             <textarea
               name="specialRequest"
               value={formData.specialRequest}
@@ -887,13 +1112,32 @@ export default function BookingPage() {
             </div>
           </div> */}
 
-          <button
+          <div style={{display:"flex", justifyContent:"space-between", gap:"5px"}}>
+            <button
+            title="Pay as you go."
             type="submit"
             className={styles.submitBtn}
             disabled={loadingfetch}
+             onClick={() => setSubmitType("BOOK")}
           >
-            {loading ? "Redirecting to Payment..." : "Proceed To Pay"}
+            {/* {loading ? "Redirecting to Payment..." : "Proceed To Pay"} */}
+            Issue Booking
           </button>
+
+          {!expiredPolicy &&
+
+          <button
+          title="Pay later."
+            type="submit"
+            className={styles.submitBtns}
+            disabled={loadingfetch}
+             onClick={() => setSubmitType("HOLD")}
+          >
+         
+            Hold & Book
+          </button>
+          }
+          </div>
         </form>
 
         {/* Right Summary */}
@@ -1081,7 +1325,8 @@ export default function BookingPage() {
               Total Amount
               <h4>
                 {/* {(convertPrice(priceConfirmResponse?.parsedObject?.Success?.PriceDetails?.HotelList?.[0]?.TotalPrice))}{" "} */}
-                {convertPrice(finalPrice)} {Bhdcurrency}
+                {/* {convertPrice} {Bhdcurrency} */}
+                {finalPrice.toFixed(2)} {"BHD"}
                 {/* {" "}
                 {convertPrice(
                   (hotel.roomCost * hotel.nights * hotel.totalRooms).toFixed(2)
@@ -1094,19 +1339,71 @@ export default function BookingPage() {
           <div className={styles.policy}>
             <h4>Cancellation Policy</h4>
 
-            {priceConfirmResponse?.parsedObject?.Success?.PriceDetails?.HotelList?.[0]?.CancellationPolicyList?.map(
+            {/* {priceConfirmResponse?.parsedObject?.Success?.PriceDetails?.HotelList?.[0]?.CancellationPolicyList?.map(
               (policy, index) => (
                 <div key={index}>
-                  <p>Amount: {convertPrice(policy?.Amount)}</p>
+                  <p>Amount: {policy?.Amount}</p>
                   <p>From Date: {policy?.FromDate}</p>
                 </div>
               )
-            )}
+            )} */}
+            
+
+          {!expiredPolicy ? (
+  (() => {
+    const policies = [...(policyList || [])].sort(
+      (a, b) => new Date(a.FromDate) - new Date(b.FromDate)
+    );
+
+    if (!policies.length) return null;
+
+    return (
+      <div style={{ fontSize: 12, lineHeight: "1.6" }}>
+        {/* 1️⃣ NOW → first policy (FREE) */}
+       {/* 1️⃣ NOW → first policy (FREE) */}
+<p>
+  Cancellation from {getTodayDateTime()} up to{" "}
+  {minusOneMinute(policies[0].FromDate)}{" "}
+  <strong>0 BHD</strong>
+</p>
+
+{/* 2️⃣ Middle ranges */}
+{policies.length > 1 &&
+  policies.slice(1).map((p, i) => (
+    <p key={i}>
+      Cancellation from{" "}
+      {formatDateTimeExact(policies[i].FromDate)} up to{" "}
+      {minusOneMinute(p.FromDate)}{" "}
+      <strong>{policies[i].Amount} BHD</strong>
+    </p>
+  ))}
+
+{/* 3️⃣ After last policy */}
+<p>
+  Cancellation after{" "}
+  {formatDateTimeExact(policies[policies.length - 1].FromDate)}{" "}
+  <strong>{policies[policies.length - 1].Amount} BHD</strong>
+</p>
+
+      </div>
+    );
+  })()
+) : (
+  <p style={{ color: "#c23d3d", fontSize: 12 }}>
+    ✖ Non-Refundable
+  </p>
+)}
+
           </div>
 
           <div className={styles.policy}>
             <h4>Important Information</h4>
-            <p>No extra info shared by Hotel.</p>
+          <div style={{fontSize:"15px", color:"#484848ff"}}
+  dangerouslySetInnerHTML={{
+    __html: Remark,
+  }}
+/>
+          
           </div>
           {showAmenitiesPopup && (
             <div

@@ -4,7 +4,6 @@ import "../styling/RoomCard.css";
 import { useCurrency } from "../Context/CurrencyContext";
 import { useSelector } from "react-redux";
 
-
 export default function RoomCard({
   room,
   roomCount,
@@ -16,8 +15,6 @@ export default function RoomCard({
   hotel_id,
   count_room,
 }) {
-  
-
   const { currency, convertPrice } = useCurrency();
 
   const [current, setCurrent] = useState(0);
@@ -26,7 +23,6 @@ export default function RoomCard({
 
   const dictionaryTypes = useSelector((state) => state.search.dictionaryTypes);
 
- 
   // meal mapping (standard)
 
   function getDictionaryTypes() {
@@ -64,6 +60,65 @@ export default function RoomCard({
 
     return "N/A";
   };
+
+  // const formatDateTime = (date) =>
+  // new Date(date).toLocaleString("en-GB", {
+  //   day: "2-digit",
+  //   month: "short",
+  //   year: "numeric",
+  //   hour: "2-digit",
+  //   minute: "2-digit",
+  //   hour12: true,
+  // });
+
+  // i will use this method to convert the date and time into specified format
+
+  function formatDateTimeExact(dateString) {
+    const date = new Date(dateString);
+
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    const day = String(date.getDate()).padStart(2, "0");
+
+    const hours = String(date.getHours()).padStart(2, "0");
+    const minutes = String(date.getMinutes()).padStart(2, "0");
+    const seconds = String(date.getSeconds()).padStart(2, "0");
+
+    return `${year}-${month}-${day} at ${hours}:${minutes}:${seconds}`;
+  }
+
+  function minusOneMinute(dateString) {
+    const d = new Date(dateString);
+    d.setMinutes(d.getMinutes() - 1);
+    return formatDateTimeExact(d);
+  }
+
+  // function to get today Date and Time
+  function getTodayDateTime() {
+    const now = new Date();
+
+    const year = now.getFullYear();
+    const month = String(now.getMonth() + 1).padStart(2, "0");
+    const day = String(now.getDate()).padStart(2, "0");
+
+    const hours = String(now.getHours()).padStart(2, "0");
+    const minutes = String(now.getMinutes()).padStart(2, "0");
+    const seconds = String(now.getSeconds()).padStart(2, "0");
+
+    return `${year}-${month}-${day} at ${hours}:${minutes}:${seconds}`;
+  }
+
+  function isPolicyExpired(policyList) {
+  const now = new Date();
+
+  return policyList.some(
+    (p) => new Date(p.FromDate) <= now
+  );
+}
+
+
+
+
 
   return (
     <div
@@ -175,6 +230,11 @@ export default function RoomCard({
               selectedVariation?.parentRoomId === room.id &&
               selectedVariation?.ratePlanId === variation.ratePlanId;
 
+              const policyList =
+  variation.raw?.RatePlanCancellationPolicyList || [];
+
+const expiredPolicy = isPolicyExpired(policyList);
+
             return (
               <div
                 key={variation.ratePlanId}
@@ -203,15 +263,22 @@ export default function RoomCard({
 
                   <div style={{ marginTop: 6 }}>
                     <span
-                      style={{
-                        fontSize: 12,
-                        color: variation.refundable ? "#2d8a4b" : "#c23d3d",
-                      }}
-                    >
-                      {variation.refundable
-                        ? "✔ Refundable"
-                        : "✖ Non-refundable"}
-                    </span>
+  style={{
+    fontSize: 12,
+    color:
+      variation.refundable && !expiredPolicy
+        ? "#2d8a4b"
+        : "#c23d3d",
+  }}
+>
+  {variation.refundable && !expiredPolicy
+    ? "✔ Refundable"
+    : "✖ Non-refundable"}
+</span>
+
+
+
+
                     <span
                       style={{
                         marginLeft: 8,
@@ -220,20 +287,25 @@ export default function RoomCard({
                         position: "relative",
                       }}
                       onMouseEnter={() =>
-                        setHoverPolicy({
-                          id: variation.ratePlanId,
-                          policy:
-                            variation.raw?.RatePlanCancellationPolicyList || [],
-                        })
-                      }
+  setHoverPolicy({
+    id: variation.ratePlanId,
+    policy: policyList,
+  })
+}
+
                       onMouseLeave={() => setHoverPolicy(null)}
                     >
-                      {variation.cancellation && "✔ Cancellation Policy"}
+                    {variation.cancellation && !expiredPolicy && "✔ Cancellation Policy"}
+
+
 
                       {/* POPUP ONLY FOR THIS VARIATION */}
-                      {hoverPolicy &&
-                        hoverPolicy.id === variation.ratePlanId &&
-                        hoverPolicy.policy.length > 0 && (
+                      {!expiredPolicy &&
+  hoverPolicy &&
+  hoverPolicy.id === variation.ratePlanId &&
+  hoverPolicy.policy.length > 0 && (
+
+
                           <div
                             style={{
                               position: "absolute",
@@ -247,6 +319,7 @@ export default function RoomCard({
                               width: "260px",
                               zIndex: 999,
                               boxShadow: "0 4px 12px rgba(0,0,0,0.15)",
+                             
                             }}
                           >
                             <div
@@ -254,22 +327,56 @@ export default function RoomCard({
                                 fontWeight: 600,
                                 marginBottom: 6,
                                 color: "#2d8a4b",
+                                
                               }}
                             >
-                              Cancellation Policy
+                            <p style={{cursor:"pointer"}}>  Cancellation Policy </p>
                             </div>
 
-                            {hoverPolicy.policy.map((p, i) => (
-                              <div key={i} style={{ marginBottom: 6 }}>
-                                <div>
-                                  <strong>From:</strong> {p.FromDate}
+                            {(() => {
+                              const policies = [...hoverPolicy.policy].sort(
+                                (a, b) =>
+                                  new Date(a.FromDate) - new Date(b.FromDate)
+                              );
+
+                              return (
+                                <div
+                                  style={{ fontSize: 12, lineHeight: "1.6" }}
+                                >
+                                  {/* 1️⃣ NOW → first policy (FREE) */}
+                                  <p>
+                                    Cancellation from {getTodayDateTime()} up to{" "}
+                                    {minusOneMinute(policies[0].FromDate)}{" "}
+                                    <strong>0 BHD (Free)</strong>
+                                  </p>
+
+                                  {/* 2️⃣ Middle ranges */}
+                                  {policies.length > 1 &&
+                                    policies.slice(0, -1).map((p, i) => (
+                                      <p key={i}>
+                                        Cancellation from{" "}
+                                        {formatDateTimeExact(p.FromDate)} up to{" "}
+                                        {minusOneMinute(
+                                          policies[i + 1].FromDate
+                                        )}{" "}
+                                        <strong>{p.Amount} BHD</strong>
+                                      </p>
+                                    ))}
+
+                                  {/* 3️⃣ After last policy */}
+                                  <p>
+                                    Cancellation after{" "}
+                                    {formatDateTimeExact(
+                                      policies[policies.length - 1].FromDate
+                                    )}{" "}
+                                    <strong>
+                                      {policies[policies.length - 1].Amount} BHD
+                                      (Charges)
+                                    </strong>
+                                  </p>
                                 </div>
-                                <div>
-                                  <strong>Amount:</strong>{" "}
-                                  {convertPrice(p.Amount * count_room)}
-                                </div>
-                              </div>
-                            ))}
+                              );
+                            })()}
                           </div>
                         )}
                     </span>
@@ -279,15 +386,17 @@ export default function RoomCard({
                 <div className="price-box" style={{ textAlign: "right" }}>
                   <div className="price-check">
                     {currency}{" "}
-                    {convertPrice(variation.raw?.TotalPrice * count_room)}
+                    {(variation?.raw?.TotalPrice * count_room).toFixed(2)}
+                    {/* {convertPrice(variation.raw?.TotalPrice * count_room)} */}
                   </div>
                   <div style={{ fontSize: 13, color: "#666" }}>
-                    {currency}{" "}
-                    {convertPrice(
+                    {currency} {/* {convertPrice( */}
+                    {/* ( */}
+                    {(
                       (variation.raw?.TotalPrice /
                         variation.raw?.PriceList?.length) *
-                        count_room
-                    )}
+                      count_room
+                    ).toFixed(2)}
                     /night{nights > 1 ? "s" : ""}
                   </div>
 

@@ -17,7 +17,9 @@ import "react-date-range/dist/styles.css";
 import "react-date-range/dist/theme/default.css";
 import "../styling/HotelSearchBar.css";
 import CountrySelector from "../components/CountrySelector";
-
+import { performStreamingSearch } from '../service/hotelStream';
+import { startSearch } from "../redux/searchSlice";
+import Cookies from "js-cookie";
 import { useDispatch, useSelector } from "react-redux";
 import {
   setSearchPayload,
@@ -28,7 +30,7 @@ export default function HotelSearchBar({ initialData, onClearFilters }) {
   const router = useRouter();
   const dispatch = useDispatch();
   const searchState = useSelector((s) => s.search);
-
+const agencyId = Cookies.get("agencyId");
   const [loadingfetch, setLoadingfetch] = useState(false);
 
   const [formData, setFormData] = useState({
@@ -46,22 +48,59 @@ export default function HotelSearchBar({ initialData, onClearFilters }) {
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [maxPeopleRoom, setMaxPeopleRoom] = useState([]);
 
+  console.log(formData.destination);
 
   const today = new Date();
   const tomorrow = new Date();
   tomorrow.setDate(today.getDate() + 1);
 
-  const [dateRange, setDateRange] = useState([
-    { startDate: today, endDate: tomorrow, key: "selection" },
-  ]);
+ const getInitialDateRange = () => {
+  if (initialData?.checkIn && initialData?.checkOut) {
+    return [
+      {
+        startDate: new Date(initialData.checkIn),
+        endDate: new Date(initialData.checkOut),
+        key: "selection",
+      },
+    ];
+  }
+
+  const today = new Date();
+  const tomorrow = new Date();
+  tomorrow.setDate(today.getDate() + 1);
+
+  return [
+    {
+      startDate: today,
+      endDate: tomorrow,
+      key: "selection",
+    },
+  ];
+};
+
+const [dateRange, setDateRange] = useState(getInitialDateRange);
+
+useEffect(() => {
+  if (initialData?.checkIn && initialData?.checkOut) {
+    setDateRange([
+      {
+        startDate: new Date(initialData.checkIn),
+        endDate: new Date(initialData.checkOut),
+        key: "selection",
+      },
+    ]);
+  }
+}, [initialData?.checkIn, initialData?.checkOut]);
+
 
   useEffect(() => {
-    setFormData((prev) => ({
-      ...prev,
-      checkIn: formatDate(dateRange[0].startDate),
-      checkOut: formatDate(dateRange[0].endDate),
-    }));
-  }, [dateRange]);
+  setFormData((prev) => ({
+    ...prev,
+    checkIn: formatDate(dateRange[0].startDate),
+    checkOut: formatDate(dateRange[0].endDate),
+  }));
+}, [dateRange]);
+
 
   const formatDate = (date) => {
     const d = date.getDate();
@@ -191,20 +230,21 @@ console.log(formData.rooms)
       adults: maxPeopleRoom?.[0]?.adults,
       children: maxPeopleRoom?.[0]?.children,
       childAges: maxPeopleRoom?.[0]?.childrenAges,
-      currency: "USD",
+      currency: "BHD",
       nationality: formData.destination,
       starRating: formData.starRating ? Number(formData.starRating) : null,
     };
 
     
-
+     dispatch(startSearch());  
     // Save request for reuse in Redux
-    dispatch(setSearchPayload(requestBody));
+    performStreamingSearch(requestBody, dispatch, agencyId);
+    
 
    
 
     // Dispatch thunk to perform search and save results in Redux
-    await dispatch(performSearchThunk(requestBody));
+    // await dispatch(performSearchThunk(requestBody));
 
     // navigate to results page (keeps previous query string behavior)
     router.push(

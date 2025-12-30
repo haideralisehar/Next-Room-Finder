@@ -79,8 +79,8 @@ useEffect(() => {
   try {
     const apiResponse = selectedHotelData;
 
-    const checkIn = apiResponse.checkIn || "";
-    const checkOut = apiResponse.checkOut || "";
+    const checkIn = apiResponse.checkInDate || "";
+    const checkOut = apiResponse.checkOutDate || "";
     const address = apiResponse.location?.address || "";
 
     const hotel_Id = apiResponse.id || "";
@@ -390,6 +390,8 @@ const handleFilterChange = ({
   console.log("Selected room in current slot:", updated[currentRoomIndex]);
   console.log("All selected rooms so far:", updated[0].metaData);
   console.log("nights:", updated[0].nights);
+  console.log("romo", selectedHotelData?.room_count);
+  console.log(selectedHotelData?.checkInDate, selectedHotelData?.checkInDate.split(" ")[0]);
 
   setSelectedRoomsInfo(updated);
 
@@ -402,8 +404,8 @@ const handleFilterChange = ({
 
     const body = {
       PreBook: true,
-      CheckInDate: checkIn.split(" ")[0],
-      CheckOutDate: checkOut.split(" ")[0],
+      CheckInDate: selectedHotelData?.checkInDate.split(" ")[0],
+      CheckOutDate: selectedHotelData?.checkOutDate.split(" ")[0],
       NumOfRooms: selectedHotelData?.room_count?.length || 1,
       HotelID: hotelId,
 
@@ -415,8 +417,8 @@ const handleFilterChange = ({
           ChildAgeDetails: room.childrenAges || [],
         })) || [],
 
-      Currency: "USD",
-      Nationality: "PK",
+      Currency: "BHD",
+      Nationality: "IN",
       RatePlanID: updated[0].ratePlanId,
       IsNeedOnRequest: false,
       Metadata: updated[0].metaData,
@@ -440,7 +442,7 @@ const handleFilterChange = ({
     if (priceData?.parsedObject?.Error) {
       alert(priceData?.parsedObject?.Error?.Message);
       setLoadingfetch(false);
-      return;
+      return;``
     }
 
     if (!priceData.success) {
@@ -449,22 +451,34 @@ const handleFilterChange = ({
       setLoadingfetch(false);
       return;
     }
+    
+
+    const extraAdd=
+    {
+
+      ...agencyData?.agency || null, 
+      address: selectedHotelData.location?.address || "",
+       Discounts: selectedHotelData.Discount,
+      Markups: selectedHotelData.Markup,
+      bedtpe: updated[0].bedtpe,
+      mealType: updated[0].mealType,
+       tele_phone: selectedHotelData?.telephone,
+       searchId: selectedHotelData?.SearchId
+
+
+    }
 
     // 🔥 FINAL MERGED RESULT
     const modifiedData = {
       ...priceData,
       // ...agencyData,
-      agencyDetails: agencyData?.agency || null, 
-      address: selectedHotelData.location?.address || "",
+      agencyDetails: extraAdd,
       rating: selectedHotelData.starRating || "",
       nights: updated[0].nights || "",
       image: selectedHotelData.images?.[0]?.url,
-      Discounts: selectedHotelData.Discount,
-      Markups: selectedHotelData.Markup,
       room_cont: selectedHotelData?.room_count,
-      tele_phone: selectedHotelData?.telephone,
-      bedtpe: updated[0].bedtpe,
-      mealType: updated[0].mealType
+     
+      
     };
 
     dispatch(priceConfirmSuccess(modifiedData));

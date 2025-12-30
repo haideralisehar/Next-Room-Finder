@@ -2,41 +2,43 @@ import { NextResponse } from "next/server";
 
 export async function POST(req) {
   try {
-    // Read the form data from the frontend
-    const formData = await req.formData();
+    const body = await req.json();
+    const cookies = req.cookies;
 
-    // Create a new FormData to forward to Azure API
-    const azureFormData = new FormData();
+    const userId = cookies.get("userId")?.value;
 
-    for (const [key, value] of formData.entries()) {
-      azureFormData.append(key, value);
+    if (!userId) {
+      return NextResponse.json(
+        { error: "User not authenticated" },
+        { status: 401 }
+      );
     }
 
-    // ✅ Replace this with your Azure API endpoint
     const azureEndpoint =
-      "https://cityinbookingapi20251018160614-fxgqdkc6d4hwgjf8.canadacentral-01.azurewebsites.net/api/Users";
+      `https://cityinbookingapi20251018160614-fxgqdkc6d4hwgjf8.canadacentral-01.azurewebsites.net/api/Users/${userId}`;
 
-    // Send data to Azure API using PUT method
     const response = await fetch(azureEndpoint, {
       method: "PUT",
-      body: azureFormData,
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify(body) // ✅ IMPORTANT
     });
 
-    const data = await response.json();
-
+    // PUT returns 204 → no JSON body
     if (!response.ok) {
+      const errorText = await response.text();
       return NextResponse.json(
-        { error: data.error || "Failed to update profile on Azure" },
+        { error: errorText || "Failed to update profile" },
         { status: response.status }
       );
     }
 
-    // ✅ Return successful response to frontend
     return NextResponse.json({
       success: true,
-      message: "Profile updated successfully",
-      data,
+      message: "Profile updated successfully"
     });
+
   } catch (error) {
     console.error("Update profile error:", error);
     return NextResponse.json(

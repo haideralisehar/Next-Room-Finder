@@ -1,88 +1,56 @@
-// src/redux/searchSlice.js
-"use client";
+// store/hotelSlice.js
+import { createSlice } from '@reduxjs/toolkit';
 
-import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-
-export const performSearchThunk = createAsyncThunk(
-  "search/performSearch",
-  async (payload, { rejectWithValue }) => {
-    try {
-      const res = await fetch("/api/hotelsearch", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-      });
-
-      const json = await res.json();
-      return json;
-    } catch (err) {
-      return rejectWithValue(err.message || "Network error");
-    }
-  }
-);
-
-const initialState = {
-  searchPayload: null,
-  apiResults: null,
-  loading: false,
-  error: null,
-  selectedHotel: null,
-  dictionaryTypes: null,
-};
-
-const slice = createSlice({
-  name: "search",
-  initialState,
+const searchSlice = createSlice({
+  name: 'search',
+  initialState: {
+    hotels: [],
+    meta: null,
+    status: 'idle', // idle | loading | streaming | completed | failed
+    error: null,
+    dictionaryTypes: [],
+    demandedRooms:null,
+     country: "",
+  },
   reducers: {
-    setSearchPayload(state, action) {
-      state.searchPayload = action.payload;
+    startSearch: (state) => {
+      state.hotels = [];
+      state.meta = null;
+      state.status = 'loading';
+      state.error = null;
+      
     },
-    setApiResults(state, action) {
-      state.apiResults = action.payload;
-    },
-    setSelectedHotel(state, action) {
-      state.selectedHotel = action.payload;
-    },
+
     setDictionaryTypes(state, action) {
       state.dictionaryTypes = action.payload;
     },
-    clearSearchState(state) {
-      state.searchPayload = null;
-      state.apiResults = null;
-      state.loading = false;
-      state.error = null;
-      state.selectedHotel = null;
-      state.dictionaryTypes = null;
-    },
-  },
-  extraReducers: (builder) => {
-    builder
-      .addCase(performSearchThunk.pending, (state) => {
-        state.loading = true;
-        state.error = null;
-      })
-      .addCase(performSearchThunk.fulfilled, (state, action) => {
-        state.loading = false;
 
-        // ⭐ Correct place to add room array into apiResults ⭐
-        state.apiResults = {
-          ...action.payload,                           // API response
-          room: state.searchPayload?.room || [],       // requestBody.rooms from submitSearch
-        };
-      })
-      .addCase(performSearchThunk.rejected, (state, action) => {
-        state.loading = false;
-        state.error = action.payload || "Search failed";
-      });
+    setCountry: (state, action) => {
+  state.country = action.payload;
+},
+
+    setdemandedRooms(state, action){
+      state.demandedRooms = action.payload;
+    },
+
+    setMeta: (state, action) => {
+      state.meta = action.payload;
+      state.status = 'streaming';
+    },
+    addBatch: (state, action) => {
+      // Append new hotels from the batch to the current list
+      state.hotels = [...state.hotels, ...action.payload];
+    },
+    searchDone: (state) => {
+      state.status = 'completed';
+    },
+    searchError: (state, action) => {
+      state.status = 'failed';
+      state.error = action.payload;
+    },
   },
 });
 
-export const {
-  setSearchPayload,
-  setApiResults,
-  setSelectedHotel,
-  setDictionaryTypes,
-  clearSearchState,
-} = slice.actions;
-
-export default slice.reducer;
+export const { startSearch, setMeta, addBatch, searchDone, searchError, setDictionaryTypes, setdemandedRooms
+ } = searchSlice.actions;
+export default searchSlice.reducer;

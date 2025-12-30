@@ -1,41 +1,35 @@
-import { NextResponse } from "next/server";
-import { cookies } from "next/headers";
+export const dynamic = "force-dynamic";
 
-export async function POST(request) {
+export async function POST(req) {
   try {
-    const body = await request.json();
+    const payload = await req.json();
 
-    // 🔥 FIX: cookies() must be awaited
-    const cookieStore = await cookies();
-    const agencyId = cookieStore.get("agencyId")?.value || "undefined";
+    const upstream = await fetch(
+      "https://cityinbookingapi20251018160614-fxgqdkc6d4hwgjf8.canadacentral-01.azurewebsites.net/api/Hotels/search-with-details-stream",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(payload),
+        cache: "no-store",
+      }
+    );
 
-    console.log("Cookie agencyId:", agencyId);
+    if (!upstream.body) {
+      return new Response("No upstream stream", { status: 500 });
+    }
 
-    // Add agencyId to request body
-    const requestBody = {
-      ...body,
-      agencyId,
-    };
-
-    const apiUrl =
-      "https://cityinbookingapi20251018160614-fxgqdkc6d4hwgjf8.canadacentral-01.azurewebsites.net/api/Hotels/search-with-details";
-
-    const response = await fetch(apiUrl, {
-      method: "POST",
+    return new Response(upstream.body, {
       headers: {
         "Content-Type": "application/json",
+        "Cache-Control": "no-cache, no-transform",
+        "Transfer-Encoding": "chunked",
       },
-      body: JSON.stringify(requestBody),
     });
-
-    const data = await response.json();
-
-    return NextResponse.json(data);
-  } catch (error) {
-    console.error("API Error:", error.message);
-
-    return NextResponse.json(
-      { message: "API error", error: error.message },
+  } catch (err) {
+    return new Response(
+      JSON.stringify({ error: err.message }),
       { status: 500 }
     );
   }

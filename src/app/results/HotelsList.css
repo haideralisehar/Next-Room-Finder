@@ -13,18 +13,57 @@
 
 /* Hotel Card */
 .hotel-card {
+  opacity: 0;                 /* ✅ START HIDDEN */
+  transform: translateY(20px);
+  transition:
+    opacity 0.5s ease,
+    transform 0.5s ease;
+  transition-delay: var(--delay, 0ms);
+}
+
+.hotel-card.show {
+  opacity: 1;
+  transform: translateY(0);
+}
+/* .hotel-card {
   display: flex;
   border-radius: 12px;
   overflow: hidden;
   box-shadow: 0 3px 10px rgba(0,0,0,0.1);
   background: #fff;
   transition: 0.2s ease;
+   opacity: 1;
+  transform: translateY(20px);
+  transition:
+    opacity 0.5s ease,
+    transform 0.5s ease;
+  transition-delay: var(--delay, 0ms);
 }
+
+
+
+.hotel-card.show {
+  opacity: 1;
+  transform: translateY(0);
+} */
+
 
 .hotel-card:hover {
   transform: translateY(-3px);
   box-shadow: 0 6px 18px rgba(0,0,0,0.15);
 }
+/* Lazy load animation */
+/* .hotel-card {
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 0.5s ease, transform 0.5s ease;
+}
+
+.hotel-card.show {
+  opacity: 1;
+  transform: translateY(0);
+} */
+
 
 /* Image */
 /* .hotel-image-wrapper {
@@ -56,6 +95,32 @@
   margin-top: 0px;
   font-size: 14px;
 }
+
+.pagination {
+  display: flex;
+  gap: 6px;
+  justify-content: center;
+  margin: 20px 0;
+}
+
+.pagination button {
+  padding: 6px 12px;
+  border: 1px solid #ddd;
+  background: white;
+  cursor: pointer;
+}
+
+.pagination button.active {
+  background: #0071c2;
+  color: white;
+  border-color: #0071c2;
+}
+
+.pagination button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
 
 
 

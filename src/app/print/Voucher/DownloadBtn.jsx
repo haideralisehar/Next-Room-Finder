@@ -50,7 +50,7 @@ export default function DownloadBtn({ booking }) {
           },
           tableRows: booking.tableRows,
           customer: {
-            requests: ["None", ""],
+            requests: [booking.cmerreq],
           },
           reminders: [
             "Upon your arrival please provide valid government-issued ID to the hotel front desk to locate the accurate booking.",
@@ -82,7 +82,7 @@ export default function DownloadBtn({ booking }) {
     link.download = `${booking.reference}.pdf`;
     link.click();
 
-    router.replace("/");
+    // router.replace("/");
   };
 
   return (

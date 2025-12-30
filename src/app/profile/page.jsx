@@ -13,14 +13,21 @@ export default function ProfilePage() {
 
   const [agency, setAgency] = useState({
     userName: "",
+    password: "",
+    firstName: "",
+    lastName: "",
+    fullName: "",
+    email: "",
+    middleName: "",
+    profileImage: "",
+    roleName: "",
+    timezone: "",
+    companyPhone: "",
+    accountingId: "",
+    agencyId: "",
+    userRights: [],
     agencyName: "",
-    agencyAddress: "",
-    agencyEmail: "",
-    agencyPhoneNumber: "",
-    agencyCRNumber: "",
-    agencyCRExpiryDate: "",
-    
-    status: '',
+    agencyPhone: "",
     createdAt: "",
   });
 
@@ -62,25 +69,32 @@ export default function ProfilePage() {
         const res = await fetch("/api/getAgency");
         const data = await res.json();
 
-        if (!res.ok || !data.agency?.data) {
+        if (!res.ok || !data.agency) {
           throw new Error(data.error || "Failed to load profile");
            setLoadingfetch(false);
         }
 
-        const ag = data.agency.data;
+        const ag = data.agency;
          setLoadingfetch(false);
         
 
         setAgency({
           userName: ag.userName || "",
+          password: agency.password,
           agencyName: ag.agencyName || "",
-          agencyAddress: ag.agencyAddress || "",
-          agencyEmail: ag.agencyEmail || "",
-          agencyPhoneNumber: ag.agencyPhoneNumber || "",
-          agencyCRNumber: ag.agencyCRNumber || "",
-          agencyCRExpiryDate: ag.agencyCRExpiryDate?.split("T")[0] || "",
+          firstName: ag.firstName || "",
+          lastName: ag.lastName || "",
+          middleName: ag.middleName,
+          email: ag.email,
+          companyPhone: ag.companyPhone,
+          fullName: ag.fullName || "",
           createdAt: ag.createdAt || "",
-          status: ag.status || false,
+          profileImage: ag.profileImage  || "",
+          roleName: ag.roleName || "",
+          timezone: ag.timezone || "",
+          accountingId: ag.accountingId,
+          agencyId: ag.agencyId || "",
+          userRights: ag.userRights,
           countryCodes: countryCode,
          
         });
@@ -99,42 +113,93 @@ export default function ProfilePage() {
     fetchProfile();
   }, [router]);
 
-  const handleUpdate = async () => {
-    try {
-      
-      setLoadings(true);
-      setSuccess(null);
-      setError(null);
+  const uploadImage = async (file) => {
+  const formData = new FormData();
+  formData.append("file", file);
 
-      const formData = new FormData();
-      formData.append("userName", agency.userName);
+  const res = await fetch("https://cityinbookingapi20251018160614-fxgqdkc6d4hwgjf8.canadacentral-01.azurewebsites.net/api/Users/upload-profile-image", {
+    method: "POST",
+    body: formData,
+  });
 
-      formData.append("agencyName", agency.agencyName);
-      formData.append("agencyEmail", agency.agencyEmail);
-      formData.append("agencyAddress", agency.agencyAddress);
-      formData.append("agencyCRExpiryDate", agency.agencyCRExpiryDate);
-      formData.append("agencyCRNumber", agency.agencyCRNumber);
-      formData.append("agencyPhoneNumber", agency.agencyPhoneNumber);
-      formData.append("status", agency.status);
-      if (selectedFile) formData.append("profileImage", selectedFile);
+  if (!res.ok) {
+    throw new Error("Image upload failed");
+  }
 
-      const res = await fetch("/api/updateProfile", {
-        method: "POST",
-        body: formData,
-      });
+  const data = await res.json();
+  return data.imageUrl; // Azure URL
+};
 
-      // console.log(ag.status);
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || "Profile update failed");
 
-      setSuccess("Profile updated successfully!");
-    } catch (err) {
-      console.error("Update failed:", err);
-      setError(err.message);
-    } finally {
-      setLoadings(false);
+ const handleUpdate = async () => {
+  try {
+    setLoadings(true);
+    setError(null);
+    setSuccess(null);
+
+    let imageUrl = agency.profileImage || "";
+
+    /* ───── STEP 1: Upload image ───── */
+    if (selectedFile) {
+      try {
+        imageUrl = await uploadImage(selectedFile);
+      } catch {
+        setError("Image upload failed. Profile not updated.");
+        return;
+      }
     }
-  };
+
+    /* ───── STEP 2: JSON payload (IMPORTANT) ───── */
+    const payload = {
+      email: agency.email, 
+      password: agency.password,             // ✅ FIXED
+      firstName: agency.firstName || "",
+      lastName: agency.lastName || "",
+      middleName: agency.middleName || "",
+      profileImage: imageUrl,            // ✅ URL only
+      roleName: agency.roleName,
+      timezone: agency.timezone,
+      companyPhone: agency.companyPhone || "",
+      accountingId: agency.accountingId || "",
+      agencyId: agency.agencyId || "",
+      userRights: agency.userRights || []
+    };
+
+    // if (agency.password) {
+    //   payload.password = agency.password;
+    // }
+
+    const res = await fetch("/api/updateProfile", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify(payload)
+    });
+
+    const data = await res.json();
+
+    if (!res.ok) {
+      alert(data.error);
+      setError("Network or server error");
+    }
+
+    if(res.ok){
+      setSuccess("You have Successfull updated your profile.");
+    }
+
+
+
+    
+  } catch (err) {
+    console.error(err);
+    setError(err.message || "Something went wrong");
+  } finally {
+    setLoadings(false);
+  }
+};
+
+
 
   return (
     <>
@@ -173,11 +238,15 @@ export default function ProfilePage() {
       )}
 
       {!loading ? (
-        agency && agency.agencyEmail ? (
+        agency   ? (
           <div className="profile-container">
-            {error && <p className="error-text">{error}</p>}
+            <div className="response" style={{backgroundColor: success? "#77cc78ff" : "#d46d6dff", margin:"10px 0px", borderRadius:"4px"}}>
+{error && <p className="error-text">{error}</p>}
             {success && <p className="success-text">{success}</p>}
 
+            </div>
+            
+{!error ?
             <form className="profile-grid">
               {/* Left column */}
               <div className="profile-column">
@@ -186,10 +255,15 @@ export default function ProfilePage() {
                 <div className="profile-avatar-section">
                   <div className="avatar-wrapper">
                     <img
-                      src={
-                        preview ||
-                        "https://thumbs.dreamstime.com/b/gmail-logo-google-product-icon-logotype-editorial-vector-illustration-vinnitsa-ukraine-october-199405574.jpg"
+                      src={ preview ? preview : agency.profileImage
+                        
+                        
+                        
                       }
+                       onError={(e) => {
+                e.target.src =
+                  "https://thumbs.dreamstime.com/b/gmail-logo-google-product-icon-logotype-editorial-vector-illustration-vinnitsa-ukraine-october-199405574.jpg";
+              }}
                       alt="Profile"
                       className="avatar-img"
                     />
@@ -217,17 +291,29 @@ export default function ProfilePage() {
                   className="profile-input"
                 />
 
-                
-
-                
-                 <label>Status</label>
+                 <label>Password </label>
+                 <span style={{color:"red", fontSize:"11px", marginTop:"-10px", marginBottom:"-5px"}}>If you don't want to change password, left it blank.</span>
                 <input
-                  type="text"
-                  value={agency.status?"active":"inactive"}
+                title="If you don't want to change password, left it blank."
+                  type="password"
+                  name="password"
+                  value={agency.password}
                   onChange={handleChange}
-                  disabled={!loadings}
+                  // disabled={!loadings}
+                  placeholder="Enter new password to change"
                   className="profile-input"
                 />
+
+                      <label>Full Name</label>
+                <input
+                  type="text"
+                  name="fullName"
+                  value={agency.fullName}
+                  onChange={handleChange}
+                  // disabled={!loadings}
+                  className="profile-input"
+                />
+                
 
 
                  
@@ -235,7 +321,7 @@ export default function ProfilePage() {
 
               {/* Middle Section */}
               <div className="middle-section">
-                <h2 style={{ fontWeight: "bold" }}>Agency Details</h2>
+                <h2 style={{ fontWeight: "bold" }}>Other Details</h2>
 
                  <label>Agency Name</label>
                 <input
@@ -243,12 +329,42 @@ export default function ProfilePage() {
                   name="agencyName"
                   value={agency.agencyName}
                   onChange={handleChange}
-                  disabled={loadings}
+                  disabled
+                  className="profile-input"
+                />
+
+                 <label>First Name</label>
+                <input
+                  type="text"
+                  name="firstName"
+                  value={agency.firstName}
+                  onChange={handleChange}
+                  // disabled={!loadings}
+                  className="profile-input"
+                />
+
+                <label>Middle Name</label>
+                <input
+                  type="text"
+                  name="middleName"
+                  value={agency.middleName}
+                  onChange={handleChange}
+                  // disabled={!loadings}
+                  className="profile-input"
+                />
+
+                <label>Last Name</label>
+                <input
+                  type="text"
+                  name="lastName"
+                  value={agency.lastName}
+                  onChange={handleChange}
+                  // disabled={!loadings}
                   className="profile-input"
                 />
 
                 
-                <label>CR Number</label>
+                {/* <label>CR Number</label>
                 <input
                   type="text"
                   name="agencyCRNumber"
@@ -264,7 +380,7 @@ export default function ProfilePage() {
                 value={agency.agencyCRExpiryDate}
                 onChange={handleChange}
                 className="profile-input"
-              />
+              /> */}
 
                
 
@@ -275,11 +391,11 @@ export default function ProfilePage() {
               <div className="profile-column">
                 <h2 style={{ fontWeight: "bold" }}>Contact Details</h2>
  {/* <CountryCodeSelector onSelect={(code) => setCountryCode(code)} /> */}
-                <label>Agency Phone</label>
+                <label>Phone Number</label>
                 <input
                   type="text"
-                  name="agencyPhoneNumber"
-                  value={agency.agencyPhoneNumber}
+                  name="companyPhone"
+                  value={agency.companyPhone}
                   onChange={handleChange}
                   disabled={loadings}
                   className="profile-input"
@@ -287,14 +403,14 @@ export default function ProfilePage() {
                 <label>Email Address</label>
                 <input
                   type="text"
-                  name="agencyEmail"
-                  value={agency.agencyEmail}
+                  name="email"
+                  value={agency.email}
                   onChange={handleChange}
                   disabled={loadings}
                   className="profile-input"
                 />
 
-                <label>Address</label>
+                {/* <label>Address</label>
                 <textarea
                   type="text"
                   name="agencyAddress"
@@ -302,7 +418,7 @@ export default function ProfilePage() {
                   onChange={handleChange}
                   disabled={loadings}
                   className="profile-input"
-                />
+                /> */}
               </div>
 
               <div className="update-btn-container">
@@ -316,6 +432,7 @@ export default function ProfilePage() {
                 </button>
               </div>
             </form>
+            : ""}
           </div>
         ) : (
           <div className="no-data-message">

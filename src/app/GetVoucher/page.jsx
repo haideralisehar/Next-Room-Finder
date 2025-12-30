@@ -8,6 +8,7 @@ export default function Page() {
 
    const details = booking?.booking?.Success?.BookingDetails?.Hotel;
    const details1 = booking?.booking?.Success?.BookingDetails;
+   const customerRequest = booking?.booking?.Success?.BookingDetails?.CustomerRequest;
 
 
   const checkIn = booking?.booking?.Success?.BookingDetails?.CheckInDate?.split(" ")[0];
@@ -79,10 +80,11 @@ export default function Page() {
       <DownloadBtn
         booking={{
           reference: booking?.booking?.Success?.BookingDetails?.BookingID,
-          agencyname: booking?.agency?.data?.agencyName,
-          agencyphone: booking?.agency?.data?.agencyPhoneNumber,
-          agencyaddress: booking?.agency?.data?.agencyAddress,
-          agencyemail: booking?.agency?.data?.agencyEmail,
+          agencyname: booking?.agency?.agencyName,
+          agencyphone: booking?.agency?.agencyPhoneNumber,
+          agencyaddress: booking?.agency?.agencyAddress,
+          agencyemail: booking?.agency?.agencyEmail,
+          cmerreq: customerRequest,
 
           hotelName: booking?.booking?.Success?.BookingDetails?.Hotel?.HotelName,
           hotelAddress: booking?.address,

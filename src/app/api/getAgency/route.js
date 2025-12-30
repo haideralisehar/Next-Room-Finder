@@ -4,17 +4,17 @@ export async function GET(req) {
   try {
     const cookies = req.cookies;
 
-    const agencyId = cookies.get("agencyId")?.value;
+    const userId = cookies.get("userId")?.value;
     const token = cookies.get("token")?.value;
 
-    if (!agencyId) {
+    if (!userId) {
       return NextResponse.json(
-        { error: "No agency ID found in cookies" },
+        { error: "No user ID found in cookies" },
         { status: 400 }
       );
     }
 
-    const apiUrl = `https://cityinbookingapi20251018160614-fxgqdkc6d4hwgjf8.canadacentral-01.azurewebsites.net/api/SubAgencies/${agencyId}`;
+    const apiUrl = `https://cityinbookingapi20251018160614-fxgqdkc6d4hwgjf8.canadacentral-01.azurewebsites.net/api/Users/${userId}`;
 
     const response = await fetch(apiUrl, {
       method: "GET",
@@ -26,7 +26,7 @@ export async function GET(req) {
 
     if (!response.ok) {
       return NextResponse.json(
-        { error: "Failed to fetch agency data" },
+        { error: "Failed to fetch user data" },
         { status: response.status }
       );
     }
@@ -34,7 +34,7 @@ export async function GET(req) {
     const data = await response.json();
     return NextResponse.json({ agency: data });
   } catch (error) {
-    console.error("Error fetching agency:", error);
+    console.error("Error fetching user:", error);
     return NextResponse.json(
       { error: "An unexpected error occurred" },
       { status: 500 }

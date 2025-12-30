@@ -1,3 +1,70 @@
+// // components/ResultComponent.jsx
+// "use client";
+// import { useSelector } from 'react-redux';
+
+// export default function ResultComponent() {
+//   const { hotels=[], meta={}, status, error } = useSelector((state) => state.search);
+
+//   console.log(hotels);
+//   // if (status === 'idle') return <div className="text-center text-gray-400">Enter details to start searching.</div>;
+
+//   return (
+//     <div>
+//       {/* Header Info */}
+//       <div className="flex justify-between items-center mb-6">
+//         <div>
+//           <h2 className="text-2xl font-bold">Search Results</h2>
+//           {meta && <p className="text-gray-500">Found {meta.TotalHotels} hotels (Streaming {hotels.length})</p>}
+//         </div>
+//         {status === 'streaming' && (
+//           <div className="flex items-center gap-2 text-blue-600 animate-pulse">
+//             <div className="w-2 h-2 bg-blue-600 rounded-full"></div>
+//             <span className="text-sm font-medium">Receiving Batches...</span>
+//           </div>
+//         )}
+//       </div>
+
+//       {error && <div className="bg-red-50 text-red-600 p-4 rounded-md mb-4">{error}</div>}
+
+//       {/* Hotel Cards Grid */}
+//       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+//         {hotels.map((hotel, index) => (
+//           <div key={index} className="bg-white border border-gray-200 rounded-xl overflow-hidden flex flex-col shadow-sm hover:shadow-md ">
+//              {/* Replace with real image from your HotelDetails if available */}
+//             <div className="h-48 bg-gray-200 w-full ">
+//               <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTTaYVG_iCjqtC3bXEKrVyw1a1VUNpkA7fViw&s" alt="" />
+//             </div>
+
+//             <div className="p-4 flex-1">
+//               <div className="flex justify-between items-start">
+//                 <h3 className="text-lg font-bold text-gray-800 line-clamp-1">{hotel.HotelName}</h3>
+//               </div>
+//               <p className="text-gray-500 text-sm mb-4">ID: {hotel.HotelID}</p>
+
+//               <div className="mt-auto border-t pt-4 flex justify-between items-center">
+//                 <div>
+//                   <p className="text-xs text-gray-400 uppercase font-bold">Price from</p>
+//                   <p className="text-2xl font-extrabold text-green-600">{hotel?.LowestPrice?.Value}</p>
+//                 </div>
+//                 <button className="bg-orange-500 hover:bg-orange-600 text-white px-5 py-2 rounded-lg font-bold">
+//                   View Deal
+//                 </button>
+//               </div>
+//             </div>
+//           </div>
+//         ))}
+//       </div>
+
+//       {status === 'completed' && (
+//         <div className="mt-10 py-10 border-t text-center text-gray-400">
+//           Showing all {hotels.length} hotels.
+//         </div>
+//       )}
+//     </div>
+
+//   );
+// }
+
 // src/app/results/page (or wherever your ResultsContent file is located) — replace the top-level imports to redux version
 "use client";
 
@@ -20,6 +87,9 @@ import ImageViewer from "../components/ImageViewer";
 import HotelTabs from "../components/tabs";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
+import useLazyReveal from "../hooks/useLazyReveal";
+
+
 
 import { useSelector, useDispatch } from "react-redux";
 import { setSelectedHotel, setApiResults } from "../redux/hotelSlice";
@@ -36,9 +106,21 @@ export default function ResultsContent() {
   const { currency, convertPrice } = useCurrency();
   const dispatch = useDispatch();
 
+
+
   // get apiResults from redux
-  const apiResults = useSelector((s) => s.search.apiResults);
-  console.log(apiResults);
+  // const apiResults = useSelector((s) => s.search.apiResults);
+  const room_counts = useSelector((state) => state.search.demandedRooms);
+
+  console.log("finaly",room_counts);
+  const {
+    hotels = [],
+    meta={},
+    status,
+    error,
+  } = useSelector((state) => state.search);
+  const apiResults = hotels ?? [];
+  console.log(hotels);
   const loadingSearch = useSelector((s) => s.search.loading);
 
   const [loadingfetch, setLoadingfetch] = useState(false); // loader
@@ -57,6 +139,14 @@ export default function ResultsContent() {
   const [selectedHotelLocal, setSelectedHotelLocal] = useState(null);
   const [starRating, setstarRating] = useState("");
   const [selectedHotelData, setSelectedHotelData] = useState(null);
+
+  const ITEMS_PER_PAGE = 50;
+  const [currentPage, setCurrentPage] = useState(1);
+
+  const [displayHotels, setDisplayHotels] = useState([]);
+  const [lockedCount, setLockedCount] = useState(0);
+   
+
 
   // filters...
   const [filters, setFilters] = useState({
@@ -103,7 +193,7 @@ export default function ResultsContent() {
       const hotelList =
         apiResults.prices?.Success?.PriceDetails?.HotelList || [];
 
-      const room_count = apiResults?.room;
+      const room_count = room_counts;
 
       const hotelListMap = new Map(hotelList.map((h) => [h.HotelID, h]));
 
@@ -142,7 +232,7 @@ export default function ResultsContent() {
         setDescription(d);
         setstarRating(s_Rating);
 
-        setResults(mergedHotels);
+        setResults(apiResults);
         setLoading(false);
       }, 300);
     };
@@ -158,6 +248,7 @@ export default function ResultsContent() {
   }, [searchParams.toString(), apiResults]);
 
   console.log("hotels", apiResults);
+  console.log("meta", meta);
 
   useEffect(() => {
     if (!results || results.length === 0) {
@@ -244,10 +335,11 @@ export default function ResultsContent() {
     });
 
     if (sortOption) {
-      const getConv = (h) =>
-        parseConvertedNumber(
-          convertPrice(Number(h?.priceInfo?.LowestPrice?.Value || 0))
-        );
+      const getConv = (h) => {
+        const raw = Number(h?.priceInfo?.LowestPrice?.Value || 0);
+        return parseConvertedNumber(convertPrice(raw));
+      };
+
       data = [...data].sort((a, b) => {
         const pa = getConv(a);
         const pb = getConv(b);
@@ -268,6 +360,52 @@ export default function ResultsContent() {
 
     return data;
   }, [results, filters, sortOption, currency]);
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [sortOption, filters]);
+
+ useEffect(() => {
+  const shouldShowLoader =
+    (status === "loading" || status === "streaming") &&
+    hotels.length === 0;
+
+  setLoadingfetch(shouldShowLoader);
+}, [status, hotels.length]);
+
+
+
+
+  useEffect(() => {
+    if (!filteredResults.length) return;
+
+    setDisplayHotels((prev) => {
+      // First load
+      if (prev.length === 0) {
+        setLockedCount(filteredResults.length);
+        return filteredResults;
+      }
+
+      // Only append NEW hotels (do not reshuffle)
+      const existingIds = new Set(prev.map((h) => h.id));
+      const newOnes = filteredResults.filter((h) => !existingIds.has(h.id));
+
+      if (newOnes.length === 0) return prev;
+
+      return [...prev, ...newOnes];
+    });
+  }, [filteredResults]);
+
+  // const ITEMS_PER_PAGE = 50;
+
+  const totalPages = Math.ceil(filteredResults.length / ITEMS_PER_PAGE);
+
+  const paginatedResults = useMemo(() => {
+    const start = (currentPage - 1) * ITEMS_PER_PAGE;
+    return filteredResults.slice(start, start + ITEMS_PER_PAGE);
+  }, [filteredResults, currentPage]);
+
+  useLazyReveal(paginatedResults.length);
 
   console.log("Hotel_List", results);
   console.log("selected_Hotel", selectedHotelLocal);
@@ -294,30 +432,52 @@ export default function ResultsContent() {
   }
 
   const getSafeImageUrl = (url) => {
-  if (!url) return "/no-image.jpg";
+    if (!url) return "/no-image.jpg";
 
-  try {
-    // Trim spaces first
-    const cleanUrl = url.trim();
+    try {
+      // Trim spaces first
+      const cleanUrl = url.trim();
 
-    // Encode only the path, not the whole URL
-    const urlObj = new URL(cleanUrl);
+      // Encode only the path, not the whole URL
+      const urlObj = new URL(cleanUrl);
 
-    urlObj.pathname = urlObj.pathname
-      .split("/")
-      .map(segment => encodeURIComponent(segment))
-      .join("/");
+      urlObj.pathname = urlObj.pathname
+        .split("/")
+        .map((segment) => encodeURIComponent(segment))
+        .join("/");
 
-    return urlObj.toString();
-  } catch {
-    return "/no-image.jpg";
-  }
-};
+      return urlObj.toString();
+    } catch {
+      return "/no-image.jpg";
+    }
+  };
 
+  const getVisiblePages = (current, total) => {
+    const delta = 2; // pages before & after current
+    const pages = [];
+
+    const left = Math.max(2, current - delta);
+    const right = Math.min(total - 1, current + delta);
+
+    pages.push(1);
+
+    if (left > 2) pages.push("...");
+
+    for (let i = left; i <= right; i++) {
+      pages.push(i);
+    }
+
+    if (right < total - 1) pages.push("...");
+
+    if (total > 1) pages.push(total);
+
+    return pages;
+  };
 
   return (
     <>
       <Header />
+
       <HotelSearchBar
         initialData={{
           destination: destination,
@@ -396,9 +556,31 @@ export default function ResultsContent() {
 
       <div className="nf-pro">
         {results && (
-          <p className="desti-count">
-            {filteredResults.length} properties in {destination}
-          </p>
+          <div style={{ display: "block" }}>
+            {status === "streaming" && (
+              
+              <div className="flex items-center gap-2 text-blue-600 animate-pulse">
+                <div className="w-2 h-2 bg-blue-600 rounded-full"></div>
+                <span className="text-[11px] text-sm font-medium">
+                  Receiving Batches...
+                </span>
+              </div>
+            )}
+
+            {status === "completed" && (
+              
+              <div className="flex items-center gap-2 text-green-600 animate-pulse">
+                <div className="w-2 h-2 bg-green-600 rounded-full"></div>
+                <span className="text-[11px] text-sm font-medium">
+                  Completed
+                </span>
+              </div>
+            )}
+
+            <p className="desti-count">
+              {filteredResults.length} properties in {destination}
+            </p>
+          </div>
         )}
 
         <div
@@ -485,28 +667,30 @@ export default function ResultsContent() {
                     </p>
                   ) : (
                     <div className="hotel-container">
-                      {filteredResults.map((hotel) => {
+                      {paginatedResults.map((hotel) => {
+                       
                         const raw =
                           Number(hotel?.priceInfo?.LowestPrice?.Value) || 0;
                         const convPrice =
                           parseFloat(
                             String(
-                              convertPrice(
+                              // convertPrice(
                                 raw *
                                   hotel?.priceInfo?.RatePlanList?.[0]?.PriceList
-                                    .length * apiResults?.room?.length
-                              )
+                                    .length * room_counts?.length
+                              // )
                             ).replace(/[^0-9.\-]/g, "")
                           ) || 0;
+
+
                         return (
-                          <div className="hotel-card" key={hotel.id}>
+                          <div className="hotel-card" key={hotel.id}   style={{ "--delay": `${Math.random() * 120}ms` }}>
                             <div className="hotel-img-wrapper">
                               <img
-                                src={
-                                  encodeURI(
+                                src={encodeURI(
                                   hotel?.images?.find((img) => img?.url)?.url ||
-                                  "/no-image.jpg")
-                                }
+                                    "/no-image.jpg"
+                                )}
                                 alt={hotel.name}
                                 className="hotel-img"
                                 onError={(e) => {
@@ -520,9 +704,9 @@ export default function ResultsContent() {
                               <div className="hotel-header">
                                 <StarRating rating={hotel.starRating || 0} />
                                 <h3>{hotel.name}</h3>
-                              </div>
+                                <p className="lwst-rn" >{hotel?.priceInfo?.RatePlanList?.[0]?.RoomName}</p>
 
-                              <div
+                                <div
                                 className="m-xtx-set"
                                 style={{ display: "flex" }}
                               >
@@ -532,7 +716,7 @@ export default function ResultsContent() {
                                 </p>
                               </div>
 
-                              <span>
+                               <span >
                                 <p
                                   style={{
                                     color: "#1c8bd0ff",
@@ -540,21 +724,33 @@ export default function ResultsContent() {
                                     textDecoration: "underline",
                                     fontSize: "13px",
                                     paddingLeft: "3px",
+                                    padding:"2px 0px 0px 0px"
                                   }}
                                   onClick={() => setSelectedHotelData(hotel)}
                                 >
                                   See More
                                 </p>
                               </span>
+                              </div>
+
+                              
+
+                           
 
                               <div className="price-info top-right">
                                 <p className="price">
-                                  {Number.isFinite(convPrice) ? convPrice : 0}{" "}
+                                 {(Number.isFinite(convPrice) ? convPrice : 0).toFixed(2)}{" "}
                                   {currency}
+
                                 </p>
                                 <p className="price-sub">
-                                  {(hotel.rooms || []).length} room(s)
+                                  {
+                                    (hotel?.priceInfo?.RatePlanList || [])
+                                      .length
+                                  }{" "}
+                                  room(s)
                                 </p>
+                               
 
                                 <button
                                   className="bok-btn"
@@ -583,9 +779,11 @@ export default function ResultsContent() {
 
                                       const modiData = {
                                         ...hotel,
+                                        SearchId: meta.SearchId,
+                                        room_count: room_counts,
                                         Discount:
-                                          apiResults.appliedDiscount || "",
-                                        Markup: apiResults.appliedMarkup || "",
+                                          meta.AppliedDiscount || "",
+                                        Markup: meta.AppliedMarkup || "",
                                       };
 
                                       // 2️⃣ Save selected hotel in Redux
@@ -635,25 +833,31 @@ export default function ResultsContent() {
                                 {selectedHotelData.name}
                               </h1>
                               <div className="StartManage">
-                                <StarRating rating={selectedHotelData.starRating} />
+                                <StarRating
+                                  rating={selectedHotelData.starRating}
+                                />
                               </div>
                             </div>
 
                             <div
                               className="tit-mng"
-                              style={{ padding: "-5px 12px 0px 20px" }}
+                              style={{ margin: "-5px 12px 0px 18px" }}
                             >
                               <IoLocationOutline />
                               <p>{selectedHotelData.location?.address}</p>
                             </div>
 
                             <ImageViewer
-                              images={selectedHotelData.images.map(
-                                (img) => img.url
-                              )}
+                              // images={selectedHotelData.images.map(
+                              //   (img) => img.url
+                              // )}
+                          
+                              
                               location={[
-                                selectedHotelData.location?.coordinate?.latitude,
-                                selectedHotelData.location?.coordinate?.longitude,
+                                selectedHotelData.location?.coordinate
+                                  ?.latitude,
+                                selectedHotelData.location?.coordinate
+                                  ?.longitude,
                               ]}
                             />
 
@@ -667,13 +871,53 @@ export default function ResultsContent() {
                     </div>
                   )}
                 </div>
+
+                {totalPages > 1 && (
+                  <div className="pagination">
+                    <button
+                      disabled={currentPage === 1}
+                      onClick={() => setCurrentPage((p) => p - 1)}
+                    >
+                      Prev
+                    </button>
+
+                    {getVisiblePages(currentPage, totalPages).map(
+                      (page, index) =>
+                        page === "..." ? (
+                          <span key={index} className="dots">
+                            ...
+                          </span>
+                        ) : (
+                          <button
+                            key={index}
+                            className={currentPage === page ? "active" : ""}
+                            onClick={() => setCurrentPage(page)}
+                          >
+                            {page}
+                          </button>
+                        )
+                    )}
+
+                    <button
+                      disabled={currentPage === totalPages}
+                      onClick={() => setCurrentPage((p) => p + 1)}
+                    >
+                      Next
+                    </button>
+                  </div>
+                )}
               </main>
             )}
 
+          
             {!showMap && (
               <div className="map-con">
-                <MapWithPrices hotels={filteredResults} Discount={apiResults.appliedDiscount || ""} Markup= {apiResults.appliedMarkup || ""}
-                                                                 />
+                <MapWithPrices
+                  roomCount={room_counts}
+                  hotels={filteredResults}
+                  Discount={meta.AppliedDiscount || ""}
+                  Markup={meta.AppliedMarkup || ""}
+                />
               </div>
             )}
           </>

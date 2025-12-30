@@ -43,10 +43,10 @@
   font-weight: 500;
   color: #444;
   margin-bottom: 5px;
-  /* background-color: rgb(248, 248, 248); */
+  background-color: rgb(248, 248, 248);
   padding: 10px;
   border-radius: 5px;
-  margin-top: 5px;
+
 }
 
 
@@ -92,7 +92,7 @@
 
 .toggle button {
   flex: 1;
-  padding: 10px;
+  padding: 7px 10px;
   border: 1px solid #ddd;
   background: #f9f9f9;
   border-radius: 6px;
@@ -127,7 +127,17 @@
   padding: 12px;
   border: none;
   border-radius: 8px;
-  background: #0070f3;
+  background: #1265c4;
+  color: white;
+  font-weight: bold;
+  cursor: pointer;
+}
+.submitBtns {
+  width: 100%;
+  padding: 12px;
+  border: none;
+  border-radius: 8px;
+  background: #1d9bea;
   color: white;
   font-weight: bold;
   cursor: pointer;
