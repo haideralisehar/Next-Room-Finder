@@ -5,7 +5,7 @@
   
 } */
 
-.modal-overlay {
+.modal-overlayer {
   position: fixed;
   inset: 0;
   background: rgba(0, 0, 0, 0.4);
@@ -17,7 +17,7 @@
   z-index: 1000;
 }
 
-.modal-box {
+.modal-boxes {
   background: #fff;
   padding: 20px 24px;
   border-radius: 10px;
@@ -29,12 +29,12 @@
 
 /* -------- Form Layout -------- */
 
-.modal-row {
+.modal-rows {
   width: 100%;
   margin-bottom: 12px;
 }
 
-.modal-label {
+.modal-labels {
   display: block;
   font-size: 13px;
   font-weight: 600;
@@ -42,7 +42,7 @@
   margin-bottom: 6px;
 }
 
-.modal-input-field {
+.modal-input-fields {
   width: 100%;
   padding: 10px 12px;
   border-radius: 6px;
@@ -59,14 +59,14 @@
 
 /* -------- Buttons -------- */
 
-.modal-actions {
+.modal-actionses {
   margin-top: 18px;
   display: flex;
   justify-content: flex-end; /* ✅ right aligned */
   gap: 12px;
 }
 
-.btn {
+.btns {
   padding: 8px 18px;
   cursor: pointer;
   background: #ebebeb;
@@ -77,21 +77,21 @@
   font-weight: 500;
 }
 
-.btn:hover {
+.btns:hover {
   background-color: rgb(219, 219, 219);
 }
 
-.btn.danger {
+.btns.dangers {
  background: linear-gradient(135deg, #4a90e2, #007aff);
   border: 1px solid #007aff;
   color: white;
 }
 
-.btn.danger:hover {
+.btns.dangers:hover {
  background: linear-gradient(135deg, #007aff, #0056b3);
 }
 
-.btn:disabled {
+.btns:disabled {
   opacity: 0.6;
   cursor: not-allowed;
 }

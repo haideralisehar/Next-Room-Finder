@@ -278,18 +278,18 @@ class WalletPopup extends Component {
         )}
 
         {showCancelModal && (
-          <div className="modal-overlay">
-            <div className="modal-box" onClick={(e) => e.stopPropagation()}>
+          <div className="modal-overlayer">
+            <div className="modal-boxes" onClick={(e) => e.stopPropagation()}>
               {/* Label */}
               <div className="modal-row">
-                <label className="modal-label">Enter Topup Amount (BHD)</label>
+                <label className="modal-labels">Enter Topup Amount (BHD)</label>
               </div>
 
               {/* Full width input */}
-              <div className="modal-row">
+              <div className="modal-rows">
                 <input
                   type="text"
-                  className="modal-input-field"
+                  className="modal-input-fields"
                   placeholder="e.g. 1000"
                   value={this.state.topupAmount}
                   onChange={this.handleTopupAmountChange}
@@ -297,9 +297,9 @@ class WalletPopup extends Component {
               </div>
 
               {/* Buttons */}
-              <div className="modal-actions">
+              <div className="modal-actionses">
                 <button
-                  className="btn"
+                  className="btns"
                   onClick={() =>
                     this.setState({ showCancelModal: false, topupAmount: "" })
                   }
@@ -308,7 +308,7 @@ class WalletPopup extends Component {
                 </button>
 
                 <button
-                  className="btn danger"
+                  className="btns dangers"
                   disabled={!this.state.topupAmount}
                   onClick={this.handleTopup}
                 >
