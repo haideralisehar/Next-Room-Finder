@@ -52,8 +52,10 @@ export async function GET(req) {
           : item.status === "1"
           ? "Pending"
           : "Cancelled",
+      agencys: item.agencyId,
 
       getstatus: item.status,
+      finalPrice: item?.extraInfo?.finalPrice,
       service: "Hotel",
       agencyName: item?.extraInfo?.data?.agencyName,
       cancelationDate:item?.fullResponse?.Success?.BookingDetails?.Hotel?.CancellationPolicyList?.[0]?.FromDate ,

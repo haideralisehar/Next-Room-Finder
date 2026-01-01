@@ -91,6 +91,20 @@ border: 1px solid rgb(209, 209, 209);
   transform: scale(0.97);
 }
 
+.btne.dangere {
+  padding: 0px 20px;
+  background: #0e4be6;
+  border: 1px solid rgb(26, 108, 241);
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 500;
+  color: white;
+  cursor: pointer;
+}
+.btne.dangere:hover{
+  background-color: rgb(0, 102, 255);
+}
+
 @media (max-width: 900px) {
   .pdf-show{
   padding:10px 15px

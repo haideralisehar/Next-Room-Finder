@@ -171,6 +171,7 @@ export default function ProfilePage() {
 
     const res = await fetch("/api/updateProfile", {
       method: "POST",
+      credentials: "include",
       headers: {
         "Content-Type": "application/json"
       },

@@ -343,7 +343,7 @@ export default function MyBookingsPage() {
       setLoading(true);
 
       // const agencyId = "58499949-0de8-4c41-a313-478679ce2faa"; // make dynamic later
-      const hold = "confirmed";
+      const hold = "paid";
 
       const res = await fetch(
         `/api/myBookings?agencyId=${agencyId}&paymentstatus=${hold}`
@@ -451,12 +451,15 @@ export default function MyBookingsPage() {
   };
 
   const handleCancel = (id, price) => {
+    
+     setOpenActionId(null);
     setSelectedBookingId(id);
     setrefundAmounts(price);
     setShowCancelModal(true);
   };
 
  const confirmCancelBooking = async () => {
+  setShowCancelModal(false);
   try {
     setLoadingfetch(true);
 
@@ -834,7 +837,7 @@ console.log(currentRecords);
                         })()}
                       </td>
 
-                      <td>{r.TotalPrice}</td>
+                      <td>{Number(r.finalPrice).toFixed(2)}</td>
                       {/* <td>{formatDateTimeExact(r.cancelationDate)}</td> */}
                     </tr>
                   ))}

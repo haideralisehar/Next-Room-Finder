@@ -140,12 +140,14 @@ const [selectedBookingId, setSelectedBookingId] = useState(null);
      Actions
   ========================= */
   const handleView = (booking) => {
+    console.log(viewBookingData);
     setOpenActionId(null);
     setViewBookingData(booking);
     setShowCancelModalview(true);
   };
 
   const handleCancel = (id) => {
+    setOpenActionId(null);
   setSelectedBookingId(id);
   setShowCancelModal(true);
 };
@@ -154,6 +156,7 @@ const [selectedBookingId, setSelectedBookingId] = useState(null);
  
   const confirmCancelBooking = async () => {
   try {
+    
     setLoadingfetch(true);
 
     const res = await fetch("/api/cancelbooking", {
@@ -266,6 +269,8 @@ const [selectedBookingId, setSelectedBookingId] = useState(null);
       mealType: viewBookingData?.data?.extraInfo?.mealType || "N/A",
       roomNumber: rate.RoomOccupancy?.RoomNum,
     })) || [];
+
+
 
 
   return (
@@ -387,6 +392,7 @@ const [selectedBookingId, setSelectedBookingId] = useState(null);
                     {/* <th>Service</th> */}
                     <th>Booked Date</th>
                     <th>Cancellation Till</th>
+                    <th>Price</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -427,7 +433,7 @@ const [selectedBookingId, setSelectedBookingId] = useState(null);
                                 opacity: r.getstatus === "CANCELLED" ? 0.6 : 1,
                               }}
                             >
-                              View
+                              View & Issue
                             </div>
 
 
@@ -457,6 +463,8 @@ const [selectedBookingId, setSelectedBookingId] = useState(null);
                       {/* <td>{r.service}</td> */}
                       <td>{r.date}</td>
                       <td>{formatDateTimeExact(r.cancelationDate)}</td>
+                      <td>{Number(r.finalPrice).toFixed(2)}</td>
+
                     </tr>
                   ))}
                 </tbody>
@@ -549,6 +557,10 @@ const [selectedBookingId, setSelectedBookingId] = useState(null);
             <div style={{ background: "#f3f6fb", minHeight: "100vh" }}>
               <DownloadBtn
                 booking={{
+                  price: Number(viewBookingData?.data?.extraInfo?.finalPrice).toFixed(2),
+                  agencyIds: viewBookingData?.agencys,
+                  trans_id: viewBookingData?.data?.extraInfo?.transactionId,
+                  isShow: true,
                   reference: viewBookingData?.data?.bookingID,
                   agencyname:
                     viewBookingData?.data?.extraInfo?.data?.agencyName,

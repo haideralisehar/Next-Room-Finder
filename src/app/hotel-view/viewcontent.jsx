@@ -388,6 +388,7 @@ const handleFilterChange = ({
 
   // Log selected room
   console.log("Selected room in current slot:", updated[currentRoomIndex]);
+ 
   console.log("All selected rooms so far:", updated[0].metaData);
   console.log("nights:", updated[0].nights);
   console.log("romo", selectedHotelData?.room_count);
@@ -432,11 +433,13 @@ const handleFilterChange = ({
         body: JSON.stringify(body),
       }),
 
-      fetch("/api/getAgency") // 👈 YOUR API ROUTE
+      fetch("/api/getAgencys") // 👈 YOUR API ROUTE
     ]);
 
     const priceData = await priceRes.json();
     const agencyData = await agencyRes.json();
+
+     console.log("agency", agencyData.agency?.data)
 
     // ❌ PRICE ERROR
     if (priceData?.parsedObject?.Error) {
@@ -451,12 +454,12 @@ const handleFilterChange = ({
       setLoadingfetch(false);
       return;
     }
-    
+
 
     const extraAdd=
     {
 
-      ...agencyData?.agency || null, 
+      ...agencyData.agency || null, 
       address: selectedHotelData.location?.address || "",
        Discounts: selectedHotelData.Discount,
       Markups: selectedHotelData.Markup,

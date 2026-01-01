@@ -72,6 +72,7 @@ class WalletPopup extends Component {
     // TODO: Call topup API here
 
     try {
+      this.setState({showCancelModal: false});
       this.setState({ loadingfetch: true });
       const response = await fetch("/api/tap/create", {
         method: "POST",
@@ -177,6 +178,7 @@ class WalletPopup extends Component {
 
     const handleCancel = () => {
       this.setState({ showCancelModal: true });
+      this.setState({showPopup: false});
     };
 
     return (

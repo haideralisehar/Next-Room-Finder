@@ -2,15 +2,25 @@
 import React, { useState, useEffect } from "react";
 import "../Voucher/voucher.css"
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 export default function DownloadBtn({ booking }) {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [previewHtml, setPreviewHtml] = useState(null);
+  const [isHold, setisHold] = useState(false);
+  const [loadingfetch, setLoadingfetch] = useState(false);
+  const [showCancelModal, setShowCancelModal] = useState(false);
+   const [showCancelModals, setshowCancelModals] = useState(false);
+   const [issued, setissued] = useState(null);
+   const [notissued, setnotissued] = useState(null);
+
+  
 
   useEffect(() => {
   if (loading) {
     document.body.style.overflow = "hidden";
   } else {
+    setisHold(booking.isShow);
     document.body.style.overflow = "auto";
   }
 }, [loading]);
@@ -22,6 +32,53 @@ export default function DownloadBtn({ booking }) {
   }
 }, [booking?.tableRows]);
 
+const handlePop = ()=>{
+  setshowCancelModals(true);
+}
+
+
+const handleIssueBooking = async () => {
+  try {
+    setLoadingfetch(true);
+
+    const res = await fetch("/api/issueUpdate", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        agencyId: booking.agencyIds,
+        orderAmount: booking.price,
+        bookingID: booking.reference,
+        trans_id: booking.trans_id,
+      }),
+    });
+
+    const data = await res.json();
+
+    if (data.success) {
+      setnotissued(data); // ✅ success
+      setissued(null);
+    } else {
+      setissued(data);    // ❌ error
+      setnotissued(null);
+    }
+
+    setShowCancelModal(true);
+    return data;
+
+  } catch (error) {
+    setissued({ success: false, message: "Something went wrong" });
+    setnotissued(null);
+    setShowCancelModal(true);
+  } finally {
+    setLoadingfetch(false);
+  }
+};
+
+
+
+
+
+
 
   const handleGenerate = async () => {
     setLoading(true);
@@ -32,6 +89,7 @@ export default function DownloadBtn({ booking }) {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           company: {
+            
             logo: "/logo.png",
             name: booking.agencyname,
             phone: booking.agencyphone,
@@ -87,6 +145,22 @@ export default function DownloadBtn({ booking }) {
 
   return (
     <div>
+
+      {loadingfetch && (
+                    <div className="loading-container">
+                      <div className="box">
+                        <Image
+                          className="circular-left-right"
+                          src="/loading_ico.png"
+                          alt="Loading"
+                          width={200}
+                          height={200}
+                        />
+                        <p style={{ fontSize: "13px" }}>Please Wait...</p>
+                      </div>
+                    </div>
+                  )}
+      
       {/* <button
         onClick={handleGenerate}
         className="p-3 bg-blue-600 text-white rounded"
@@ -113,6 +187,16 @@ export default function DownloadBtn({ booking }) {
 
           <img className="logo-img" src="https://cityin.net/uploads/travel-images/settings-files/0487a1c52501fbaa20b0907990e2f3c1.png" alt="Cityin Booking" />
 
+<div style={{display:"flex", gap:"6px"}}>
+  {
+    isHold && (
+      <button className="download-btn" style={{backgroundColor:"#1367f7ff"}} onClick={handlePop}>Issue Booking</button>
+    )
+
+  }
+
+
+
           <button className="download-btn"
             onClick={downloadPDF}
             
@@ -120,6 +204,8 @@ export default function DownloadBtn({ booking }) {
             Download
             
           </button>
+
+          </div>
           </div>
           
           <div className="pdf-show">
@@ -140,6 +226,122 @@ export default function DownloadBtn({ booking }) {
           </div>
 
           
+        </div>
+      )}
+
+      {showCancelModals && (
+                  <div className="modal-overlay" >
+                    <div
+                      className="modal-box"
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                       <Image
+                                  style={{
+                                   margin:"0px auto"
+                                  }}
+                                   // className="circular-left-right"
+                                   src="/booking.png"
+                                   alt="Loading"
+                                   width={50}
+                                   height={50}
+                                 />
+                                 <h2 style={{fontWeight:"bold", padding:"5px 0px", fontSize:"19px"}}>
+                                  Booking Confirmation
+                                  </h2>
+                                 <p>You're going to issue your "Booking"</p>
+                
+                      <div className="modal-actions">
+                        
+                
+                        <button
+                          className="btn"
+                          onClick={() => setshowCancelModals(false)}
+                        >
+                          No, keep it.
+                        </button>
+                
+                       <button
+        className="btne dangere"
+        onClick={ () => {
+           handleIssueBooking();
+          setshowCancelModals(false);
+        }}
+      >
+       Yes, Issue!
+      </button>
+      
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+        {showCancelModal && (
+        <div className="modal-overlay" onClick={() => setShowCancelModal(false)}>
+          <div
+            className="modal-box"
+            onClick={(e) => e.stopPropagation()}
+          >
+
+            {notissued?.success && (
+             <Image
+                        style={{
+                         margin:"0px auto"
+                        }}
+                         // className="circular-left-right"
+                         src="/checked.png"
+                         alt="Loading"
+                         width={40}
+                         height={40}
+                       /> )}
+
+                       {issued && issued.success === false && (
+                        <Image
+                        style={{
+                         margin:"0px auto"
+                        }}
+                         // className="circular-left-right"
+                         src="/close.png"
+                         alt="Loading"
+                         width={40}
+                         height={40}
+                       />
+                       )}
+                    {/* Success */}
+{notissued?.success && (
+  <>
+    <h2 style={{ fontWeight: "bold", padding: "5px 0", fontSize: "19px" }}>
+      Issue Confirmation
+    </h2>
+    <p>{notissued.message}</p>
+  </>
+)}
+
+
+{/* Error */}
+{issued && issued.success === false && (
+  <>
+    <h2 style={{ fontWeight: "bold", padding: "5px 0", fontSize: "19px" }}>
+      Error Occurred
+    </h2>
+    <p>{issued.message}</p>
+  </>
+)}
+
+
+      
+            <div className="modal-actions">
+              
+      
+              <button
+                className="btn"
+                onClick={() => setShowCancelModal(false)}
+              >
+                Close
+              </button>
+      
+              
+            </div>
+          </div>
         </div>
       )}
     </div>

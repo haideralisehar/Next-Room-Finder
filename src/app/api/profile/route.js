@@ -19,7 +19,7 @@ export async function GET(req) {
       {
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`, // if your API requires it
+         
         },
       }
     );

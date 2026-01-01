@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useEffect, cache } from "react";
+import React, { useState, useEffect, cache, useRef  } from "react";
 import styles from "../booking/Booking.module.css";
 import "../booking/booking.css";
 import { FaStar, FaRegStar } from "react-icons/fa"; // ⭐ Icons
@@ -42,6 +42,12 @@ export default function BookingPage() {
   const [rooms, setRooms] = useState([]);
   const [guestForms, setGuestForms] = useState([]);
   const [booking, setBooking] = useState([]);
+  const [showCancelModal, setShowCancelModal] = useState(false);
+  const [pendingSubmitType, setPendingSubmitType] = useState(null);
+  const formRef = useRef(null);
+  const submitRef = useRef(null);
+
+
 
   //   const [contactInfo, setContactInfo] = useState({
   //   countryCode: "",
@@ -579,6 +585,11 @@ export default function BookingPage() {
 //   }
 // };
 
+const handleConfirm = async ()=>{
+  setSubmitType("HOLD");
+  
+};
+
 const handleSubmits = async (e) => {
   e.preventDefault();
 
@@ -613,6 +624,16 @@ const handleSubmits = async (e) => {
     };
   });
 
+
+  const agencyDet = priceConfirmResponse?.agencyDetails;
+ 
+  const newData ={
+    finalPrice,
+    ...agencyDet
+
+
+  }
+
   // ---------------------------------------------------
   // Step 2: Build Booking Confirm Payload
   // ---------------------------------------------------
@@ -639,7 +660,7 @@ const handleSubmits = async (e) => {
 
 
 
-    bookingMeta: priceConfirmResponse?.agencyDetails,
+    bookingMeta: newData,
     clientReference: `client-${Date.now()}`,
     referenceNo:
       priceConfirmResponse?.parsedObject?.Success?.PriceDetails?.ReferenceNo,
@@ -680,7 +701,13 @@ const handleSubmits = async (e) => {
       res = await fetch("/api/holdBooking", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({bookingPayload}),
+        body: JSON.stringify({
+          orderAmount: finalPrice,
+          bookingPayload,
+           agencyName,
+          searchId: priceConfirmResponse?.agencyDetails?.searchId,
+        
+        }),
       });
 
       data = await res.json();
@@ -831,7 +858,7 @@ function formatDateTimeExact(dateString) {
 
       <div className={styles.container}>
         {/* Left Form */}
-        <form onSubmit={handleSubmits}  className={styles.form}>
+        <form onSubmit={handleSubmits}  className={styles.form}  ref={formRef} >
           <h2 style={{ fontSize: "18px", fontWeight: "bold" , padding:"10px 10px"}}>
             Guests Details & Payment
           </h2>
@@ -1112,29 +1139,53 @@ function formatDateTimeExact(dateString) {
             </div>
           </div> */}
 
+          <button
+  type="submit"
+  ref={submitRef}
+  style={{ display: "none" }}
+>
+  submit
+</button>
+
+
           <div style={{display:"flex", justifyContent:"space-between", gap:"5px"}}>
             <button
             title="Pay as you go."
-            type="submit"
-            className={styles.submitBtn}
-            disabled={loadingfetch}
-             onClick={() => setSubmitType("BOOK")}
-          >
-            {/* {loading ? "Redirecting to Payment..." : "Proceed To Pay"} */}
-            Issue Booking
+            type="button"
+  className={styles.submitBtn}
+  disabled={loadingfetch}
+  onClick={() => {
+    if (!formRef.current.checkValidity()) {
+      formRef.current.reportValidity();
+      return;
+    }
+
+    setSubmitType("BOOK");
+    setPendingSubmitType("BOOK");
+    setShowCancelModal(true);
+  }}
+>
+  Issue Booking
           </button>
 
           {!expiredPolicy &&
 
           <button
-          title="Pay later."
-            type="submit"
-            className={styles.submitBtns}
-            disabled={loadingfetch}
-             onClick={() => setSubmitType("HOLD")}
-          >
-         
-            Hold & Book
+         type="button"
+  className={styles.submitBtns}
+  disabled={loadingfetch}
+  onClick={() => {
+    if (!formRef.current.checkValidity()) {
+      formRef.current.reportValidity();
+      return;
+    }
+
+    setSubmitType("HOLD");
+    setPendingSubmitType("HOLD");
+    setShowCancelModal(true);
+  }}
+>
+  Hold & Book
           </button>
           }
           </div>
@@ -1758,6 +1809,52 @@ function formatDateTimeExact(dateString) {
                     </div>
                     <br />
                   </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+           {showCancelModal && (
+            <div className="modal-overlay" onClick={() => setShowCancelModal(false)}>
+              <div
+                className="modal-box"
+                onClick={(e) => e.stopPropagation()}
+              >
+                 <Image
+                            style={{
+                             margin:"0px auto"
+                            }}
+                             // className="circular-left-right"
+                             src="/booking.png"
+                             alt="Loading"
+                             width={50}
+                             height={50}
+                           />
+                           <h2 style={{fontWeight:"bold", padding:"5px 0px", fontSize:"19px"}}>
+                            {pendingSubmitType === "BOOK" ? "Issue Booking Confirmation":"Hold Booking Confirmation"}
+                            </h2>
+                           <p>You're going to {pendingSubmitType === "BOOK" ? "confirm":"hold"} your "Booking"</p>
+          
+                <div className="modal-actions">
+                  
+          
+                  <button
+                    className="btn"
+                    onClick={() => setShowCancelModal(false)}
+                  >
+                    No, keep it.
+                  </button>
+          
+                 <button
+  className="btn danger"
+  onClick={() => {
+    setShowCancelModal(false);
+    submitRef.current.click(); // ✅ real form submit
+  }}
+>
+  {pendingSubmitType === "BOOK" ? "Yes, Confirm!" : "Yes, Hold"}
+</button>
+
                 </div>
               </div>
             </div>

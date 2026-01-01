@@ -240,10 +240,18 @@ export async function POST(req) {
     /* -------------------- 4. CONFIRM BOOKING -------------------- */
     const baseUrl = process.env.NEXT_PUBLIC_DOMAIN;
 
+    const updatedBookingPayload = {
+  ...bookingPayload,
+  bookingMeta: {
+    ...(bookingPayload.bookingMeta || {}),
+    transactionId: transaction.id,
+  },
+};
+
     const bookingRes = await fetch(`${baseUrl}/api/bookingConfirm`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(bookingPayload),
+      body: JSON.stringify(updatedBookingPayload),
     });
 
     const booking = await bookingRes.json();
