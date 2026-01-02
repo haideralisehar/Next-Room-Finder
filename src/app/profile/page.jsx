@@ -29,6 +29,7 @@ export default function ProfilePage() {
     agencyName: "",
     agencyPhone: "",
     createdAt: "",
+    status: ""
   });
 
   const [loading, setLoading] = useState(true);
@@ -39,6 +40,7 @@ export default function ProfilePage() {
   const [preview, setPreview] = useState(null);
   const [countryCode, setCountryCode] = useState("");
   const [loadingfetch, setLoadingfetch] = useState(false);
+   const token = Cookies.get("token");
 
   // ✅ Handle input change
   const handleChange = (e) => {
@@ -95,6 +97,7 @@ export default function ProfilePage() {
           accountingId: ag.accountingId,
           agencyId: ag.agencyId || "",
           userRights: ag.userRights,
+          status: ag.status || "",
           countryCodes: countryCode,
          
         });
@@ -113,13 +116,39 @@ export default function ProfilePage() {
     fetchProfile();
   }, [router]);
 
-  const uploadImage = async (file) => {
+  
+
+//   const uploadImage = async (file) => {
+//   const formData = new FormData();
+//   formData.append("file", file);
+
+//   const res = await fetch(
+//     "https://cityinbookingapi20251018160614-fxgqdkc6d4hwgjf8.canadacentral-01.azurewebsites.net/api/Users/upload-profile-image",
+//     {
+//       method: "POST",
+//       headers: {
+//         Authorization: `Bearer ${token}` // ✅ correct
+//       },
+//       body: formData, // ✅ correct
+//     }
+//   );
+
+//   if (!res.ok) {
+//     throw new Error("Image upload failed");
+//   }
+
+//   const data = await res.json();
+//   return data.imageUrl;
+// };
+
+
+const uploadImage = async (file) => {
   const formData = new FormData();
   formData.append("file", file);
 
-  const res = await fetch("https://cityinbookingapi20251018160614-fxgqdkc6d4hwgjf8.canadacentral-01.azurewebsites.net/api/Users/upload-profile-image", {
+  const res = await fetch("/api/pImage", {
     method: "POST",
-    body: formData,
+    body: formData
   });
 
   if (!res.ok) {
@@ -127,7 +156,7 @@ export default function ProfilePage() {
   }
 
   const data = await res.json();
-  return data.imageUrl; // Azure URL
+  return data.imageUrl;
 };
 
 
@@ -162,7 +191,8 @@ export default function ProfilePage() {
       companyPhone: agency.companyPhone || "",
       accountingId: agency.accountingId || "",
       agencyId: agency.agencyId || "",
-      userRights: agency.userRights || []
+      userRights: agency.userRights || [],
+      status : agency.status
     };
 
     // if (agency.password) {
@@ -186,6 +216,7 @@ export default function ProfilePage() {
     }
 
     if(res.ok){
+      console.log(JSON.stringify(data));
       setSuccess("You have Successfull updated your profile.");
     }
 

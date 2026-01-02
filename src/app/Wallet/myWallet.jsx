@@ -132,7 +132,7 @@ class WalletPopup extends Component {
     try {
       // Call both API requests at the same time
       const [walletRes, loyaltyRes] = await Promise.all([
-        fetch(`/api/wallet?agencyId=${agencyId}`),
+        fetch(`/api/wallet`),
         fetch(`/api/getLotality?agencyId=${agencyId}`),
       ]);
 

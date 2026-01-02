@@ -5,9 +5,10 @@ export async function POST(req) {
     const body = await req.json();
     const cookies = req.cookies;
 
-    const userId = cookies.get("userId")?.value;
+    
+    const token = cookies.get("token")?.value;
 
-    if (!userId) {
+    if (!token) {
       return NextResponse.json(
         { error: "User not authenticated" },
         { status: 401 }
@@ -15,12 +16,14 @@ export async function POST(req) {
     }
 
     const azureEndpoint =
-      `https://cityinbookingapi20251018160614-fxgqdkc6d4hwgjf8.canadacentral-01.azurewebsites.net/api/Users/${userId}`;
+      `https://cityinbookingapi20251018160614-fxgqdkc6d4hwgjf8.canadacentral-01.azurewebsites.net/api/Users/me`;
 
     const response = await fetch(azureEndpoint, {
       method: "PUT",
       headers: {
-        "Content-Type": "application/json"
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${token}`
+
       },
       body: JSON.stringify(body) // ✅ IMPORTANT
     });

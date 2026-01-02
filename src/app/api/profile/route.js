@@ -4,9 +4,9 @@ export async function GET(req) {
   try {
     const cookies = req.cookies;
     const token = cookies.get("token")?.value;
-    const userId = cookies.get("userId")?.value;
+   
 
-    if (!token || !userId) {
+    if (!token) {
       return NextResponse.json(
         { error: "Unauthorized: Missing credentials" },
         { status: 401 }
@@ -15,10 +15,11 @@ export async function GET(req) {
 
     // ✅ Fetch user data from backend API using userId
     const response = await fetch(
-      `https://cityinbookingapi20251018160614-fxgqdkc6d4hwgjf8.canadacentral-01.azurewebsites.net/api/Users/${userId}`,
+      `https://cityinbookingapi20251018160614-fxgqdkc6d4hwgjf8.canadacentral-01.azurewebsites.net/api/Users/me`,
       {
         headers: {
           "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`
          
         },
       }

@@ -4,24 +4,25 @@ export async function GET(req) {
   try {
     const cookies = req.cookies;
 
-    const userId = cookies.get("userId")?.value;
+    
     const token = cookies.get("token")?.value;
 
-    if (!userId) {
+    if (!token) {
       return NextResponse.json(
-        { error: "No user ID found in cookies" },
+        { error: "No valid token" },
         { status: 400 }
       );
     }
 
-    const apiUrl = `https://cityinbookingapi20251018160614-fxgqdkc6d4hwgjf8.canadacentral-01.azurewebsites.net/api/Users/${userId}`;
+    const apiUrl = `https://cityinbookingapi20251018160614-fxgqdkc6d4hwgjf8.canadacentral-01.azurewebsites.net/api/Users/me`;
 
     const response = await fetch(apiUrl, {
       method: "GET",
-      headers: { "Content-Type": "application/json" },
-      // body: JSON.stringify({ userName:"Muhammad Faisal", password:"1122334455" }),
-      // credentials:true,
-      Authorization: `Bearer ${token}`,
+      headers: { 
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${token}`
+       },
+    
     });
 
     if (!response.ok) {
