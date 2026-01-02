@@ -68,7 +68,8 @@ class WalletPopup extends Component {
 
     console.log("Topup Amount:", topupAmount);
     const agencyId = Cookies.get("agencyId");
-
+    const serviceAdded = 1/100 * topupAmount;
+    const finalcost = Number(topupAmount) + Number(serviceAdded)
     // TODO: Call topup API here
 
     try {
@@ -285,6 +286,7 @@ class WalletPopup extends Component {
               {/* Label */}
               <div className="modal-row">
                 <label className="modal-labels">Enter Topup Amount (BHD)</label>
+                <label htmlFor=""></label>
               </div>
 
               {/* Full width input */}
@@ -296,6 +298,19 @@ class WalletPopup extends Component {
                   value={this.state.topupAmount}
                   onChange={this.handleTopupAmountChange}
                 />
+
+                
+              <div style={{display:"flex", justifyContent:"space-between", margin:"5px 0px", color:"#717171ff", fontSize:"13px"}}>
+                <h4>Service Charges</h4>
+                <span>≃ {1/100 * topupAmount}</span>
+                </div>
+
+                <div style={{display:"flex", justifyContent:"space-between", margin:"0px 0px", color:"#717171ff", fontSize:"13px"}}>
+                <h4>Charges Included</h4>
+                <span>= {Number(topupAmount) + Number(1/100 * topupAmount)}</span>
+                </div>
+
+
               </div>
 
               {/* Buttons */}

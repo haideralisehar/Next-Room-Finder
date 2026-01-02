@@ -51,7 +51,7 @@
 .box {
   width: 120px;            /* set any size you want */
   height: 120px;
-  background-color: rgb(255, 255, 255);
+  background-color: rgb(211, 26, 26);
   display: flex;           /* center contents */
   flex-direction: column;  /* stack spinner + text */
   justify-content: center; /* center vertically */

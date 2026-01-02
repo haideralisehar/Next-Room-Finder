@@ -88,9 +88,17 @@ import { NextResponse } from "next/server";
 export async function POST(req) {
   try {
     const { amount, metadata, customer  } = await req.json();
+     const baseAmount = Number(amount);
+  const SERVICE_PERCENT = 1; // 1%
+
+  const serviceCharge = (baseAmount * SERVICE_PERCENT) / 100;
+  const finalAmount = baseAmount + serviceCharge;
+
+  // optional rounding
+  const roundedFinalAmount = Number(finalAmount.toFixed(2));
 
     const payment = {
-      amount: parseFloat(amount),
+      amount: parseFloat(finalAmount),
       currency: "BHD",
       threeDSecure: true,
       save_card: false,
@@ -106,7 +114,8 @@ export async function POST(req) {
       },
       metadata: {
         date: metadata?.created_at,
-        id_agency: metadata?.ag_id
+        id_agency: metadata?.ag_id,
+        serviceCharge : serviceCharge
       },
 
       receipt: {
