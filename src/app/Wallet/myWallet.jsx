@@ -21,6 +21,7 @@ class WalletPopup extends Component {
       showCancelModal: false, // ✅ add this
       loadingfetch: false,
       topupAmount: "", // ✅ add this
+      token:""
     };
     this.wrapperRef = React.createRef();
   }
@@ -68,6 +69,7 @@ class WalletPopup extends Component {
 
     console.log("Topup Amount:", topupAmount);
     const agencyId = Cookies.get("agencyId");
+    const tokens = Cookies.get("token");
     const serviceAdded = 1/100 * topupAmount;
     const finalcost = Number(topupAmount) + Number(serviceAdded)
     // TODO: Call topup API here
@@ -75,6 +77,8 @@ class WalletPopup extends Component {
     try {
       this.setState({showCancelModal: false});
       this.setState({ loadingfetch: true });
+      this.setState({token:tokens})
+      
       const response = await fetch("/api/tap/create", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -175,6 +179,7 @@ class WalletPopup extends Component {
       showCancelModal,
       topupAmount,
       loadingfetch,
+      token
     } = this.state;
 
     const handleCancel = () => {
@@ -286,7 +291,7 @@ class WalletPopup extends Component {
               {/* Label */}
               <div className="modal-row">
                 <label className="modal-labels">Enter Topup Amount (BHD)</label>
-                <label htmlFor=""></label>
+               
               </div>
 
               {/* Full width input */}

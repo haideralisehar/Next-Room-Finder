@@ -22,8 +22,7 @@ export const performStreamingSearch = async (searchParams, dispatch, agencyId) =
   
 
   const extr = {
-    ...searchParams,
-    agencyId
+    ...searchParams
     
   }
 

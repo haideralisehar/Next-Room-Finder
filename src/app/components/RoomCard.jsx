@@ -347,7 +347,7 @@ const expiredPolicy = isPolicyExpired(policyList);
                                   <p>
                                     Cancellation from {getTodayDateTime()} up to{" "}
                                     {minusOneMinute(policies[0].FromDate)}{" "}
-                                    <strong>0 BHD (Free)</strong>
+                                    <strong>0 BHD</strong>
                                   </p>
 
                                   {/* 2️⃣ Middle ranges */}
@@ -385,12 +385,15 @@ const expiredPolicy = isPolicyExpired(policyList);
 
                 <div className="price-box" style={{ textAlign: "right" }}>
                   <div className="price-check">
-                    {currency}{" "}
+                    {/* {currency} */}
+                    {"BHD "}
                     {(variation?.raw?.TotalPrice * count_room).toFixed(2)}
                     {/* {convertPrice(variation.raw?.TotalPrice * count_room)} */}
                   </div>
                   <div style={{ fontSize: 13, color: "#666" }}>
-                    {currency} {/* {convertPrice( */}
+                    {/* {currency}  */}
+                    {"BHD "}
+                    {/* {convertPrice( */}
                     {/* ( */}
                     {(
                       (variation.raw?.TotalPrice /

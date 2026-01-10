@@ -40,12 +40,12 @@
   font-weight: 500;
 }
 .fix{
-  position: sticky;
+  /* position: sticky; */
   padding: 15px 120px;
   top: 0px;
   display: flex;
   justify-content: space-between;
-  background-color: rgb(0, 69, 198);
+  background-color: transparent;
 }
 
 .voucher-header {
@@ -83,7 +83,6 @@ border: 1px solid rgb(209, 209, 209);
 .download-btn:hover{
   background: #0359ee;
 }
-
 
 
 

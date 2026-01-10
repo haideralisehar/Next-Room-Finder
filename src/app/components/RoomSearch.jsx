@@ -47,6 +47,7 @@ const agencyId = Cookies.get("agencyId");
   const [showRoomPopup, setShowRoomPopup] = useState(false);
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [maxPeopleRoom, setMaxPeopleRoom] = useState([]);
+  const [agId, setagId] = useState(null);
 
   console.log(formData.destination);
 
@@ -91,6 +92,39 @@ useEffect(() => {
     ]);
   }
 }, [initialData?.checkIn, initialData?.checkOut]);
+
+
+
+const getDecodedToken = async () => {
+  try {
+    const res = await fetch("/api/getAgencyDecode", {
+      method: "GET",
+      credentials: "include",
+    });
+
+    const data = await res.json();
+
+    if (!res.ok) {
+      console.error(data.error);
+      return;
+    }
+
+    return data?.payload?.AgencyId
+
+    // console.log("Decoded Token:", data);
+    // const agencyId = data?.payload?.AgencyId;
+    // setagId(agencyId);
+    // alert(agId);
+
+
+  } catch (err) {
+    console.error("Frontend error:", err);
+  }
+};
+
+
+
+
 
 
   useEffect(() => {
@@ -203,6 +237,7 @@ console.log(formData.rooms)
   };
 
   const submitSearch = async () => {
+    const agency = await getDecodedToken();
     if (!formData.destination) {
       alert("Please select a destination!");
       return;
@@ -222,6 +257,7 @@ console.log(formData.rooms)
 
 
     const requestBody = {
+      agencyId: agency,
       countryCode: formData.destination,
       checkIn: formData.checkIn,
       checkOut: formData.checkOut,
@@ -239,6 +275,8 @@ console.log(formData.rooms)
      dispatch(startSearch());  
     // Save request for reuse in Redux
     performStreamingSearch(requestBody, dispatch, agencyId);
+
+    console.log("req",requestBody);
     
 
    

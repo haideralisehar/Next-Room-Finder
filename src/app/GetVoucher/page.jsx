@@ -2,6 +2,7 @@
 import React from "react";
 import { useSelector } from "react-redux";
 import DownloadBtn from "../print/Voucher/DownloadBtn";
+import Header from "../components/Header";
 
 export default function Page() {
   const booking = useSelector((state) => state.confirmedBooking.bookingData);
@@ -76,7 +77,10 @@ export default function Page() {
     
 
   return (
-    <div style={{ background: "#f3f6fb", minHeight: "100vh" }}>
+    <>
+    <Header/>
+    
+    <div style={{ background: "#f3f6fb" }}>
       <DownloadBtn
         booking={{
           reference: booking?.booking?.Success?.BookingDetails?.BookingID,
@@ -99,5 +103,6 @@ export default function Page() {
 
 
     </div>
+    </>
   );
 }

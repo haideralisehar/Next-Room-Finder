@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useEffect, cache, useRef  } from "react";
+import React, { useState, useEffect, cache, useRef } from "react";
 import styles from "../booking/Booking.module.css";
 import "../booking/booking.css";
 import { FaStar, FaRegStar } from "react-icons/fa"; // ⭐ Icons
@@ -14,9 +14,13 @@ import CountrySelector from "../components/CountrySelector";
 import { useSelector } from "react-redux";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
+import countryCodes from "../static_data/countrycode";
 
 import { useDispatch } from "react-redux";
-import { setConfirmedBooking, setConfirmedBookingError } from "../redux/confirmedBookingSlice";
+import {
+  setConfirmedBooking,
+  setConfirmedBookingError,
+} from "../redux/confirmedBookingSlice";
 
 export default function BookingPage() {
   const router = useRouter();
@@ -47,8 +51,6 @@ export default function BookingPage() {
   const formRef = useRef(null);
   const submitRef = useRef(null);
 
-
-
   //   const [contactInfo, setContactInfo] = useState({
   //   countryCode: "",
   //   phone: "",
@@ -58,7 +60,7 @@ export default function BookingPage() {
   const [formData, setFormData] = useState({
     firstName: "",
     lastName: "",
-    countryCode: "",
+    countryCode: "+1",
     phone: "",
     email: "",
     guestType: "Myself",
@@ -67,12 +69,36 @@ export default function BookingPage() {
     paymentMethod: "card",
   });
 
+  const [open, setOpen] = useState(false);
+const dropdownRef = useRef(null);
+
+const usa = countryCodes.find(c => c.code === "+1");
+
+const [selectedCountry, setSelectedCountry] = useState(usa);
+
+
+useEffect(() => {
+  function handleClickOutside(event) {
+    if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+      setOpen(false);
+    }
+  }
+
+  document.addEventListener("mousedown", handleClickOutside);
+  return () => document.removeEventListener("mousedown", handleClickOutside);
+}, []);
+
+
+
   const agencyName = priceConfirmResponse?.agencyDetails?.data?.agencyName;
+  const agencyID = priceConfirmResponse?.agencyDetails?.data?.id;
 
   const room =
     priceConfirmResponse?.parsedObject?.Success?.PriceDetails?.HotelList?.[0]
       ?.RatePlanList?.[0]?.RoomOccupancy;
-      const Remark= priceConfirmResponse?.parsedObject?.Success?.PriceDetails?.HotelList?.[0]?.Remark;
+  const Remark =
+    priceConfirmResponse?.parsedObject?.Success?.PriceDetails?.HotelList?.[0]
+      ?.Remark;
   const Room_Name =
     priceConfirmResponse?.parsedObject?.Success?.PriceDetails?.HotelList?.[0]
       ?.RatePlanList?.[0]?.RatePlanName;
@@ -131,12 +157,12 @@ export default function BookingPage() {
     }
 
     let totalPrice = hotel.TotalPrice;
-    console.log(`${totalPrice}`)
+    console.log(`${totalPrice}`);
 
     const discount = priceConfirmResponse?.agencyDetails?.Discounts;
     const markup = priceConfirmResponse?.agencyDetails?.Markups;
 
-     console.log(`${markup.MarkupFee } ${markup.MarkupType}`)
+    console.log(`${markup.MarkupFee} ${markup.MarkupType}`);
 
     // ------------------------------
     // Apply DISCOUNT
@@ -144,7 +170,7 @@ export default function BookingPage() {
     if (discount) {
       if (discount.DiscountType === "Percentage") {
         totalPrice = totalPrice - (totalPrice * discount.DiscountFee) / 100;
-        console.log(`${totalPrice}`)
+        console.log(`${totalPrice}`);
       } else if (discount.DiscountType === "Amount") {
         totalPrice = totalPrice - discount.DiscountFee;
       }
@@ -299,7 +325,7 @@ export default function BookingPage() {
             lastName: formData.lastName,
             email: formData.email,
             phone: formData.phone,
-            country_Code: formData.countryCode, 
+            country_Code: formData.countryCode,
           },
 
           metadata: {
@@ -462,304 +488,290 @@ export default function BookingPage() {
 
   const [submitType, setSubmitType] = useState(null);
 
-//   const handleSubmits = async (e) => {
-//   e.preventDefault();
+  //   const handleSubmits = async (e) => {
+  //   e.preventDefault();
 
-//   // ---------------------------------------------------
-//   // Step 1: Build final guest list
-//   // ---------------------------------------------------
-//   const finalGuestList = guestForms.map((roomGuests, roomIndex) => {
-//     let adultIndex = 0;
+  //   // ---------------------------------------------------
+  //   // Step 1: Build final guest list
+  //   // ---------------------------------------------------
+  //   const finalGuestList = guestForms.map((roomGuests, roomIndex) => {
+  //     let adultIndex = 0;
 
-//     const guestInfo = roomGuests.map((g) => {
-//       let guest = {
-//         name: { first: g.firstName, last: g.lastName },
-//         isAdult: g.isAdult,
-//         age: g.isAdult ? null : g.age,
-//       };
+  //     const guestInfo = roomGuests.map((g) => {
+  //       let guest = {
+  //         name: { first: g.firstName, last: g.lastName },
+  //         isAdult: g.isAdult,
+  //         age: g.isAdult ? null : g.age,
+  //       };
 
-//       // Replace first adult in room 1 with primary user name
-//       if (g.type === "adult") {
-//         adultIndex++;
-//         if (roomIndex === 0 && adultIndex === 1) {
-//           guest.name.first = formData.firstName || g.firstName;
-//           guest.name.last = formData.lastName || g.lastName;
-//         }
-//       }
+  //       // Replace first adult in room 1 with primary user name
+  //       if (g.type === "adult") {
+  //         adultIndex++;
+  //         if (roomIndex === 0 && adultIndex === 1) {
+  //           guest.name.first = formData.firstName || g.firstName;
+  //           guest.name.last = formData.lastName || g.lastName;
+  //         }
+  //       }
 
-//       return guest;
-//     });
+  //       return guest;
+  //     });
 
-//     return {
-//       roomNum: roomIndex + 1,
-//       guestInfo,
-//     };
-//   });
+  //     return {
+  //       roomNum: roomIndex + 1,
+  //       guestInfo,
+  //     };
+  //   });
 
-//   // ---------------------------------------------------
-//   // Step 2: Build Booking Confirm Payload
-//   // ---------------------------------------------------
-//   const bookingPayload = {
-//     agencyId: priceConfirmResponse?.agencyDetails?.data?.id,
-//     searchId:priceConfirmResponse?.agencyDetails?.searchId,
-//     checkInDate:
-//       priceConfirmResponse?.parsedObject?.Success?.PriceDetails?.CheckInDate,
-//     checkOutDate:
-//       priceConfirmResponse?.parsedObject?.Success?.PriceDetails?.CheckOutDate,
-//     numOfRooms: priceConfirmResponse?.room_cont?.length,
-//     guestList: finalGuestList,
+  //   // ---------------------------------------------------
+  //   // Step 2: Build Booking Confirm Payload
+  //   // ---------------------------------------------------
+  //   const bookingPayload = {
+  //     agencyId: priceConfirmResponse?.agencyDetails?.data?.id,
+  //     searchId:priceConfirmResponse?.agencyDetails?.searchId,
+  //     checkInDate:
+  //       priceConfirmResponse?.parsedObject?.Success?.PriceDetails?.CheckInDate,
+  //     checkOutDate:
+  //       priceConfirmResponse?.parsedObject?.Success?.PriceDetails?.CheckOutDate,
+  //     numOfRooms: priceConfirmResponse?.room_cont?.length,
+  //     guestList: finalGuestList,
 
-//     contact: {
-//       name: {
-//         first: formData.firstName || "John",
-//         last: formData.lastName || "Doe",
-//       },
-//       email: formData.email || "johndoe@example.com",
-//       phone: formData.phone || "+923001234567",
-//     },
+  //     contact: {
+  //       name: {
+  //         first: formData.firstName || "John",
+  //         last: formData.lastName || "Doe",
+  //       },
+  //       email: formData.email || "johndoe@example.com",
+  //       phone: formData.phone || "+923001234567",
+  //     },
 
-//     bookingMeta: priceConfirmResponse?.agencyDetails,
-//     clientReference: `client-${Date.now()}`,
-//     referenceNo:
-//       priceConfirmResponse?.parsedObject?.Success?.PriceDetails?.ReferenceNo,
-//   };
+  //     bookingMeta: priceConfirmResponse?.agencyDetails,
+  //     clientReference: `client-${Date.now()}`,
+  //     referenceNo:
+  //       priceConfirmResponse?.parsedObject?.Success?.PriceDetails?.ReferenceNo,
+  //   };
 
-//   setLoadingfetch(true);
+  //   setLoadingfetch(true);
 
-//   try {
-//     const res = await fetch("/api/walletDeduct", {
-//       method: "POST",
-//       headers: { "Content-Type": "application/json" },
-//       body: JSON.stringify({
-//         orderAmount: convertPrice(finalPrice),
-//         bookingPayload,
-//         agencyName,
-//         searchId: priceConfirmResponse?.agencyDetails?.searchId
-       
-//       }),
-//     });
+  //   try {
+  //     const res = await fetch("/api/walletDeduct", {
+  //       method: "POST",
+  //       headers: { "Content-Type": "application/json" },
+  //       body: JSON.stringify({
+  //         orderAmount: convertPrice(finalPrice),
+  //         bookingPayload,
+  //         agencyName,
+  //         searchId: priceConfirmResponse?.agencyDetails?.searchId
 
-//     const data = await res.json();
-//     setLoadingfetch(false);
+  //       }),
+  //     });
 
-//     console.log("Booking API Response →", data);
+  //     const data = await res.json();
+  //     setLoadingfetch(false);
 
-//     // ---------------------------------------------
-//     // ❌ If success is false or error exists
-//     // ---------------------------------------------
-//     if (!data.success) {
-//       dispatch(setConfirmedBookingError(data.message || "Booking failed"));
-//       alert(data.message || "Booking failed");
-//       return;
-//     }
+  //     console.log("Booking API Response →", data);
 
-//     // ---------------------------------------------
-//     // ✔️ Success Case
-//     // ---------------------------------------------
-//     const finalBookingData = {
-//       ...data, // success + message
-//       booking: data.booking, // full booking (AuditData + Success)
-//       agency: priceConfirmResponse?.agencyDetails?.data, 
-//       tel: priceConfirmResponse?.agencyDetails?.tele_phone,
-//       address: priceConfirmResponse?.agencyDetails?.address,
-//       mealType: priceConfirmResponse?.agencyDetails?.mealType,
-//       bedtpe: priceConfirmResponse?.agencyDetails?.bedtpe
-      
+  //     // ---------------------------------------------
+  //     // ❌ If success is false or error exists
+  //     // ---------------------------------------------
+  //     if (!data.success) {
+  //       dispatch(setConfirmedBookingError(data.message || "Booking failed"));
+  //       alert(data.message || "Booking failed");
+  //       return;
+  //     }
 
-//     };
+  //     // ---------------------------------------------
+  //     // ✔️ Success Case
+  //     // ---------------------------------------------
+  //     const finalBookingData = {
+  //       ...data, // success + message
+  //       booking: data.booking, // full booking (AuditData + Success)
+  //       agency: priceConfirmResponse?.agencyDetails?.data,
+  //       tel: priceConfirmResponse?.agencyDetails?.tele_phone,
+  //       address: priceConfirmResponse?.agencyDetails?.address,
+  //       mealType: priceConfirmResponse?.agencyDetails?.mealType,
+  //       bedtpe: priceConfirmResponse?.agencyDetails?.bedtpe
 
-//     // Save in Redux
-//     dispatch(setConfirmedBooking(finalBookingData));
+  //     };
 
-//     console.log("Confirmed Booking Saved →", finalBookingData);
+  //     // Save in Redux
+  //     dispatch(setConfirmedBooking(finalBookingData));
 
-//     alert("Payment deducted & booking confirmed!");
+  //     console.log("Confirmed Booking Saved →", finalBookingData);
 
-//     // Redirect user
-//     router.replace("/GetVoucher");
+  //     alert("Payment deducted & booking confirmed!");
 
-//   } catch (error) {
-//     setLoadingfetch(false);
-//     dispatch(setConfirmedBookingError(error.message));
-//     alert(error.message);
-//   }
-// };
+  //     // Redirect user
+  //     router.replace("/GetVoucher");
 
-const handleConfirm = async ()=>{
-  setSubmitType("HOLD");
-  
-};
+  //   } catch (error) {
+  //     setLoadingfetch(false);
+  //     dispatch(setConfirmedBookingError(error.message));
+  //     alert(error.message);
+  //   }
+  // };
 
-const handleSubmits = async (e) => {
-  e.preventDefault();
+  const handleConfirm = async () => {
+    setSubmitType("HOLD");
+  };
 
-  // ---------------------------------------------------
-  // Step 1: Build final guest list
-  // ---------------------------------------------------
-  const finalGuestList = guestForms.map((roomGuests, roomIndex) => {
-    let adultIndex = 0;
+  const handleSubmits = async (e) => {
+    e.preventDefault();
 
-    const guestInfo = roomGuests.map((g) => {
-      let guest = {
-        name: { first: g.firstName, last: g.lastName },
-        isAdult: g.isAdult,
-        age: g.isAdult ? null : g.age,
-      };
+    // ---------------------------------------------------
+    // Step 1: Build final guest list
+    // ---------------------------------------------------
+    const finalGuestList = guestForms.map((roomGuests, roomIndex) => {
+      let adultIndex = 0;
 
-      // Replace first adult in room 1 with primary user name
-      if (g.type === "adult") {
-        adultIndex++;
-        if (roomIndex === 0 && adultIndex === 1) {
-          guest.name.first = formData.firstName || g.firstName;
-          guest.name.last = formData.lastName || g.lastName;
+      const guestInfo = roomGuests.map((g) => {
+        let guest = {
+          name: { first: g.firstName, last: g.lastName },
+          isAdult: g.isAdult,
+          age: g.isAdult ? null : g.age,
+        };
+
+        // Replace first adult in room 1 with primary user name
+        if (g.type === "adult") {
+          adultIndex++;
+          if (roomIndex === 0 && adultIndex === 1) {
+            guest.name.first = formData.firstName || g.firstName;
+            guest.name.last = formData.lastName || g.lastName;
+          }
         }
-      }
 
-      return guest;
+        return guest;
+      });
+
+      return {
+        roomNum: roomIndex + 1,
+        guestInfo,
+      };
     });
 
-    return {
-      roomNum: roomIndex + 1,
-      guestInfo,
+    const agencyDet = priceConfirmResponse?.agencyDetails;
+
+    const newData = {
+      finalPrice,
+      ...agencyDet,
     };
-  });
 
+    // ---------------------------------------------------
+    // Step 2: Build Booking Confirm Payload
+    // ---------------------------------------------------
+    const bookingPayload = {
+      agencyId: priceConfirmResponse?.agencyDetails?.data?.id,
+      searchId: priceConfirmResponse?.agencyDetails?.searchId,
+      checkInDate:
+        priceConfirmResponse?.parsedObject?.Success?.PriceDetails?.CheckInDate,
+      checkOutDate:
+        priceConfirmResponse?.parsedObject?.Success?.PriceDetails?.CheckOutDate,
+      numOfRooms: priceConfirmResponse?.room_cont?.length,
+      guestList: finalGuestList,
 
-  const agencyDet = priceConfirmResponse?.agencyDetails;
- 
-  const newData ={
-    finalPrice,
-    ...agencyDet
-
-
-  }
-
-  // ---------------------------------------------------
-  // Step 2: Build Booking Confirm Payload
-  // ---------------------------------------------------
-  const bookingPayload = {
-    agencyId: priceConfirmResponse?.agencyDetails?.data?.id,
-    searchId:priceConfirmResponse?.agencyDetails?.searchId,
-    checkInDate:
-      priceConfirmResponse?.parsedObject?.Success?.PriceDetails?.CheckInDate,
-    checkOutDate:
-      priceConfirmResponse?.parsedObject?.Success?.PriceDetails?.CheckOutDate,
-    numOfRooms: priceConfirmResponse?.room_cont?.length,
-    guestList: finalGuestList,
-
-    contact: {
-      name: {
-        first: formData.firstName || "John",
-        last: formData.lastName || "Doe",
+      contact: {
+        name: {
+          first: formData.firstName || "John",
+          last: formData.lastName || "Doe",
+        },
+        email: formData.email ,
+        phone: formData.phone 
       },
-      email: formData.email || "johndoe@example.com",
-      phone: formData.phone || "+923001234567",
-    },
 
-    customerRequest: formData.specialRequest || "",
+      customerRequest: formData.specialRequest || "",
 
-
-
-    bookingMeta: newData,
-    clientReference: `client-${Date.now()}`,
-    referenceNo:
-      priceConfirmResponse?.parsedObject?.Success?.PriceDetails?.ReferenceNo,
+      bookingMeta: newData,
+      clientReference: `client-${Date.now()}`,
+      referenceNo:
+        priceConfirmResponse?.parsedObject?.Success?.PriceDetails?.ReferenceNo,
 
       PaymentStatus: submitType === "HOLD" ? "pending" : "paid",
-
-
-
-  };
-  setLoadingfetch(true);
-
-  try {
-    let res;
-    let data;
-
-    // ===================================================
-    // ISSUE BOOKING (Wallet Deduct + Confirm)
-    // ===================================================
-    if (submitType === "BOOK") {
-      res = await fetch("/api/walletDeduct", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          orderAmount: finalPrice,
-          bookingPayload,
-          agencyName,
-          searchId: priceConfirmResponse?.agencyDetails?.searchId,
-        }),
-      });
-
-      data = await res.json();
-    }
-
-    // ===================================================
-    // HOLD BOOKING (No Wallet Deduct)
-    // ===================================================
-    if (submitType === "HOLD") {
-      res = await fetch("/api/holdBooking", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          orderAmount: finalPrice,
-          bookingPayload,
-           agencyName,
-          searchId: priceConfirmResponse?.agencyDetails?.searchId,
-        
-        }),
-      });
-
-      data = await res.json();
-
-     
-    }
-
-    setLoadingfetch(false);
-
-    // ---------------------------------------------------
-    // Error handling
-    // ---------------------------------------------------
-    if (!data?.success) {
-      dispatch(setConfirmedBookingError(data.message || "Booking failed"));
-      alert(data.message || "Booking failed");
-      return;
-    }
-
-    // ---------------------------------------------------
-    // Success handling
-    // ---------------------------------------------------
-    const finalBookingData = {
-      ...data,
-      // booking: data.booking,
-      customerrequest: formData.specialRequest,
-      agency: priceConfirmResponse?.agencyDetails?.data,
-      tel: priceConfirmResponse?.agencyDetails?.tele_phone,
-      address: priceConfirmResponse?.agencyDetails?.address,
-      mealType: priceConfirmResponse?.agencyDetails?.mealType,
-      bedtpe: priceConfirmResponse?.agencyDetails?.bedtpe,
-      bookingType: submitType, // BOOK or HOLD
     };
+    setLoadingfetch(true);
 
-    dispatch(setConfirmedBooking(finalBookingData));
+    try {
+      let res;
+      let data;
 
-    alert(
-      submitType === "BOOK"
-        ? "Payment deducted & booking confirmed!"
-        : "Booking placed on hold successfully!"
-    );
+      // ===================================================
+      // ISSUE BOOKING (Wallet Deduct + Confirm)
+      // ===================================================
+      if (submitType === "BOOK") {
+        res = await fetch("/api/walletDeduct", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            orderAmount: finalPrice,
+            bookingPayload,
+            agencyName,
+            searchId: priceConfirmResponse?.agencyDetails?.searchId,
+          }),
+        });
 
-    router.replace("/GetVoucher");
+        data = await res.json();
+      }
 
-  } catch (error) {
-    setLoadingfetch(false);
-    dispatch(setConfirmedBookingError(error.message));
-    alert(error.message);
-  }
-};
+      // ===================================================
+      // HOLD BOOKING (No Wallet Deduct)
+      // ===================================================
+      if (submitType === "HOLD") {
+        res = await fetch("/api/holdBooking", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            orderAmount: finalPrice,
+            bookingPayload,
+            agencyName,
+            agencyID,
+            searchId: priceConfirmResponse?.agencyDetails?.searchId,
+          }),
+        });
 
+        data = await res.json();
+      }
 
-function formatDateTimeExact(dateString) {
+      setLoadingfetch(false);
+
+      // ---------------------------------------------------
+      // Error handling
+      // ---------------------------------------------------
+      if (!data?.success) {
+        dispatch(setConfirmedBookingError(data.message || "Booking failed"));
+        alert(data.message || "Booking failed");
+        return;
+      }
+
+      // ---------------------------------------------------
+      // Success handling
+      // ---------------------------------------------------
+      const finalBookingData = {
+        ...data,
+        // booking: data.booking,
+        customerrequest: formData.specialRequest,
+        agency: priceConfirmResponse?.agencyDetails?.data,
+        tel: priceConfirmResponse?.agencyDetails?.tele_phone,
+        address: priceConfirmResponse?.agencyDetails?.address,
+        mealType: priceConfirmResponse?.agencyDetails?.mealType,
+        bedtpe: priceConfirmResponse?.agencyDetails?.bedtpe,
+        bookingType: submitType, // BOOK or HOLD
+      };
+
+      dispatch(setConfirmedBooking(finalBookingData));
+
+      alert(
+        submitType === "BOOK"
+          ? "Payment deducted & booking confirmed!"
+          : "Booking placed on hold successfully!"
+      );
+
+      router.replace("/GetVoucher");
+    } catch (error) {
+      setLoadingfetch(false);
+      dispatch(setConfirmedBookingError(error.message));
+      alert(error.message);
+    }
+  };
+
+  function formatDateTimeExact(dateString) {
     const date = new Date(dateString);
 
     const year = date.getFullYear();
@@ -795,24 +807,17 @@ function formatDateTimeExact(dateString) {
   }
 
   function isPolicyExpired(policyList) {
-  const now = new Date();
+    const now = new Date();
 
-  return policyList.some(
-    (p) => new Date(p.FromDate) <= now
-  );
-}
+    return policyList.some((p) => new Date(p.FromDate) <= now);
+  }
 
   const policyList =
-  priceConfirmResponse?.parsedObject?.Success?.PriceDetails?.HotelList?.[0]?.CancellationPolicyList || [];
+    priceConfirmResponse?.parsedObject?.Success?.PriceDetails?.HotelList?.[0]
+      ?.CancellationPolicyList || [];
 
   const expiredPolicy = isPolicyExpired(policyList);
-// const expiredPolicy = isPolicyExpired(policyList);
-
-  
-
-
-
-
+  // const expiredPolicy = isPolicyExpired(policyList);
 
   return (
     <>
@@ -858,12 +863,16 @@ function formatDateTimeExact(dateString) {
 
       <div className={styles.container}>
         {/* Left Form */}
-        <form onSubmit={handleSubmits}  className={styles.form}  ref={formRef} >
-          <h2 style={{ fontSize: "18px", fontWeight: "bold" , padding:"10px 10px"}}>
+        <form onSubmit={handleSubmits} className={styles.form} ref={formRef}>
+          <h2
+            style={{
+              fontSize: "18px",
+              fontWeight: "bold",
+              padding: "10px 10px",
+            }}
+          >
             Guests Details & Payment
           </h2>
-
-         
 
           {/* <div className={styles.row}>
           <div className={styles.inputGroup}>
@@ -951,7 +960,7 @@ function formatDateTimeExact(dateString) {
                           <input
                             type="text"
                             value={guest.firstName}
-                            placeholder="first name"
+                            placeholder="First Name"
                             onChange={(e) =>
                               handleGuestChange(
                                 roomIndex,
@@ -968,7 +977,7 @@ function formatDateTimeExact(dateString) {
                           <input
                             type="text"
                             value={guest.lastName}
-                            placeholder="last name"
+                            placeholder="Last Name"
                             onChange={(e) =>
                               handleGuestChange(
                                 roomIndex,
@@ -991,7 +1000,7 @@ function formatDateTimeExact(dateString) {
                               className={styles.row}
                               style={{ margin: "-8px 0 0 0" }}
                             >
-                              <div className={styles.countryGroup}>
+                              {/* <div className={styles.countryGroup}>
                                 <CountrySelector
                                   selectedCountry={formData.countryCode}
                                   show_label={false}
@@ -1004,27 +1013,86 @@ function formatDateTimeExact(dateString) {
                                     }))
                                   }
                                 />
+                              </div> */}
+
+                              <div className={styles.phoneWrapper} ref={dropdownRef}>
+                              {/* Selected Country */}
+                              <div
+                                className={styles.countryDropdown}
+                                onClick={() => setOpen(prev => !prev)}
+                              >
+                                <img
+                                  src={`https://flagcdn.com/w40/${selectedCountry.iso}.png`}
+                                  alt={selectedCountry.name}
+                                />
+                                <div className={styles.countryText}>
+    <span className={styles.countryCode}>{selectedCountry.code}</span>
+    <span className={styles.countryName}>{selectedCountry.name}</span>
+  </div>
+  <span className={`${styles.arrow} ${open ? styles.rotate : ""}`}>
+    ▾
+  </span>
+
+  
                               </div>
 
-                              <div className={styles.inputGroup}>
-                                <input
-                                  type="tel"
-                                  placeholder="phone"
-                                  value={formData.phone}
-                                  required
-                                  onChange={(e) =>
-                                    setFormData((prev) => ({
-                                      ...prev,
-                                      phone: e.target.value,
-                                    }))
-                                  }
-                                />
-                              </div>
+                            
+  
+
+
+                              {/* Dropdown */}
+                              {open && (
+                                <div className={styles.dropdownList}>
+                                  {countryCodes.map((c) => (
+                                    <div
+                                      key={c.code}
+                                      className={styles.countryOption}
+                                      onClick={() => {
+                                        const numberOnly = formData.phone.replace(formData.countryCode, "");
+
+                                        setSelectedCountry(c);
+
+                                        setFormData(prev => ({
+                                          ...prev,
+                                          countryCode: c.code,
+                                          phone: c.code + numberOnly,
+                                        }));
+
+                                        setOpen(false);
+                                      }}
+                                    >
+                                      <img src={`https://flagcdn.com/w40/${c.iso}.png`} />
+                                      <span>{c.code}</span>
+                                      <span>{c.name}</span>
+                                    </div>
+                                  ))}
+                                </div>
+                              )}
+
+                              {/* Phone Input */}
+                              <input
+                              maxLength={14}
+                                type="tel"
+                                className={styles.phoneInput}
+                                placeholder="Phone Number"
+                                value={formData.phone.replace(formData.countryCode, "")}
+                                onChange={(e) => {
+                                  const digits = e.target.value.replace(/\D/g, "");
+                                  setFormData(prev => ({
+                                    ...prev,
+                                    phone: prev.countryCode + digits,
+                                  }));
+                                }}
+                                required
+                              />
+                            </div>
+
                             </div>
 
                             <div className={styles.inputGroup}>
                               <input
-                                type="email"
+                             className={styles.mail}
+                                type="Email Address"
                                 placeholder="email"
                                 value={formData.email}
                                 required
@@ -1070,8 +1138,15 @@ function formatDateTimeExact(dateString) {
           </div>
 
           <div className={styles.inputGroup}>
-            <label>Any Special Request? (<span style={{color:"red"}}>Special requests are subject to hotel availability and cannot be guaranteed.</span>)</label>
-            
+            <label>
+              Any Special Request? (
+              <span style={{ color: "red" }}>
+                Special requests are subject to hotel availability and cannot be
+                guaranteed.
+              </span>
+              )
+            </label>
+
             <textarea
               name="specialRequest"
               value={formData.specialRequest}
@@ -1139,55 +1214,55 @@ function formatDateTimeExact(dateString) {
             </div>
           </div> */}
 
-          <button
-  type="submit"
-  ref={submitRef}
-  style={{ display: "none" }}
->
-  submit
-</button>
+          <button type="submit" ref={submitRef} style={{ display: "none" }}>
+            submit
+          </button>
 
-
-          <div style={{display:"flex", justifyContent:"space-between", gap:"5px"}}>
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "space-between",
+              gap: "5px",
+            }}
+          >
             <button
-            title="Pay as you go."
-            type="button"
-  className={styles.submitBtn}
-  disabled={loadingfetch}
-  onClick={() => {
-    if (!formRef.current.checkValidity()) {
-      formRef.current.reportValidity();
-      return;
-    }
+              title="Pay as you go."
+              type="button"
+              className={styles.submitBtn}
+              disabled={loadingfetch}
+              onClick={() => {
+                if (!formRef.current.checkValidity()) {
+                  formRef.current.reportValidity();
+                  return;
+                }
 
-    setSubmitType("BOOK");
-    setPendingSubmitType("BOOK");
-    setShowCancelModal(true);
-  }}
->
-  Issue Booking
-          </button>
+                setSubmitType("BOOK");
+                setPendingSubmitType("BOOK");
+                setShowCancelModal(true);
+              }}
+            >
+              Issue Booking
+            </button>
 
-          {!expiredPolicy &&
+            {!expiredPolicy && (
+              <button
+                type="button"
+                className={styles.submitBtns}
+                disabled={loadingfetch}
+                onClick={() => {
+                  if (!formRef.current.checkValidity()) {
+                    formRef.current.reportValidity();
+                    return;
+                  }
 
-          <button
-         type="button"
-  className={styles.submitBtns}
-  disabled={loadingfetch}
-  onClick={() => {
-    if (!formRef.current.checkValidity()) {
-      formRef.current.reportValidity();
-      return;
-    }
-
-    setSubmitType("HOLD");
-    setPendingSubmitType("HOLD");
-    setShowCancelModal(true);
-  }}
->
-  Hold & Book
-          </button>
-          }
+                  setSubmitType("HOLD");
+                  setPendingSubmitType("HOLD");
+                  setShowCancelModal(true);
+                }}
+              >
+                Hold & Book
+              </button>
+            )}
           </div>
         </form>
 
@@ -1398,63 +1473,62 @@ function formatDateTimeExact(dateString) {
                 </div>
               )
             )} */}
-            
 
-          {!expiredPolicy ? (
-  (() => {
-    const policies = [...(policyList || [])].sort(
-      (a, b) => new Date(a.FromDate) - new Date(b.FromDate)
-    );
+            {!expiredPolicy ? (
+              (() => {
+                const policies = [...(policyList || [])].sort(
+                  (a, b) => new Date(a.FromDate) - new Date(b.FromDate)
+                );
 
-    if (!policies.length) return null;
+                if (!policies.length) return null;
 
-    return (
-      <div style={{ fontSize: 12, lineHeight: "1.6" }}>
-        {/* 1️⃣ NOW → first policy (FREE) */}
-       {/* 1️⃣ NOW → first policy (FREE) */}
-<p>
-  Cancellation from {getTodayDateTime()} up to{" "}
-  {minusOneMinute(policies[0].FromDate)}{" "}
-  <strong>0 BHD</strong>
-</p>
+                return (
+                  <div style={{ fontSize: 12, lineHeight: "1.6" }}>
+                    {/* 1️⃣ NOW → first policy (FREE) */}
+                    {/* 1️⃣ NOW → first policy (FREE) */}
+                    <p>
+                      Cancellation from {getTodayDateTime()} up to{" "}
+                      {minusOneMinute(policies[0].FromDate)}{" "}
+                      <strong>0 BHD</strong>
+                    </p>
 
-{/* 2️⃣ Middle ranges */}
-{policies.length > 1 &&
-  policies.slice(1).map((p, i) => (
-    <p key={i}>
-      Cancellation from{" "}
-      {formatDateTimeExact(policies[i].FromDate)} up to{" "}
-      {minusOneMinute(p.FromDate)}{" "}
-      <strong>{policies[i].Amount} BHD</strong>
-    </p>
-  ))}
+                    {/* 2️⃣ Middle ranges */}
+                    {policies.length > 1 &&
+                      policies.slice(1).map((p, i) => (
+                        <p key={i}>
+                          Cancellation from{" "}
+                          {formatDateTimeExact(policies[i].FromDate)} up to{" "}
+                          {minusOneMinute(p.FromDate)}{" "}
+                          <strong>{policies[i].Amount} BHD</strong>
+                        </p>
+                      ))}
 
-{/* 3️⃣ After last policy */}
-<p>
-  Cancellation after{" "}
-  {formatDateTimeExact(policies[policies.length - 1].FromDate)}{" "}
-  <strong>{policies[policies.length - 1].Amount} BHD</strong>
-</p>
-
-      </div>
-    );
-  })()
-) : (
-  <p style={{ color: "#c23d3d", fontSize: 12 }}>
-    ✖ Non-Refundable
-  </p>
-)}
-
+                    {/* 3️⃣ After last policy */}
+                    <p>
+                      Cancellation after{" "}
+                      {formatDateTimeExact(
+                        policies[policies.length - 1].FromDate
+                      )}{" "}
+                      <strong>
+                        {policies[policies.length - 1].Amount} BHD
+                      </strong>
+                    </p>
+                  </div>
+                );
+              })()
+            ) : (
+              <p style={{ color: "#c23d3d", fontSize: 12 }}>✖ Non-Refundable</p>
+            )}
           </div>
 
           <div className={styles.policy}>
             <h4>Important Information</h4>
-          <div style={{fontSize:"15px", color:"#484848ff"}}
-  dangerouslySetInnerHTML={{
-    __html: Remark,
-  }}
-/>
-          
+            <div
+              style={{ fontSize: "15px", color: "#484848ff" }}
+              dangerouslySetInnerHTML={{
+                __html: Remark,
+              }}
+            />
           </div>
           {showAmenitiesPopup && (
             <div
@@ -1814,47 +1888,58 @@ function formatDateTimeExact(dateString) {
             </div>
           )}
 
-           {showCancelModal && (
-            <div className="modal-overlay" onClick={() => setShowCancelModal(false)}>
-              <div
-                className="modal-box"
-                onClick={(e) => e.stopPropagation()}
-              >
-                 <Image
-                            style={{
-                             margin:"0px auto"
-                            }}
-                             // className="circular-left-right"
-                             src="/booking.png"
-                             alt="Loading"
-                             width={50}
-                             height={50}
-                           />
-                           <h2 style={{fontWeight:"bold", padding:"5px 0px", fontSize:"19px"}}>
-                            {pendingSubmitType === "BOOK" ? "Issue Booking Confirmation":"Hold Booking Confirmation"}
-                            </h2>
-                           <p>You're going to {pendingSubmitType === "BOOK" ? "confirm":"hold"} your "Booking"</p>
-          
+          {showCancelModal && (
+            <div
+              className="modal-overlay"
+              onClick={() => setShowCancelModal(false)}
+            >
+              <div className="modal-box" onClick={(e) => e.stopPropagation()}>
+                <Image
+                  style={{
+                    margin: "0px auto",
+                  }}
+                  // className="circular-left-right"
+                  src="/booking.png"
+                  alt="Loading"
+                  width={50}
+                  height={50}
+                />
+                <h2
+                  style={{
+                    fontWeight: "bold",
+                    padding: "5px 0px",
+                    fontSize: "19px",
+                  }}
+                >
+                  {pendingSubmitType === "BOOK"
+                    ? "Issue Booking Confirmation"
+                    : "Hold Booking Confirmation"}
+                </h2>
+                <p>
+                  You're going to{" "}
+                  {pendingSubmitType === "BOOK" ? "confirm" : "hold"} your
+                  "Booking"
+                </p>
+
                 <div className="modal-actions">
-                  
-          
                   <button
                     className="btn"
                     onClick={() => setShowCancelModal(false)}
                   >
                     No, keep it.
                   </button>
-          
-                 <button
-  className="btn danger"
-  onClick={() => {
-    setShowCancelModal(false);
-    submitRef.current.click(); // ✅ real form submit
-  }}
->
-  {pendingSubmitType === "BOOK" ? "Yes, Confirm!" : "Yes, Hold"}
-</button>
 
+                  <button
+                    className="btn danger"
+                    onClick={() => {
+                      setShowCancelModal(false);
+                      submitRef.current.click(); // ✅ real form submit
+                    }}
+                  >
+                    {pendingSubmitType === "BOOK"
+                      ? "Yes, Confirm!"
+                      : "Yes, Hold"}
+                  </button>
                 </div>
               </div>
             </div>
@@ -1911,17 +1996,10 @@ function formatDateTimeExact(dateString) {
   );
 }
 
-
-
-
-
-
-
-
 // const handleSubmits = async (e) => { e.preventDefault();
-   
-//    const finalGuestList = guestForms.map((roomGuests, roomIndex) => { let adultIndex = 0; const guestInfo = roomGuests.map((g) => { let guest = { name: { first: g.firstName, last: g.lastName }, isAdult: g.isAdult, age: g.isAdult ? null : g.age, }; if (g.type === "adult") { adultIndex++; if (roomIndex === 0 && adultIndex === 1) { guest.name.first = formData.firstName || g.firstName; guest.name.last = formData.lastName || g.lastName; } } return guest; }); return { roomNum: roomIndex + 1, guestInfo, }; });  
-//    const bookingPayload = { checkInDate: priceConfirmResponse?.parsedObject?.Success?.PriceDetails?.CheckInDate, checkOutDate: priceConfirmResponse?.parsedObject?.Success?.PriceDetails?.CheckOutDate, numOfRooms: priceConfirmResponse?.room_cont.length, guestList: finalGuestList, contact: { name: { first: "John", last: "Doe", }, email: "johndoe@example.com", phone: "+923001234567", }, clientReference: client-${Date.now() + 10000}, referenceNo: priceConfirmResponse?.parsedObject?.Success?.PriceDetails?.ReferenceNo, }; setLoadingfetch(true); 
-//     const res = await fetch("/api/walletDeduct", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ orderAmount: convertPrice(finalPrice), bookingPayload, }), }); const data = await res.json(); console.log("booking",data); setLoadingfetch(false); if (!data.success) { alert(data.message); return; } if(data.success){ const modidata={ ...data, agency:priceConfirmResponse?.agencyDetails } } alert(data?.message); 
-//      resetAllFields(); 
+
+//    const finalGuestList = guestForms.map((roomGuests, roomIndex) => { let adultIndex = 0; const guestInfo = roomGuests.map((g) => { let guest = { name: { first: g.firstName, last: g.lastName }, isAdult: g.isAdult, age: g.isAdult ? null : g.age, }; if (g.type === "adult") { adultIndex++; if (roomIndex === 0 && adultIndex === 1) { guest.name.first = formData.firstName || g.firstName; guest.name.last = formData.lastName || g.lastName; } } return guest; }); return { roomNum: roomIndex + 1, guestInfo, }; });
+//    const bookingPayload = { checkInDate: priceConfirmResponse?.parsedObject?.Success?.PriceDetails?.CheckInDate, checkOutDate: priceConfirmResponse?.parsedObject?.Success?.PriceDetails?.CheckOutDate, numOfRooms: priceConfirmResponse?.room_cont.length, guestList: finalGuestList, contact: { name: { first: "John", last: "Doe", }, email: "johndoe@example.com", phone: "+923001234567", }, clientReference: client-${Date.now() + 10000}, referenceNo: priceConfirmResponse?.parsedObject?.Success?.PriceDetails?.ReferenceNo, }; setLoadingfetch(true);
+//     const res = await fetch("/api/walletDeduct", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ orderAmount: convertPrice(finalPrice), bookingPayload, }), }); const data = await res.json(); console.log("booking",data); setLoadingfetch(false); if (!data.success) { alert(data.message); return; } if(data.success){ const modidata={ ...data, agency:priceConfirmResponse?.agencyDetails } } alert(data?.message);
+//      resetAllFields();
 //      };

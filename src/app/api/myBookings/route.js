@@ -41,17 +41,22 @@ export async function GET(req) {
       paymentstatus: item.paymentStatus,
 
       leader:
-        item.fullResponse?.Success?.BookingDetails?.GuestList?.[0]
-          ?.GuestInfo?.[0]?.Name?.First +
-          " " +
-          item.fullResponse?.Success?.BookingDetails?.GuestList?.[0]
-            ?.GuestInfo?.[0]?.Name?.Last || "-",
+  (
+    item.fullResponse?.Success?.BookingDetails?.GuestList?.[0]
+      ?.GuestInfo?.[0]?.Name?.First &&
+    item.fullResponse?.Success?.BookingDetails?.GuestList?.[0]
+      ?.GuestInfo?.[0]?.Name?.Last
+  )
+    ? `${item.fullResponse.Success.BookingDetails.GuestList[0].GuestInfo[0].Name.First}
+       ${item.fullResponse.Success.BookingDetails.GuestList[0].GuestInfo[0].Name.Last}`
+    : "Not Available",
+
       status:
         item.status === "2"
           ? "Confirmed"
           : item.status === "1"
           ? "Pending"
-          : "Cancelled",
+          : item.status === "CANCELLED" ? "CANCELLED" : item.status === "FAILED" ? "FAILED" : "" ,
       agencys: item.agencyId,
 
       getstatus: item.status,

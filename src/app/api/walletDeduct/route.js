@@ -36,12 +36,8 @@
 //       );
 //     }
 
-    
-
 //     // 2. Check balance
 //     const oldBalance = wallet.availableBalance;
-
-   
 
 //     if (oldBalance < orderAmount) {
 //       return Response.json({
@@ -98,7 +94,6 @@
 
 //     }
 
-
 //     return Response.json({
 //       success: true,
 //       message: "Payment deducted & booking confirmed!",
@@ -114,17 +109,16 @@
 //   }
 // }
 
-import { cookies } from "next/headers";
+import { cookies, headers } from "next/headers";
 
 export async function POST(req) {
   try {
     const body = await req.json();
-    const { orderAmount, bookingPayload, agencyName,searchId  } = body;
-
-    
+    const { orderAmount, bookingPayload, agencyName, searchId } = body;
 
     const cookieStore = cookies();
     const agencyId = cookieStore.get("agencyId")?.value;
+    const token = cookieStore.get("token")?.value;
 
     if (!agencyId) {
       return Response.json(
@@ -135,8 +129,24 @@ export async function POST(req) {
 
     /* -------------------- 1. GET WALLET -------------------- */
     const walletRes = await fetch(
-      `https://cityinbookingapi20251018160614-fxgqdkc6d4hwgjf8.canadacentral-01.azurewebsites.net/api/Wallet/${agencyId}`
+      `https://cityinbookingapi20251018160614-fxgqdkc6d4hwgjf8.canadacentral-01.azurewebsites.net/api/Wallet/my`,
+      {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      }
     );
+
+    if (walletRes.status === 401) {
+       return Response.json(
+        { success: false, message: "Unauthorized! You can't go far." },
+        { status: 401 }
+      );
+    }
+
+    
 
     if (!walletRes.ok) {
       return Response.json(
@@ -213,7 +223,10 @@ export async function POST(req) {
       "https://cityinbookingapi20251018160614-fxgqdkc6d4hwgjf8.canadacentral-01.azurewebsites.net/api/Wallet/update",
       {
         method: "PUT",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
         body: JSON.stringify(updateWalletPayload),
       }
     );
@@ -241,12 +254,12 @@ export async function POST(req) {
     const baseUrl = process.env.NEXT_PUBLIC_DOMAIN;
 
     const updatedBookingPayload = {
-  ...bookingPayload,
-  bookingMeta: {
-    ...(bookingPayload.bookingMeta || {}),
-    transactionId: transaction.id,
-  },
-};
+      ...bookingPayload,
+      bookingMeta: {
+        ...(bookingPayload.bookingMeta || {}),
+        transactionId: transaction.id,
+      },
+    };
 
     const bookingRes = await fetch(`${baseUrl}/api/bookingConfirm`, {
       method: "POST",
@@ -268,7 +281,6 @@ export async function POST(req) {
           }),
         }
       );
-      
 
       return Response.json({
         success: false,

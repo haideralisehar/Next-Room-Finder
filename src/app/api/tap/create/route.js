@@ -84,6 +84,7 @@
 // }
 
 import { NextResponse } from "next/server";
+import { cookies } from "next/headers";
 
 export async function POST(req) {
   try {
@@ -134,7 +135,7 @@ export async function POST(req) {
       post: {
         url: `${process.env.NEXT_PUBLIC_DOMAIN}/api/tap/webhook`,
       },
-
+        
       redirect: {
         url: `${process.env.NEXT_PUBLIC_DOMAIN}/api/tap/callback`,
       },

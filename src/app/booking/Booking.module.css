@@ -18,7 +18,6 @@
 .inputGroup input,
 .inputGroup select,
 .inputGroup textarea {
-  width: 100%;
   box-sizing: border-box;
 }
 
@@ -56,7 +55,7 @@
   padding: 6px 10px;
   border: 1px solid #ddd;
   border-radius: 6px;
-  font-size: 15px;
+  font-size: 13px;
  
 }
 
@@ -121,6 +120,122 @@
   gap: 8px;
   
 }
+
+
+.phoneWrapper {
+  display: flex;
+  position: relative;
+  background-color: rgba(255, 0, 0, 0);
+  width: 100%;
+}
+
+.countryDropdown {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 10px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  background: #fff;
+  cursor: pointer;
+  width: 50%;
+  margin: 0px 4px 0px 0px;
+  /* max-width: 45%; */
+}
+.inputGroup .mail{
+  width: auto;
+}
+
+.countryDropdown img {
+  width: 22px;
+  height: 16px;
+  border-radius: 3px;
+}
+
+.phoneInput {
+ width: 100%;
+}
+
+.dropdownList {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  width: 35%;
+  max-height: 220px;
+  overflow-y: auto;
+  background: white;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  z-index: 1000;
+}
+
+.countryOption {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 10px;
+  cursor: pointer;
+}
+
+.countryOption:hover {
+  background: #f3f4f6;
+}
+
+.countryOption img {
+  width: 22px;
+  height: 16px;
+  border-radius: 3px;
+}
+
+.countryDropdown {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  padding: 6px 12px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  background: #fff;
+  min-width: 180px;
+}
+
+.countryDropdown img {
+  width: 28px;
+  height: 20px;
+  object-fit: cover;
+  border-radius: 4px;
+}
+
+.countryText {
+  display: flex;
+  flex-direction: row;
+  gap: 5px;
+  /* line-height: 1.1; */
+}
+
+.countryCode {
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.countryName {
+  font-size: 14px;
+  color: #666;
+}
+
+.arrow {
+  margin-left: auto;
+  font-size: 14px;
+  transition: transform 0.2s ease;
+}
+
+.rotate {
+  transform: rotate(180deg);
+}
+
+
+
+
 
 .submitBtn {
   width: 100%;
@@ -205,6 +320,7 @@
   border: 1px solid #eee;
   
 }
+
 
 .hotelImg {
   width: 100px;
@@ -310,7 +426,35 @@
 
 
 /* Responsive */
+@media (max-width: 480px) {
+
+  .phoneWrapper, .row{
+    display: block;
+  }
+  .countryDropdown {
+    margin-top: -3px;
+     width: 100%;
+  }
+
+  .phoneInput{
+    margin-top: 4px;
+    margin-bottom: -2px;
+   
+  }
+  .mail{
+    margin: 0px 2px 0px 2px;
+  }
+  .dropdownList{
+    top: 35px;
+    width: 100%;
+  }
+  .row{
+    gap: 3px;
+  }
+}
 @media (max-width: 780px) {
+
+  
   .summary {
     width: 100%;
   }

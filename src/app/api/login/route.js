@@ -95,6 +95,7 @@ export async function POST(req) {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ userName, password }),
+        credentials: "include"
         
       }
     );
@@ -137,7 +138,7 @@ export async function POST(req) {
       secure: true,
       sameSite: "strict",
       path: "/",
-      maxAge: 86400,
+      maxAge: 60 * 60,
     });
 
     res.cookies.set("userId", userId, {
@@ -145,7 +146,7 @@ export async function POST(req) {
       secure: true,
       sameSite: "strict",
       path: "/",
-      maxAge: 86400,
+      maxAge: 60 * 60, 
     });
 
     res.cookies.set("agencyId", agencyId, {
@@ -153,7 +154,7 @@ export async function POST(req) {
       secure: true,
       sameSite: "strict",
       path: "/",
-      maxAge: 86400,
+      maxAge: 60 * 60, 
     });
 
     console.log("Cookies set successfully");

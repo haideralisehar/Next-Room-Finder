@@ -399,7 +399,107 @@ const handleFilterChange = ({
   const allSelected = updated.filter(Boolean).length === requiredRooms;
 
   // If all required rooms selected → call API
-  if (allSelected) {
+//   if (allSelected) {
+//   try {
+//     setLoadingfetch(true);
+
+//     const body = {
+//       PreBook: true,
+//       CheckInDate: selectedHotelData?.checkInDate.split(" ")[0],
+//       CheckOutDate: selectedHotelData?.checkOutDate.split(" ")[0],
+//       NumOfRooms: selectedHotelData?.room_count?.length || 1,
+//       HotelID: hotelId,
+
+//       OccupancyDetails:
+//         selectedHotelData?.room_count?.map((room, index) => ({
+//           AdultCount: room.adults,
+//           ChildCount: room.children,
+//           RoomNum: index + 1,
+//           ChildAgeDetails: room.childrenAges || [],
+//         })) || [],
+
+//       Currency: "BHD",
+//       Nationality: "IN",
+//       RatePlanID: updated[0].ratePlanId,
+//       IsNeedOnRequest: false,
+//       Metadata: updated[0].metaData,
+//     };
+
+//     // 🚀 CALL BOTH APIs TOGETHER
+//     const [priceRes, agencyRes] = await Promise.all([
+//       fetch("/api/priceConfirm", {
+//         method: "POST",
+//         headers: { "Content-Type": "application/json" },
+//         body: JSON.stringify(body),
+//       }),
+
+//       fetch("/api/getAgencys") // 👈 YOUR API ROUTE
+//     ]);
+
+//     const priceData = await priceRes.json();
+//     const agencyData = await agencyRes.json();
+
+//      console.log("agency", agencyData.agency?.data)
+
+//     // ❌ PRICE ERROR
+//     if (priceData?.parsedObject?.Error) {
+//       alert(priceData?.parsedObject?.Error?.Message);
+//       setLoadingfetch(false);
+//       return;``
+//     }
+
+//     if (!priceData.success) {
+//       dispatch(priceConfirmFailure(priceData.error));
+//       alert(priceData.error || "Unknown error");
+//       setLoadingfetch(false);
+//       return;
+//     }
+
+
+//     const extraAdd=
+//     {
+
+//       ...agencyData.agency || null, 
+//       address: selectedHotelData.location?.address || "",
+//        Discounts: selectedHotelData.Discount,
+//       Markups: selectedHotelData.Markup,
+//       bedtpe: updated[0].bedtpe,
+//       mealType: updated[0].mealType,
+//        tele_phone: selectedHotelData?.telephone,
+//        searchId: selectedHotelData?.SearchId
+
+
+//     }
+
+//     // 🔥 FINAL MERGED RESULT
+//     const modifiedData = {
+//       ...priceData,
+//       // ...agencyData,
+//       agencyDetails: extraAdd,
+//       rating: selectedHotelData.starRating || "",
+//       nights: updated[0].nights || "",
+//       image: selectedHotelData.images?.[0]?.url,
+//       room_cont: selectedHotelData?.room_count,
+     
+      
+//     };
+
+//     dispatch(priceConfirmSuccess(modifiedData));
+//     console.log("Final merged data:", modifiedData);
+
+//     router.push("/booking");
+
+//   } catch (err) {
+//     console.error(err);
+//     alert("Network error! Please try again.");
+//   } finally {
+//     setLoadingfetch(false);
+//   }
+
+//   return;
+// }
+
+if (allSelected) {
   try {
     setLoadingfetch(true);
 
@@ -409,7 +509,6 @@ const handleFilterChange = ({
       CheckOutDate: selectedHotelData?.checkOutDate.split(" ")[0],
       NumOfRooms: selectedHotelData?.room_count?.length || 1,
       HotelID: hotelId,
-
       OccupancyDetails:
         selectedHotelData?.room_count?.map((room, index) => ({
           AdultCount: room.adults,
@@ -417,7 +516,6 @@ const handleFilterChange = ({
           RoomNum: index + 1,
           ChildAgeDetails: room.childrenAges || [],
         })) || [],
-
       Currency: "BHD",
       Nationality: "IN",
       RatePlanID: updated[0].ratePlanId,
@@ -425,68 +523,70 @@ const handleFilterChange = ({
       Metadata: updated[0].metaData,
     };
 
-    // 🚀 CALL BOTH APIs TOGETHER
-    const [priceRes, agencyRes] = await Promise.all([
-      fetch("/api/priceConfirm", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(body),
-      }),
+    /* ===============================
+       1️⃣ CALL AGENCY API FIRST
+    =============================== */
+    const agencyRes = await fetch("/api/getAgencys");
 
-      fetch("/api/getAgencys") // 👈 YOUR API ROUTE
-    ]);
+    if (!agencyRes.ok) {
+      alert("Failed to fetch agency details");
+      return;
+    }
 
-    const priceData = await priceRes.json();
     const agencyData = await agencyRes.json();
 
-     console.log("agency", agencyData.agency?.data)
+    // if (!agencyData?.success) {
+    //   alert(agencyData?.message || "Agency validation failed");
+    //   return;
+    // }
+
+    /* ===============================
+       2️⃣ CALL PRICE CONFIRM API
+    =============================== */
+    const priceRes = await fetch("/api/priceConfirm", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(body),
+    });
+
+    const priceData = await priceRes.json();
 
     // ❌ PRICE ERROR
     if (priceData?.parsedObject?.Error) {
       alert(priceData?.parsedObject?.Error?.Message);
-      setLoadingfetch(false);
-      return;``
+      return;
     }
 
     if (!priceData.success) {
       dispatch(priceConfirmFailure(priceData.error));
       alert(priceData.error || "Unknown error");
-      setLoadingfetch(false);
       return;
     }
 
-
-    const extraAdd=
-    {
-
-      ...agencyData.agency || null, 
+    /* ===============================
+       3️⃣ MERGE DATA
+    =============================== */
+    const extraAdd = {
+      ...agencyData.agency || null,
       address: selectedHotelData.location?.address || "",
-       Discounts: selectedHotelData.Discount,
+      Discounts: selectedHotelData.Discount,
       Markups: selectedHotelData.Markup,
       bedtpe: updated[0].bedtpe,
       mealType: updated[0].mealType,
-       tele_phone: selectedHotelData?.telephone,
-       searchId: selectedHotelData?.SearchId
+      tele_phone: selectedHotelData?.telephone,
+      searchId: selectedHotelData?.SearchId,
+    };
 
-
-    }
-
-    // 🔥 FINAL MERGED RESULT
     const modifiedData = {
       ...priceData,
-      // ...agencyData,
       agencyDetails: extraAdd,
       rating: selectedHotelData.starRating || "",
       nights: updated[0].nights || "",
       image: selectedHotelData.images?.[0]?.url,
       room_cont: selectedHotelData?.room_count,
-     
-      
     };
 
     dispatch(priceConfirmSuccess(modifiedData));
-    console.log("Final merged data:", modifiedData);
-
     router.push("/booking");
 
   } catch (err) {
@@ -498,6 +598,7 @@ const handleFilterChange = ({
 
   return;
 }
+
 
 
   // If not all rooms selected, move to next room slot

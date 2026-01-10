@@ -7,6 +7,7 @@ import "../bookingPage/mybooking.css";
 import "../profile/profile.css";
 import Image from "next/image";
 import CountryCodeSelector from "../components/countryCode"
+import { apiFetch } from "../lib/apiFetch";
 
 export default function ProfilePage() {
   const router = useRouter();
@@ -68,7 +69,7 @@ export default function ProfilePage() {
     async function fetchProfile() {
       try {
          setLoadingfetch(true);
-        const res = await fetch("/api/getAgency");
+        const res = await apiFetch("/api/getAgency");
         const data = await res.json();
 
         if (!res.ok || !data.agency) {
@@ -156,6 +157,7 @@ const uploadImage = async (file) => {
   }
 
   const data = await res.json();
+  console.log(data.imageUrl);
   return data.imageUrl;
 };
 
@@ -287,7 +289,7 @@ const uploadImage = async (file) => {
                 <div className="profile-avatar-section">
                   <div className="avatar-wrapper">
                     <img
-                      src={ preview ? preview : agency.profileImage
+                      src={ preview ? preview : agency.profileImage || "https://www.shutterstock.com/shutterstock/videos/3605058573/thumb/1.jpg?ip=x480"
                         
                         
                         

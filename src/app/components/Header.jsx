@@ -115,7 +115,7 @@ const Header = () => {
             
             
             <li><LanguageSwitcher /></li>
-            <DropdownAlt />
+            {/* <DropdownAlt /> */}
 
             {!token && !userId ? (
               <>
