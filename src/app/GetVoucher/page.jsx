@@ -116,7 +116,7 @@ import Header from "../components/Header";
 
 export default function Page() {
   const booking = useSelector((state) => state.confirmedBooking.bookingData);
-
+console.log("Redux booking:", booking);
    const details = booking?.booking?.Success?.BookingDetails?.Hotel;
    const details1 = booking?.booking?.Success?.BookingDetails;
    const customerRequest = booking?.booking?.Success?.BookingDetails?.CustomerRequest;
