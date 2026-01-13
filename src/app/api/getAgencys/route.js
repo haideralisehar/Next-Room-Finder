@@ -14,15 +14,18 @@ export async function GET(req) {
       );
     }
 
-    const apiUrl = `https://cityinbookingapi20251018160614-fxgqdkc6d4hwgjf8.canadacentral-01.azurewebsites.net/api/SubAgencies/${agencyId}`;
+    const apiUrl = `https://cityinbookingapi20251018160614-fxgqdkc6d4hwgjf8.canadacentral-01.azurewebsites.net/api/SubAgencies/my`;
 
     const response = await fetch(apiUrl, {
       method: "GET",
-      headers: { "Content-Type": "application/json" },
-      // body: JSON.stringify({ userName:"Muhammad Faisal", password:"1122334455" }),
-      // credentials:true,
-      Authorization: `Bearer ${token}`,
+      headers: { 
+        "Content-Type": "application/json",
+         "Authorization": `Bearer ${token}`
+      },
     });
+    
+    
+
 
     if (!response.ok) {
       return NextResponse.json(

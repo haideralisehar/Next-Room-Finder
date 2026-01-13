@@ -85,7 +85,7 @@ export default function DownloadBtn({ booking, onAfterApiSuccess, onStatus }) {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           company: {
-            logo: "/logo.png",
+            logo: booking.logo || "",
             name: booking.agencyname,
             phone: booking.agencyphone,
             email: booking.agencyemail,

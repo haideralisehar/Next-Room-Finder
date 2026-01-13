@@ -1179,6 +1179,7 @@ const isHidden = now > targetTime;
                     viewBookingData?.data?.extraInfo?.data?.agencyAddress,
                   agencyemail:
                     viewBookingData?.data?.extraInfo?.data?.agencyEmail,
+                     logo: viewBookingData?.data?.extraInfo?.data?.logo,
 
                   hotelName:
                     viewBookingData?.data?.fullResponse?.Success?.BookingDetails

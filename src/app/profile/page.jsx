@@ -8,6 +8,8 @@ import "../profile/profile.css";
 import Image from "next/image";
 import CountryCodeSelector from "../components/countryCode"
 import { apiFetch } from "../lib/apiFetch";
+import { Skeletons } from '../components/Skeletons';
+
 
 export default function ProfilePage() {
   const router = useRouter();
@@ -219,11 +221,8 @@ const uploadImage = async (file) => {
 
     if(res.ok){
       console.log(JSON.stringify(data));
-      setSuccess("You have Successfull updated your profile.");
+      setSuccess("You have Successfully updated your profile.");
     }
-
-
-
     
   } catch (err) {
     console.error(err);
@@ -239,18 +238,7 @@ const uploadImage = async (file) => {
     <>
       <Header />
       {loadingfetch && (
-                  <div className="loading-container">
-                    <div className="box">
-                      <Image
-                        className="circular-left-right"
-                        src="/loading_ico.png"
-                        alt="Loading"
-                        width={200}
-                        height={200}
-                      />
-                      <p style={{ fontSize: "13px" }}>Please Wait...</p>
-                    </div>
-                  </div>
+                  <ProfileSkeletons/>
                 )}
       <div className="rprt">My Account</div>
 
@@ -262,14 +250,14 @@ const uploadImage = async (file) => {
         </div>
       )} */}
 
-      {loadings && (
+      {/* {loadings && (
         <div className="update-overlay">
           <div className="update-box">
             <div className="spinner"></div>
             <p className="loading-text">Updating...</p>
           </div>
         </div>
-      )}
+      )} */}
 
       {!loading ? (
         agency   ? (
@@ -457,13 +445,20 @@ const uploadImage = async (file) => {
 
               <div className="update-btn-container">
                 <button
-                  type="button"
-                  onClick={handleUpdate}
-                  disabled={loadings}
-                  className="update-btn"
-                >
-                  {loadings ? "Updating..." : "Update Profile"}
-                </button>
+                type="button"
+                onClick={handleUpdate}
+                disabled={loadings}
+                className="px-5 bg-indigo-600 hover:bg-indigo-600 disabled:opacity-50 text-white font-bold py-4 rounded-2xl shadow-xl shadow-indigo-600/20 transition-all flex items-center justify-center space-x-3 active:scale-[0.98] cursor-pointer"
+              >
+                {loadings ? (
+                  <>
+                    <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin not-allowed" />
+                    <span>Updating Profile...</span>
+                  </>
+                ) : (
+                  <span>Save All Changes</span>
+                )}
+              </button>
               </div>
             </form>
             : ""}
@@ -477,5 +472,58 @@ const uploadImage = async (file) => {
         )
       ) : null}
     </>
+  );
+}
+
+function ProfileSkeletons() {
+  return (
+    <div className="max-w-7xl mx-auto p-4 md:p-8 space-y-8">
+      {/* Header Skeletons */}
+      {/* <div className="space-y-2">
+        <Skeletons width={200} height={32} />
+        <Skeletons width={300} height={16} />
+      </div> */}
+
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+        {/* Col 1 Skeletons */}
+        <div className=" border border-zinc-200 p-8 rounded-3xl space-y-4">
+          <Skeletons width={180} height={24} />
+          <div className="flex flex-col items-center py-4">
+            <Skeletons circle width={128} height={128} />
+          </div>
+          <div className="space-y-6">
+            <div className="space-y-2"><Skeletons width="40%" height={12} /><Skeletons height={44} className="rounded-xl" /></div>
+            <div className="space-y-2"><Skeletons width="40%" height={12} /><Skeletons height={44} className="rounded-xl" /></div>
+            <div className="space-y-2"><Skeletons width="40%" height={12} /><Skeletons height={44} className="rounded-xl" /></div>
+          </div>
+        </div>
+
+        {/* Col 2 Skeletons */}
+        <div className=" border border-zinc-200 p-8 rounded-3xl space-y-4">
+          <Skeletons width={150} height={24} />
+          <div className="space-y-6">
+            <div className="space-y-2"><Skeletons width="40%" height={12} /><Skeletons height={44} className="rounded-xl" /></div>
+            <div className="grid grid-cols-2 gap-4">
+               <div className="space-y-2"><Skeletons width="40%" height={12} /><Skeletons height={44} className="rounded-xl" /></div>
+               <div className="space-y-2"><Skeletons width="40%" height={12} /><Skeletons height={44} className="rounded-xl" /></div>
+            </div>
+            <div className="space-y-2"><Skeletons width="40%" height={12} /><Skeletons height={44} className="rounded-xl" /></div>
+            <div className="space-y-2"><Skeletons width="40%" height={12} /><Skeletons height={44} className="rounded-xl" /></div>
+          </div>
+        </div>
+
+        {/* Col 3 Skeletons */}
+        <div className="border border-zinc-200 p-8 rounded-3xl space-y-4">
+          <Skeletons width={160} height={24} />
+          <div className="space-y-6">
+            <div className="space-y-2"><Skeletons width="40%" height={12} /><Skeletons height={44} className="rounded-xl" /></div>
+            <div className="space-y-2"><Skeletons width="40%" height={12} /><Skeletons height={44} className="rounded-xl" /></div>
+            <div className="pt-10">
+              <Skeletons height={56} className="rounded-2xl" />
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
   );
 }

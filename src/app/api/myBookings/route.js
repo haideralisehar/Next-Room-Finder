@@ -6,6 +6,11 @@ export async function GET(req) {
     const { searchParams } = new URL(req.url);
     const agencyId = searchParams.get("agencyId");
     const hold = searchParams.get("paymentstatus");
+    const cookies = req.cookies;
+
+    
+    const token = cookies.get("token")?.value;
+    
 
     if (!agencyId) {
       return NextResponse.json(
@@ -20,12 +25,20 @@ export async function GET(req) {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
+           "Authorization": `Bearer ${token}`
         },
         cache: "no-store",
       }
     );
 
     const json = await res.json();
+
+    if (json.status === 401) {
+      return NextResponse.json(
+        { success: false, message: "Unauthorized" },
+        { status: 500 }
+      );
+    }
 
     if (!json.success) {
       return NextResponse.json(

@@ -4,11 +4,12 @@ import { cookies } from "next/headers";
 export async function POST(request) {
   try {
     const body = await request.json();
+ const cookies = request.cookies;
 
+   
+    const token = cookies.get("token")?.value;
     // Get agencyId from cookies
-  const agencyId = cookies().get("agencyId")?.value || "undefined";
-  console.log("Cookie agencyId:", agencyId);
-
+  
   // Add agencyId to request body to get Markuped and Discounted prices
   const requestBody = {
     ...body
@@ -21,11 +22,28 @@ export async function POST(request) {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`
       },
       body: JSON.stringify(requestBody),
     });
 
     const data = await response.json();
+
+     if (!response.ok) {
+      const text = await response.text();
+      return NextResponse.json(
+        { error: "Price Confirmation Failed", details: text },
+        { status: response.status }
+      );
+    }
+
+    if(response.status === 401){
+      return NextResponse.json(
+        { error: "Unauthorized User" },
+        { status: response.status }
+      );
+
+    }
 
     return NextResponse.json(data);
   } catch (error) {

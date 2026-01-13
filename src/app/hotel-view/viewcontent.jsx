@@ -528,8 +528,12 @@ if (allSelected) {
     =============================== */
     const agencyRes = await fetch("/api/getAgencys");
 
+    if (agencyRes.status === 401) {
+           alert("Unauthorized User!");
+        }
+
     if (!agencyRes.ok) {
-      alert("Failed to fetch agency details");
+     
       return;
     }
 

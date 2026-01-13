@@ -179,7 +179,7 @@ export default function MyBookingsPage() {
 
       const data = await res.json();
 
-      if (!data?.Success) {
+      if (!data?.success) {
         alert(data?.message);
       }
 
@@ -945,6 +945,7 @@ export default function MyBookingsPage() {
                     viewBookingData?.data?.extraInfo?.data?.agencyAddress,
                   agencyemail:
                     viewBookingData?.data?.extraInfo?.data?.agencyEmail,
+                  logo: viewBookingData?.data?.extraInfo?.data?.logo,
 
                   hotelName:
                     viewBookingData?.data?.fullResponse?.Success?.BookingDetails

@@ -89,6 +89,7 @@ export default function Page() {
           agencyaddress: booking?.agency?.agencyAddress,
           agencyemail: booking?.agency?.agencyEmail,
           cmerreq: customerRequest,
+          logo: booking?.agency?.logo,
 
           hotelName: booking?.booking?.Success?.BookingDetails?.Hotel?.HotelName,
           hotelAddress: booking?.address,

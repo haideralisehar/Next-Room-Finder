@@ -132,14 +132,15 @@ export async function POST(req) {
       agencyId,
     });
 
-    // 🟩 Set cookies only if success is true
     res.cookies.set("token", token, {
-      httpOnly: true,
-      secure: true,
-      sameSite: "strict",
-      path: "/",
-      maxAge: 60 * 60,
-    });
+  httpOnly: true,
+  secure: true,
+  sameSite: "none",
+  path: "/",
+  maxAge: 60 * 60,
+});
+
+
 
     res.cookies.set("userId", userId, {
       httpOnly: false,
