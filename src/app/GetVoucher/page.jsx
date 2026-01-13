@@ -189,25 +189,25 @@ export default function Page() {
   return (
     <>
     <Header/>
-    
+    <p>Hello</p>
     <div style={{ background: "#f3f6fb" }}>
       <DownloadBtn
         booking={{
-          reference: booking?.booking?.Success?.BookingDetails?.BookingID || "Hello",
-          agencyname: booking?.agency?.agencyName || "Hello",
-          agencyphone: booking?.agency?.agencyPhoneNumber || "Hello",
-          agencyaddress: booking?.agency?.agencyAddress || "Hello",
-          agencyemail: booking?.agency?.agencyEmail || "Hello",
-          cmerreq: customerRequest || "Hello",
+          reference: booking?.booking?.Success?.BookingDetails?.BookingID,
+          agencyname: booking?.agency?.agencyName,
+          agencyphone: booking?.agency?.agencyPhoneNumber,
+          agencyaddress: booking?.agency?.agencyAddress,
+          agencyemail: booking?.agency?.agencyEmail,
+          cmerreq: customerRequest,
 
-          hotelName: booking?.booking?.Success?.BookingDetails?.Hotel?.HotelName || "Hello",
-          hotelAddress: booking?.address || "Hello",
-          guestPhone: booking?.tel || "Hello",
+          hotelName: booking?.booking?.Success?.BookingDetails?.Hotel?.HotelName,
+          hotelAddress: booking?.address,
+          guestPhone: booking?.tel,
 
-          arrivalDate: checkIn || "Hello",
-          departureDate: checkOut || "Hello",
+          arrivalDate: checkIn,
+          departureDate: checkOut,
 
-          tableRows || null, // ✅ FINAL ROWS
+          tableRows, // ✅ FINAL ROWS
         }}
       />
 
