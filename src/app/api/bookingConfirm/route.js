@@ -1,11 +1,11 @@
 import { NextResponse } from "next/server";
+import { cookies } from "next/headers";
 
 export async function POST(request) {
   try {
     const body = await request.json();
-     const cookies = request.cookies;
-
-    const token = cookies.get("token")?.value;
+    const cookieStore = await cookies();
+    const token = cookieStore.get("token")?.value;
 
   // Add agencyId to request body to get Markuped and Discounted prices
   const requestBody = {
@@ -19,7 +19,7 @@ export async function POST(request) {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-         "Authorization": `Bearer ${token}`
+        "Authorization": `Bearer ${token}`
       },
       body: JSON.stringify(requestBody),
     });

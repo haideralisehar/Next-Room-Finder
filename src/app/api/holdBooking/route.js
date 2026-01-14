@@ -1,10 +1,15 @@
-import { cookies } from "next/headers";
+ import { cookies, headers } from "next/headers";
 
 export async function POST(req) {
   try {
     const body = await req.json();
     const { orderAmount, bookingPayload, agencyName, searchId, agencyID } =
       body;
+
+
+    const cookieStore = await cookies();   // 🔥 must await
+    const agencyId = cookieStore.get("agencyId")?.value;
+    const token = cookieStore.get("token")?.value;
 
     // const cookieStore = cookies();
     // const token = cookieStore.get("token")?.value;
@@ -92,11 +97,15 @@ export async function POST(req) {
     /* -------------------- 3. CONFIRM BOOKING -------------------- */
     const baseUrl = process.env.NEXT_PUBLIC_DOMAIN;
 
-    const bookingRes = await fetch(`${baseUrl}/api/bookingConfirm`, {
+    const apiUrl =
+      "https://cityinbookingapi20251018160614-fxgqdkc6d4hwgjf8.canadacentral-01.azurewebsites.net/api/dida/booking/confirm";
+
+    const bookingRes = await fetch(apiUrl, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: { "Content-Type": "application/json", "Authorization": `Bearer ${token}` },
       body: JSON.stringify(updatedBookingPayload),
     });
+
 
     const booking = await bookingRes.json();
 

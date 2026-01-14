@@ -116,9 +116,10 @@ export async function POST(req) {
     const body = await req.json();
     const { orderAmount, bookingPayload, agencyName, searchId } = body;
 
-    const cookieStore = cookies();
+    const cookieStore = await cookies();   // 🔥 must await
     const agencyId = cookieStore.get("agencyId")?.value;
     const token = cookieStore.get("token")?.value;
+
 
     if (!agencyId) {
       return Response.json(
@@ -261,11 +262,15 @@ export async function POST(req) {
       },
     };
 
-    const bookingRes = await fetch(`${baseUrl}/api/bookingConfirm`, {
+    const apiUrl =
+      "https://cityinbookingapi20251018160614-fxgqdkc6d4hwgjf8.canadacentral-01.azurewebsites.net/api/dida/booking/confirm";
+
+    const bookingRes = await fetch(apiUrl, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: { "Content-Type": "application/json", "Authorization": `Bearer ${token}` },
       body: JSON.stringify(updatedBookingPayload),
     });
+
 
     const booking = await bookingRes.json();
 
@@ -274,7 +279,7 @@ export async function POST(req) {
         "https://cityinbookingapi20251018160614-fxgqdkc6d4hwgjf8.canadacentral-01.azurewebsites.net/api/WalletTrans/update-status",
         {
           method: "PUT",
-          headers: { "Content-Type": "application/json" },
+          headers: { "Content-Type": "application/json", "Authorization": `Bearer ${token}` },
           body: JSON.stringify({
             transactionId: transaction.id,
             status: "FAILED",
@@ -294,13 +299,15 @@ export async function POST(req) {
       "https://cityinbookingapi20251018160614-fxgqdkc6d4hwgjf8.canadacentral-01.azurewebsites.net/api/WalletTrans/update-status",
       {
         method: "PUT",
-        headers: { "Content-Type": "application/json" },
+        headers: { "Content-Type": "application/json", "Authorization": `Bearer ${token}` },
         body: JSON.stringify({
           transactionId: transaction.id,
           status: "Paid",
         }),
       }
     );
+
+    
 
     return Response.json({
       success: true,
