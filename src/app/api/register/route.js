@@ -14,6 +14,7 @@ export async function POST(req) {
       agencyCRNumber: body.agencyCR,
       agencyCRExpiryDate: new Date(body.agencyCRExpiry).toISOString(),
       agencyAddress: body.agencyAddress,
+      logo: body.logo
     };
 
     // Send to your actual backend API

@@ -67,6 +67,128 @@
   border-color: #6366f1;
 }
 
+.profile-avatar-section {
+  text-align: center;
+  margin-bottom: 0px;
+  background-color: #00000007;
+  border-radius: 12px;
+  border: 1px solid rgb(241, 241, 241);
+}
+
+.avatar-wrapper {
+  position: relative;
+  display: inline-block;
+}
+
+
+.avatar-upload-label {
+  display: block;
+  background-color: #00384d;
+  color: white;
+  font-size: 12px;
+  padding: 0px 12px;
+  border-radius: 6px;
+  margin-top: 1px;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+label{
+    font-size: 14px;
+}
+
+.avatar-upload-label:hover {
+  background-color: #00384d;
+}
+.avatar-wrapper {
+  position: relative;
+  display: inline-block;
+}
+
+.avatar-img {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 3px solid #00384d;
+  transition: 0.3s;
+  margin-top: 8px;
+}
+
+.avatar-img:hover {
+  transform: scale(1.05);
+}
+
+.edit-icon {
+  position: absolute;
+  top: 12px;
+  right: -3px;
+  background-color: #00384d;
+  color: #fff;
+  font-size: 10px;
+  padding: 4px 6px;
+  border-radius: 50%;
+  cursor: pointer;
+  transition: 0.3s ease;
+}
+
+.edit-icon:hover {
+  background-color: #00384d;
+}
+
+
+.profile-logo {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  object-fit: cover;
+  margin-bottom: 10px;
+}
+
+.upload-btn {
+  background-color: #007bff;
+  color: white;
+  padding: 6px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+/* Align update button to the right side of the form */
+.update-btn-container {
+  grid-column: 1 / -1; /* spans all 3 columns */
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 20px;
+}
+
+.update-btn {
+  background: linear-gradient(135deg, #4a90e2, #007aff);
+  color: white;
+  border: none;
+  border-radius: 10px;
+  padding: 10px 20px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: background 0.3s ease;
+}
+
+.update-btn:hover {
+  background: linear-gradient(135deg, #4a90e2, #0162c9);
+}
+
+.update-btn:disabled {
+  background-color: #aaa;
+  cursor: not-allowed;
+}
+
+.errors-text {
+  color: red;
+  text-align: center;
+  background-color: rgb(255, 244, 244);
+  margin-bottom: 15px;
+  border-radius: 8px;
+}
+
 .password-field {
   position: relative;
   display: flex;

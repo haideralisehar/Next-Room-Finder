@@ -126,7 +126,7 @@ export async function POST(req) {
     const cookieStore = await cookies();
     const token = cookieStore.get("token")?.value;
 
-    if (!tap_id || !token) {
+    if (!token) {
       return NextResponse.json(
         { error: "Unauthorized or missing tap_id" },
         { status: 401 }
@@ -141,6 +141,7 @@ export async function POST(req) {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`
         },
       }
     );
@@ -202,6 +203,7 @@ export async function POST(req) {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`
         },
         body: JSON.stringify(updatedWalletStatus),
       }
@@ -228,7 +230,8 @@ export async function POST(req) {
       "https://cityinbookingapi20251018160614-fxgqdkc6d4hwgjf8.canadacentral-01.azurewebsites.net/api/Wallet/my",
       {
         headers: {
-          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        "Authorization": `Bearer ${token}`
         },
       }
     );
@@ -265,8 +268,8 @@ export async function POST(req) {
       {
         method: "PUT",
         headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
+         "Content-Type": "application/json",
+        "Authorization": `Bearer ${token}`
         },
         body: JSON.stringify(updatePayload),
       }
@@ -303,6 +306,7 @@ export async function POST(req) {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
+        "Authorization": `Bearer ${token}`
         },
         body: JSON.stringify(updateWalletStatus),
       }

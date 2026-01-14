@@ -48,6 +48,7 @@ export async function GET(req) {
     const { searchParams } = new URL(req.url);
     const tap_id = searchParams.get("tap_id");
 
+
     if (!tap_id) {
       return NextResponse.json({ error: "Missing tap_id" }, { status: 400 });
     }
@@ -65,8 +66,8 @@ export async function GET(req) {
       //--save the tap_id, walletStatus ="pending", Amount
 
       const agencyId = payment?.metadata?.id_agency;
-    const serviceCharge = Number(payment?.metadata?.serviceCharge || 0);
-    const netAmount = payment.amount - serviceCharge;
+      const serviceCharge = Number(payment?.metadata?.serviceCharge || 0);
+      const netAmount = payment.amount - serviceCharge;
 
       const walletPayload = {
         subAgencyId: agencyId,
@@ -89,21 +90,23 @@ export async function GET(req) {
           {
             method: "POST",
             headers: {
-              "Content-Type": "application/json",
-              // Authorization: `Bearer ${process.env.INTERNAL_API_TOKEN}`,
+              "Content-Type": "application/json"
+              
             },
             body: JSON.stringify(walletPayload),
           }
         );
 
+
         if (!walletRes.ok) {
           console.error("Wallet transaction failed:", await walletRes.text());
-
-          // Payment already captured — do NOT fail the payment
-          return NextResponse.redirect(
-            `${process.env.NEXT_PUBLIC_DOMAIN}/TapPayment/success?tap_id=${tap_id}`
-          );
         }
+
+        //   // Payment already captured — do NOT fail the payment
+        //   return NextResponse.redirect(
+        //     `${process.env.NEXT_PUBLIC_DOMAIN}/TapPayment/success?tap_id=${tap_id}`
+        //   );
+        // }
 
         return NextResponse.redirect(
         `${process.env.NEXT_PUBLIC_DOMAIN}/TapPayment/success?tap_id=${tap_id}`

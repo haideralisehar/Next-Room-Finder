@@ -171,3 +171,58 @@ export async function POST(req) {
     );
   }
 }
+
+
+// import { NextResponse } from "next/server";
+
+// const AZURE_BACKEND_URL = "https://cityinbookingapi20251018160614-fxgqdkc6d4hwgjf8.canadacentral-01.azurewebsites.net";
+
+// export async function POST(req) {
+//   try {
+//     // Read the refresh token from the request body (or cookie, depending on how you store it)
+//     // We are now storing the refresh token in a cookie on the frontend domain.
+//       // Get cookies from the incoming request
+//     const cookieHeader = req.headers.get("cookie") || "";
+
+    
+    
+
+//     // Call Azure backend refresh endpoint with the refresh token in the body
+//     const backendRes = await fetch(
+//       `${AZURE_BACKEND_URL}/api/Auth/refresh`,
+//       {
+//         method: "POST",
+//         headers: {
+//           'Content-Type': 'application/json',
+//         },
+//         body: JSON.stringify({ refreshToken: cookieHeader })
+//       }
+//     );
+
+//     if (!backendRes.ok) {
+//       // ... error handling
+//     }
+
+//     const data = await backendRes.json();
+//     const token = data.token;
+
+
+
+      
+
+//     return NextResponse.json({ 
+//       success: true, 
+//       token: token,
+//       expiresIn: data.expiresIn || 900
+//     });
+//    } catch (error) {
+//     console.error("Refresh endpoint error:", error);
+//     return NextResponse.json(
+//       { 
+//         message: "Internal server error during refresh",
+//         error: "NETWORK_ERROR"
+//       }, 
+//       { status: 500 }
+//     );
+//   }
+// }

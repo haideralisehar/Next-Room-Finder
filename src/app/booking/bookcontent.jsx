@@ -15,6 +15,7 @@ import { useSelector } from "react-redux";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import countryCodes from "../static_data/countrycode";
+import { encryptBookingId } from "../api/utils/bookingHash";
 
 import { useDispatch } from "react-redux";
 import {
@@ -24,6 +25,7 @@ import {
 
 export default function BookingPage() {
   const router = useRouter();
+   const encrypted = encryptBookingId(123215653);
   const { Bhdcurrency, convertPrice } = useBhdCurrency();
   const searchParams = useSearchParams();
   const [showAmenitiesPopup, setShowAmenitiesPopup] = useState(false);
@@ -763,7 +765,7 @@ useEffect(() => {
           : "Booking placed on hold successfully!"
       );
 
-      router.replace("/GetVoucher");
+      router.replace(`/GetVoucher?bid=${encodeURIComponent(encrypted)}`);
     } catch (error) {
       setLoadingfetch(false);
       dispatch(setConfirmedBookingError(error.message));

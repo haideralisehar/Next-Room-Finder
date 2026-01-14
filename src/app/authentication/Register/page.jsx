@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useRef, useEffect   } from "react";
 import "../Register/RegistrationForm.css";
 import Header from "../../components/Header";
 import { useRouter } from "next/navigation";
@@ -8,10 +8,11 @@ import Lottie from "lottie-react";
 import SuccessSvg from "../../../lotti-img/upload.json";
 import ErrorSvg from "../../../lotti-img/error.json";
 import Image from "next/image";
-
+import countryCodes from "../../static_data/countrycode";
 export default function RegistrationForm() {
   const [form, setForm] = useState({
     username: "",
+    countryCodes:"",
     password: "",
     agencyName: "",
     agencyEmail: "",
@@ -21,6 +22,26 @@ export default function RegistrationForm() {
     agencyCRExpiry: "",
   });
 
+  console.log(form);
+
+  const [open, setOpen] = useState(false);
+const dropdownRef = useRef(null);
+
+const usa = countryCodes.find(c => c.code === "+1");
+
+const [selectedCountry, setSelectedCountry] = useState(usa);
+
+useEffect(() => {
+  function handleClickOutside(event) {
+    if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+      setOpen(false);
+    }
+  }
+  document.addEventListener("mousedown", handleClickOutside);
+  return () => document.removeEventListener("mousedown", handleClickOutside);
+}, []);
+
+
   const [errors, setErrors] = useState({});
   const [submitting, setSubmitting] = useState(false);
   const [successPopup, setSuccessPopup] = useState(false);
@@ -28,12 +49,20 @@ export default function RegistrationForm() {
   const [errorMessage, setErrorMessage] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [isRegistering, setisRegistering] = useState(false);
+  const [selectedFile, setSelectedFile] = useState(null);
+  const [preview, setPreview] = useState(null);
+  const [error, setError] = useState(null);
 
   const router = useRouter();
 
   // ✅ Validation function returning an object, not an array
   const validate = () => {
     const e = {};
+    if (!selectedFile) {
+    e.logo = "Agency logo is required.";
+    alert("Hello");
+    }
+    
     if (!form.agencyName.trim()) e.agencyName = "Agency name is required.";
     if (!form.agencyEmail.trim()) e.agencyEmail = "Agency email is required.";
     else if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(form.agencyEmail))
@@ -61,17 +90,51 @@ export default function RegistrationForm() {
     const validation = validate();
     setErrors(validation);
     if (Object.keys(validation).length > 0) return;
-    
 
     setSubmitting(true);
     setErrorMessage("");
 
+    const uploadImage = async (file) => {
+      const formData = new FormData();
+      formData.append("file", file);
+
+      const res = await fetch("/api/pImage", {
+        method: "POST",
+        body: formData,
+      });
+
+      if (!res.ok) {
+        throw new Error("Image upload failed");
+      }
+
+      const data = await res.json();
+      console.log(data.imageUrl);
+      return data.imageUrl;
+    };
+
     try {
-      setisRegistering(true)
+      setisRegistering(true);
+
+      let imageUrl = "";
+
+      /* ───── STEP 1: Upload image ───── */
+      if (selectedFile) {
+        try {
+          imageUrl = await uploadImage(selectedFile);
+        } catch {
+          setError("Image upload failed. Profile not updated.");
+          return;
+        }
+      }
+      const payload = {
+        ...form,
+        logo: imageUrl,
+      };
+
       const res = await fetch("/api/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(form),
+        body: JSON.stringify(payload),
       });
 
       const data = await res.json();
@@ -89,6 +152,7 @@ export default function RegistrationForm() {
           agencyAddress: "",
           agencyCR: "",
           agencyCRExpiry: "",
+          logo: "",
         });
 
         setTimeout(() => {
@@ -103,7 +167,7 @@ export default function RegistrationForm() {
           "An unexpected error occurred. Please try again.";
         setErrorMessage(message);
         setIsShowError(true);
-        setisRegistering(false)
+        setisRegistering(false);
 
         // Close popup after delay
         setTimeout(() => setIsShowError(false), 5000);
@@ -112,11 +176,20 @@ export default function RegistrationForm() {
       console.error("Network error:", error);
       setErrorMessage("Network error. Please check your connection.");
       setIsShowError(true);
-      setisRegistering(false)
+      setisRegistering(false);
       setTimeout(() => setIsShowError(false), 5000);
     } finally {
       setSubmitting(false);
-      setisRegistering(false)
+      setisRegistering(false);
+    }
+  };
+
+  // ✅ Handle file upload preview
+  const handleFileChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setSelectedFile(file);
+      setPreview(URL.createObjectURL(file));
     }
   };
 
@@ -133,22 +206,22 @@ export default function RegistrationForm() {
             </div>
           </div>
         )}
+       
 
         {isRegistering && (
-                     <div className="loading-container">
-                <div className="box">
-                  <Image
-                    className="circular-left-right"
-                    src="/loading_ico.png"
-                    alt="Loading"
-                    width={200}
-                    height={200}
-                  />
-                  <p style={{ fontSize: "13px" }}>Please Wait...</p>
-                </div>
-              </div>
-              
-                    )}
+          <div className="loading-container">
+            <div className="box">
+              <Image
+                className="circular-left-right"
+                src="/loading_ico.png"
+                alt="Loading"
+                width={200}
+                height={200}
+              />
+              <p style={{ fontSize: "13px" }}>Please Wait...</p>
+            </div>
+          </div>
+        )}
 
         {/* ❌ Error Popup */}
         {isShowError && (
@@ -173,6 +246,7 @@ export default function RegistrationForm() {
 
         {/* ✅ Registration Form */}
         <div className="max-w-4xl w-full bg-white rounded-2xl border border-solid border-[#e3e3e3] p-6 md:p-10">
+           <div>{error && <p className="errors-text">{error}</p>}</div>
           <h1 className="text-2xl md:text-3xl font-semibold mb-4 text-gray-800">
             Agency Registration
           </h1>
@@ -180,10 +254,44 @@ export default function RegistrationForm() {
             Fill in your agency details and account credentials.
           </p>
 
+         
+
           <form
             onSubmit={handleSubmit}
             className="grid grid-cols-1 md:grid-cols-2 gap-4"
           >
+            <div className="profile-avatar-section">
+              <div className="avatar-wrapper">
+                <img
+                  src={
+                    preview ||
+                    "https://www.shutterstock.com/shutterstock/videos/3605058573/thumb/1.jpg?ip=x480"
+                  }
+                  onError={(e) => {
+                    e.target.src =
+                      "https://thumbs.dreamstime.com/b/gmail-logo-google-product-icon-logotype-editorial-vector-illustration-vinnitsa-ukraine-october-199405574.jpg";
+                  }}
+                  alt="Profile"
+                  className="avatar-img"
+                />
+                <label htmlFor="profile-upload" className="edit-icon">
+                  ✎
+                </label>
+                <input
+                  id="profile-upload"
+                  type="file"
+                  accept="image/*"
+                  onChange={handleFileChange}
+                  // disabled={loadings}
+                  style={{ display: "none" }}
+                />
+              </div>
+               {errors.logo && (
+  <p className="text-xs text-red-500 mt-2 text-center">
+    {errors.logo}
+  </p>
+)}
+            </div>
             {/* Username */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -274,25 +382,77 @@ export default function RegistrationForm() {
             </div>
 
             {/* Phone */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Agency Phone*
-              </label>
-              <input
-                name="agencyPhone"
-                value={form.agencyPhone}
-                onChange={handleChange}
-                className={`w-full rounded-lg border px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-400 ${
-                  errors.agencyPhone ? "border-red-400" : "border-gray-200"
-                }`}
-                placeholder="+92 300 1234567"
-              />
-              {errors.agencyPhone && (
-                <p className="text-xs text-red-500 mt-1">
-                  {errors.agencyPhone}
-                </p>
-              )}
-            </div>
+           <div ref={dropdownRef}>
+  <label className="block text-sm font-medium text-gray-700 mb-1">
+    Agency Phone*
+  </label>
+
+  <div className="flex border border-gray-300 rounded-lg overflow-hidden  focus:ring-indigo-400">
+
+    
+    {/* Selected Country */}
+    <div
+      className="flex items-center gap-2 px-3 bg-gray-100 cursor-pointer"
+      onClick={() => setOpen(prev => !prev)}
+    >
+      <img
+        src={`https://flagcdn.com/w20/${selectedCountry.iso}.png`}
+        alt=""
+      />
+      <span>{selectedCountry.code}</span>
+      <span>▾</span>
+    </div>
+
+    {/* Phone Number */}
+    <input
+      type="tel"
+      maxLength={13}
+      className="flex-1 px-3 py-2 focus:outline-indigo-400 "
+      placeholder="Phone number"
+      value={form.agencyPhone.replace(selectedCountry.code, "")}
+      onChange={(e) => {
+        const digits = e.target.value.replace(/\D/g, "");
+        setForm(prev => ({
+          ...prev,
+          agencyPhone: selectedCountry.code + digits,
+        }));
+        setErrors(prev => ({ ...prev, agencyPhone: undefined }));
+      }}
+    />
+  </div>
+
+  {/* Dropdown */}
+  {open && (
+    <div className="absolute z-50 bg-gray-100 mt-1 rounded-lg  w-72 max-h-64 overflow-y-auto">
+      {countryCodes.map((c) => (
+        <div
+          key={c.code}
+          className="flex items-center gap-2 px-3 py-2 hover:bg-gray-100 cursor-pointer"
+          onClick={() => {
+            const numberOnly = form.agencyPhone.replace(selectedCountry.code, "");
+            setSelectedCountry(c);
+            setForm(prev => ({
+              ...prev,
+              agencyPhone: c.code + numberOnly,
+            }));
+            setOpen(false);
+          }}
+        >
+          <img src={`https://flagcdn.com/w20/${c.iso}.png`} />
+          <span className="font-medium">{c.code}</span>
+          <span className="text-gray-600 text-sm">{c.name}</span>
+        </div>
+      ))}
+    </div>
+  )}
+
+  {errors.agencyPhone && (
+    <p className="text-xs text-red-500 mt-1">
+      {errors.agencyPhone}
+    </p>
+  )}
+</div>
+
 
             {/* CR Number */}
             <div>

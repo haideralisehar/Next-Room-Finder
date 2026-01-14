@@ -232,6 +232,17 @@ const uploadImage = async (file) => {
   }
 };
 
+const handleRefresh =async() =>{
+    const refreshRes = await fetch("/api/Auth/refresh", {
+      method: "POST",
+      credentials: "include",
+    });
+
+    if (!refreshRes.ok) {
+      alert(refreshRes.status);
+    }
+}
+
 
 
   return (
@@ -241,6 +252,7 @@ const uploadImage = async (file) => {
                   <ProfileSkeletons/>
                 )}
       <div className="rprt">My Account</div>
+      <button onClick={handleRefresh}>refresh</button>
 
       {/* ✅ Loading Overlay */}
       {/* {loading && (

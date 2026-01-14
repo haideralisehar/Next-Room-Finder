@@ -110,12 +110,24 @@
 
 "use client";
 import React from "react";
+import { useSearchParams } from "next/navigation";
 import { useSelector } from "react-redux";
 import DownloadBtn from "../print/Voucher/DownloadBtn";
 import Header from "../components/Header";
+import { decryptBookingId  } from "../api/utils/bookingHash";
 
 export default function Page() {
   const booking = useSelector((state) => state.confirmedBooking.bookingData);
+
+  const params = useSearchParams();
+  const encryptedId = params.get("bid");
+
+  const bookingId = decryptBookingId(encryptedId);
+
+  if (!bookingId) {
+    return <h2>Invalid or Expired Booking Link</h2>;
+  }
+
 
    const details = booking?.booking?.Success?.BookingDetails?.Hotel;
    const details1 = booking?.booking?.Success?.BookingDetails;
@@ -189,7 +201,7 @@ export default function Page() {
   return (
     <>
     <Header/>
-    
+    <p>{`old ${encryptedId} new ${bookingId}`}</p>
     <div style={{ background: "#f3f6fb" }}>
       <DownloadBtn
         booking={{
