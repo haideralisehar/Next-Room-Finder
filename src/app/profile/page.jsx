@@ -252,7 +252,7 @@ const handleRefresh =async() =>{
                   <ProfileSkeletons/>
                 )}
       <div className="rprt">My Account</div>
-      <button onClick={handleRefresh}>refresh</button>
+      <button onClick={handleRefresh}>refresh now</button>
 
       {/* ✅ Loading Overlay */}
       {/* {loading && (
