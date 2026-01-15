@@ -397,8 +397,8 @@ export default function DownloadBtn({ booking, onAfterApiSuccess, onStatus }) {
         setnotissued(data); // ✅ success
         setissued(null);
         setisHold(false);
-        onAfterApiSuccess();
-        onStatus();
+        // onAfterApiSuccess();
+        // onStatus();
       } else {
         setissued(data);
         console.log(data.datas); // ❌ error
@@ -425,7 +425,7 @@ export default function DownloadBtn({ booking, onAfterApiSuccess, onStatus }) {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           company: {
-            logo: "/logo.png",
+            logo: booking.logo,
             name: booking.agencyname,
             phone: booking.agencyphone,
             email: booking.agencyemail,

@@ -118,7 +118,7 @@ import { decryptBookingId  } from "../api/utils/bookingHash";
 
 export default function Page() {
   const booking = useSelector((state) => state.confirmedBooking.bookingData);
-<<<<<<< HEAD
+
 
   const params = useSearchParams();
   const encryptedId = params.get("bid");
@@ -130,9 +130,9 @@ export default function Page() {
   }
 
 
-=======
+
 console.log("Redux booking:", booking);
->>>>>>> 61748fcb3a991bb9dc96ff2ae9c90aca4fbd4fc0
+
    const details = booking?.booking?.Success?.BookingDetails?.Hotel;
    const details1 = booking?.booking?.Success?.BookingDetails;
    const customerRequest = booking?.booking?.Success?.BookingDetails?.CustomerRequest;
@@ -205,11 +205,11 @@ console.log("Redux booking:", booking);
   return (
     <>
     <Header/>
-<<<<<<< HEAD
+
     <p>{`old ${encryptedId} new ${bookingId}`}</p>
-=======
+
     <p>Hello</p>
->>>>>>> 61748fcb3a991bb9dc96ff2ae9c90aca4fbd4fc0
+
     <div style={{ background: "#f3f6fb" }}>
       <DownloadBtn
         booking={{

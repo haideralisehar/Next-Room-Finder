@@ -104,6 +104,123 @@ border: 1px solid rgb(209, 209, 209);
   background-color: rgb(0, 102, 255);
 }
 
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  animation: fadeIn 0.3s ease forwards;
+  z-index: 1000;
+}
+
+.modal-box {
+  background: #fff;
+  padding:20px 30px;
+  border-radius: 8px;
+  width: auto;
+  /* max-width: 400px; */
+  text-align: center;
+  transform: scale(0.9);
+  animation: scaleIn 0.3s ease forwards;
+}
+
+.modal-actions {
+  margin-top: 20px;
+  display: flex;
+  justify-content: center;
+  gap: 14px;
+}
+
+.btn {
+  padding: 8px 18px;
+  cursor: pointer;
+  background: #ebebeb;
+  border: 1px solid rgb(207, 207, 207);
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 500;
+}
+.btn:hover{
+  background-color: rgb(219, 219, 219);
+}
+
+.btn.danger {
+  background: #ec0d0d;
+  border: 1px solid red;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 500;
+  color: white;
+}
+.btn.danger:hover{
+  background-color: red;
+}
+
+.cancel-btn {
+  background: #d68383;
+  border: 1px solid red;
+  color: white;
+  padding: 6px 16px;
+  border-radius: 6px;
+  border: none;
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes scaleIn {
+  from { transform: scale(0.9); }
+  to { transform: scale(1); }
+}
+/* --- Loading Spinner --- */
+.loading-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center; /* center horizontally */
+  align-items: center;     /* center vertically */
+  background: rgba(0, 0, 0, 0.4); /* optional dim background */
+  z-index: 9999;
+}
+.box {
+  width: 120px;            /* set any size you want */
+  height: 120px;
+  background-color: rgb(255, 255, 255);
+  display: flex;           /* center contents */
+  flex-direction: column;  /* stack spinner + text */
+  justify-content: center; /* center vertically */
+  align-items: center;     /* center horizontally */
+  border-radius: 10px;
+  padding: 20px;
+}
+
+
+.spinner {
+  width: 40px;
+  height: 20px;
+  border: 5px solid #ddd;
+  border-top: 5px solid #0070f3; /* Next.js blue or your theme color */
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-bottom: 15px;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+
 @media (max-width: 900px) {
   .pdf-show{
   padding:10px 15px

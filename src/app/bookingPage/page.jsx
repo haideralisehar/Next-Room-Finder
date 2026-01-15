@@ -5,6 +5,7 @@ import Header from "../components/Header";
 import Cookies from "js-cookie";
 import Image from "next/image";
 import DownloadBtn from "../print/Voucher/DownloadBtn";
+import { encryptBookingObject } from "../api/utils/voucherdta";
 
 export default function MyBookingsPage() {
   const [filters, setFilters] = useState({
@@ -151,12 +152,12 @@ export default function MyBookingsPage() {
   /* =========================
      Actions
   ========================= */
-  const handleView = (booking) => {
-    console.log(viewBookingData);
-    setOpenActionId(null);
-    setViewBookingData(booking);
-    setShowCancelModalview(true);
-  };
+  // const handleView = (booking) => {
+  //   console.log(viewBookingData);
+  //   setOpenActionId(null);
+  //   setViewBookingData(booking);
+  //   setShowCancelModalview(true);
+  // };
 
   const handleCancel = (id) => {
     setOpenActionId(null);
@@ -284,6 +285,70 @@ export default function MyBookingsPage() {
 
     return () => clearInterval(timer);
   }, []);
+
+  const handleView = (booking) => {
+    setOpenActionId(null);
+    setViewBookingData(booking);
+
+     const dataBook = {
+      price: Number(
+                    booking?.data?.extraInfo?.finalPrice
+                  ).toFixed(2),
+                  agencyIds: booking?.agencys,
+                  // trans_id: viewBookingData?.data?.extraInfo?.transactionId,
+                  isShow: isShows,
+                  reference: booking?.data?.bookingID,
+                  searchId: booking?.data?.searchId,
+                  agencyname:
+                    booking?.data?.extraInfo?.data?.agencyName,
+                  agencyphone:
+                    booking?.data?.extraInfo?.data?.agencyPhoneNumber,
+                  agencyaddress:
+                    booking?.data?.extraInfo?.data?.agencyAddress,
+                  agencyemail:
+                    booking?.data?.extraInfo?.data?.agencyEmail,
+                  logo: booking?.data?.extraInfo?.data?.logo,
+
+                  hotelName:
+                    booking?.data?.fullResponse?.Success?.BookingDetails
+                      ?.Hotel?.HotelName,
+
+                  BookingID:
+                    booking?.data?.fullResponse?.Success?.BookingDetails
+                      ?.BookingID,
+                  hotelAddress: booking?.data?.extraInfo?.address,
+                  guestPhone: booking?.data?.extraInfo?.tele_phone,
+
+                  cmerreq: CustomerRequest,
+
+                  arrivalDate:
+                    booking?.data?.fullResponse?.Success?.BookingDetails?.CheckInDate.split(
+                      " "
+                    )[0],
+                  departureDate:
+                    booking?.data?.fullResponse?.Success?.BookingDetails?.CheckOutDate.split(
+                      " "
+                    )[0],
+                  hDetail: booking?.data?.fullResponse?.Success?.BookingDetails?.GuestList,
+
+                  hotelDet: booking?.data?.fullResponse?.Success?.BookingDetails?.Hotel?.RatePlanList,
+
+                  bType: booking?.data?.extraInfo?.bedtpe,
+                  mType: booking?.data?.extraInfo?.mealType
+
+     };
+    
+    const encrypted = encryptBookingObject(dataBook);
+    const safe = encodeURIComponent(encrypted);
+
+    window.open(
+              `/DsrHoldVoucher?voucher=${safe}`,
+              "_blank"
+            );
+
+    // router.replace(`/DsrHoldVoucher?voucher=${safe}`);
+
+  };
 
   return (
     <>

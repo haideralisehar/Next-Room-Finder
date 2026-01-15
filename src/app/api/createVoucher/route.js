@@ -379,7 +379,7 @@ export async function POST(req) {
   }
   
 .company-logo{
-    background-color: rgb(28, 28, 173);
+    // background-color: rgb(28, 28, 173);
     padding: 30px 10px;
     border-radius: 6px;
 }
@@ -568,7 +568,7 @@ export async function POST(req) {
 
   <div class="voucher-header">
     <div class="company-logo">
-      <img src="https://cityin.net/uploads/travel-images/settings-files/0487a1c52501fbaa20b0907990e2f3c1.png" width="120" />
+      <img src=${company.logo} width="120" height="40" />
     </div>
     <div class="company-info">
       <p><strong>Company Name:</strong> ${company.name}</p>
