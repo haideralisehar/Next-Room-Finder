@@ -4,7 +4,6 @@ import Slider from "rc-slider";
 import "rc-slider/assets/index.css";
 import "../results/ResultsPage.css";
 import "../styling/filter.css";
-import { useCurrency } from "../Context/CurrencyContext";
 
 export default function Filters({
   filters,
@@ -13,35 +12,48 @@ export default function Filters({
   showMap,
   setShowMap,
 }) {
-  const { currency } = useCurrency();
-
-  // local state for smooth dragging
+  // Local state for smooth slider UI
   const [localRange, setLocalRange] = useState([0, 2000]);
 
-  const fallbackMax = useMemo(() => {
-    if (!currency) return 2000;
-    return currency.toUpperCase() === "SAR" ? 50000 : 2000;
-  }, [currency]);
-
+  // Static max price (BHD only)
   const computedMax = useMemo(() => {
-    const stored = Number(filters?.maxPrice || 0);
-    return Math.max(stored, fallbackMax);
-  }, [filters?.maxPrice, fallbackMax]);
+    const storedMax = Number(filters?.maxPrice || 0);
+    return Math.max(storedMax, 2000);
+  }, [filters?.maxPrice]);
 
-  // Reset slider range when currency or max changes
+  /* --------------------------------------------------
+     Reset slider + related filter values
+     -------------------------------------------------- */
+  const resetSlider = () => {
+    const fullRange = [0, computedMax];
+
+    setLocalRange(fullRange);
+
+    setFilters((prev) => ({
+      ...prev,
+      priceRange: fullRange,
+      minPrice: 0,
+      maxPrice: computedMax,
+    }));
+  };
+
+  /* --------------------------------------------------
+     Reset everything when max price changes
+     -------------------------------------------------- */
   useEffect(() => {
     const fullRange = [0, computedMax];
+
     setLocalRange(fullRange);
 
     setFilters((prev) => ({
       ...prev,
       title: "",
-     rating: "",
-     minPrice: 0,
+      rating: "",
+      minPrice: 0,
       priceRange: fullRange,
       maxPrice: computedMax,
     }));
-  }, [computedMax]);
+  }, [computedMax, setFilters]);
 
   return (
     <aside className="filters">
@@ -57,7 +69,7 @@ export default function Filters({
           width: "100%",
           height: "120px",
           backgroundColor: "#f7f7f7",
-          margin: "0 0 20px 0",
+          marginBottom: "20px",
           borderRadius: "8px",
           border: "1px solid #eaeaea",
           overflow: "hidden",
@@ -90,10 +102,18 @@ export default function Filters({
         </div>
       </div>
 
-      <button className="clear-btn-clear" onClick={clearFilters}>
+      {/* Clear Filters */}
+      <button
+        className="clear-btn-clear"
+        onClick={() => {
+          clearFilters();   // existing logic
+          resetSlider();    // 🔥 explicit slider reset
+        }}
+      >
         Clear Filters
       </button>
 
+      {/* HOTEL NAME */}
       <div className="filter-group">
         <p>Hotel Name</p>
         <input
@@ -113,6 +133,7 @@ export default function Filters({
         />
       </div>
 
+      {/* RATING */}
       <div className="filter-group">
         <p>Guest Rating</p>
         {["4+", "3+", "2+", "1+"].map((rate) => (
@@ -131,42 +152,34 @@ export default function Filters({
         ))}
       </div>
 
-      {/* PRICE RANGE SLIDER */}
+      {/* PRICE RANGE */}
       <div className="filter-group">
-        <p>Price Range ({currency})</p>
+        <p>Price Range (BHD)</p>
 
         <Slider
-  range
-  min={0}
-  max={computedMax}
-  value={localRange}
-
-  // 👇 Live update while dragging (updates UI instantly)
-  onChange={(value) => {
-    setLocalRange(value);
-    setFilters((prev) => ({
-      ...prev,
-      priceRange: value,
-      maxPrice: computedMax,
-    }));
-  }}
-
-  // 👇 Called only after the user stops dragging
-  onChangeComplete={(value) => {
-    setFilters((prev) => ({
-      ...prev,
-      priceRange: value,
-      maxPrice: computedMax,
-    }));
-  }}
-/>
-
+          range
+          min={0}
+          max={computedMax}
+          value={localRange}
+          onChange={(value) => {
+            setLocalRange(value);
+            setFilters((prev) => ({
+              ...prev,
+              priceRange: value,
+            }));
+          }}
+          onChangeComplete={(value) => {
+            setFilters((prev) => ({
+              ...prev,
+              priceRange: value,
+            }));
+          }}
+        />
 
         <p>
-          ({currency}){localRange[0]} – ({currency}){localRange[1]}
+          (BHD) {localRange[0]} – (BHD) {localRange[1]}
         </p>
       </div>
     </aside>
   );
 }
-

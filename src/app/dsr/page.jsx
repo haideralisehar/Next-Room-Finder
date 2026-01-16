@@ -167,7 +167,6 @@
 //                       </div>
 //                     </div>
 //                   )}
-      
 
 //       <div className="dsr-container">
 //         {/* ================= Filters ================= */}
@@ -335,16 +334,15 @@ export default function MyBookingsPage() {
 
   const [now, setNow] = React.useState(new Date());
 
-React.useEffect(() => {
-  const timer = setInterval(() => {
-    setNow(new Date());
-  }, 1000); // ⏱ checks every second (use 60000 for 1 min)
+  React.useEffect(() => {
+    const timer = setInterval(() => {
+      setNow(new Date());
+    }, 1000); // ⏱ checks every second (use 60000 for 1 min)
 
-  return () => clearInterval(timer);
-}, []);
-const targetTime = new Date("1/10/2026, 3:35:41 AM");
-const isHidden = now > targetTime;
-
+    return () => clearInterval(timer);
+  }, []);
+  const targetTime = new Date("1/10/2026, 3:35:41 AM");
+  const isHidden = now > targetTime;
 
   // 🔹 Handle input change
   const handleChange = (e) => {
@@ -454,41 +452,43 @@ const isHidden = now > targetTime;
     }
   };
 
- 
+  function getFinalRefund(
+    refundAmount,
+    activeVoid,
+    voidFee,
+    voidType,
+    voidserviceResponse
+  ) {
+    if (!activeVoid) return refundAmount;
 
-        function getFinalRefund(refundAmount, activeVoid, voidFee, voidType, voidserviceResponse) {
-        if (!activeVoid) return refundAmount;
-       
+    if (
+      !Array.isArray(voidserviceResponse) ||
+      voidserviceResponse.length === 0
+    ) {
+      return refundAmount;
+    }
 
-         if (!Array.isArray(voidserviceResponse) || voidserviceResponse.length === 0) {
-          return refundAmount;
-        }
+    if (!voidFee || !voidType) return refundAmount;
 
-        if (!voidFee || !voidType) return refundAmount;
+    if (voidType === "Amount") {
+      return refundAmount - voidFee;
+    }
 
-        if (voidType === "Amount") {
-          return (refundAmount - voidFee);
-        }
+    if (voidType === "Percentage") {
+      return refundAmount - (refundAmount * voidFee) / 100;
+    }
 
-        if (voidType === "Percentage") {
-          return (refundAmount - (refundAmount * voidFee) / 100);
-        }
+    return refundAmount;
+  }
 
-        return refundAmount;
-      }
-
-
-
-
-    /* =========================
+  /* =========================
      Actions
   ========================= */
   // const handleView = (booking, price) => {
   //   setOpenActionId(null);
   //   setViewBookingData(booking);
   //   setShowCancelModalview(true);
-  // };     
-
+  // };
 
   // const handleCancel = (id) => {
   //   setOpenActionId(null);
@@ -505,8 +505,6 @@ const isHidden = now > targetTime;
     setSelectedBookingId(id);
     setrefundAmounts(price);
     setShowCancelModal(true);
-
-    
   };
 
   const confirmCancelBooking = async () => {
@@ -526,7 +524,7 @@ const isHidden = now > targetTime;
 
       const data = await res.json();
       console.log("check", data);
-       console.log("check", data.voidServiceResponse);
+      console.log("check", data.voidServiceResponse);
 
       if (!data?.success) {
         throw new Error(data?.message || "Cancel booking failed");
@@ -548,14 +546,18 @@ const isHidden = now > targetTime;
       // 3️⃣ Calculate refunded balance
       const refundAmount = refundAmounts; // adjust as needed
       const activeVoid = data?.voidServiceResponse?.[0]?.isActive;
-      const voidFee =  data?.voidServiceResponse?.[0]?.voidFee;
-      const voidType =  data?.voidServiceResponse?.[0]?.voidType;
+      const voidFee = data?.voidServiceResponse?.[0]?.voidFee;
+      const voidType = data?.voidServiceResponse?.[0]?.voidType;
       const voidserviceResponse = data.voidServiceResponse;
 
-
-      const finalRefund = getFinalRefund(refundAmount, activeVoid, voidFee, voidType, voidserviceResponse)
+      const finalRefund = getFinalRefund(
+        refundAmount,
+        activeVoid,
+        voidFee,
+        voidType,
+        voidserviceResponse
+      );
       const newBalance = wallet.availableBalance + finalRefund;
-
 
       // 4️⃣ Update wallet
       const updateWalletPayload = {
@@ -688,81 +690,69 @@ const isHidden = now > targetTime;
     };
   }, [showCancelModal, showCancelModalview]);
 
-  
-   const handleView = (booking) => {
-      setOpenActionId(null);
-      setViewBookingData(booking);
-      const gList = booking?.data?.fullResponse?.Success?.BookingDetails?.GuestList;
-       const dataBook = {
-        price: Number(
-                      booking?.data?.extraInfo?.finalPrice
-                    ).toFixed(2),
-                    agencyIds: booking?.agencys,
-                    
-                    reference: booking?.data?.bookingID,
-                    searchId: booking?.data?.searchId,
-                    agencyname:
-                      booking?.data?.extraInfo?.data?.agencyName,
-                    agencyphone:
-                      booking?.data?.extraInfo?.data?.agencyPhoneNumber,
-                    agencyaddress:
-                      booking?.data?.extraInfo?.data?.agencyAddress,
-                    agencyemail:
-                      booking?.data?.extraInfo?.data?.agencyEmail,
-                    logo: booking?.data?.extraInfo?.data?.logo,
-  
-                    hotelName:
-                      booking?.data?.fullResponse?.Success?.BookingDetails
-                        ?.Hotel?.HotelName,
-  
-                    BookingID:
-                      booking?.data?.fullResponse?.Success?.BookingDetails
-                        ?.BookingID,
-                    hotelAddress: booking?.data?.extraInfo?.address,
-                    guestPhone: booking?.data?.extraInfo?.tele_phone,
-  
-                    cmerreq: CustomerRequest,
-  
-                    arrivalDate:
-                      booking?.data?.fullResponse?.Success?.BookingDetails?.CheckInDate.split(
-                        " "
-                      )[0],
-                    departureDate:
-                      booking?.data?.fullResponse?.Success?.BookingDetails?.CheckOutDate.split(
-                        " "
-                      )[0],
-                   hDetail: booking?.data?.fullResponse?.Success?.BookingDetails?.GuestList,
+  const handleView = (booking) => {
+    setOpenActionId(null);
+    setViewBookingData(booking);
+    const gList =
+      booking?.data?.fullResponse?.Success?.BookingDetails?.GuestList;
+    const dataBook = {
+      price: Number(booking?.data?.extraInfo?.finalPrice).toFixed(2),
+      agencyIds: booking?.agencys,
 
-                  hotelDet: booking?.data?.fullResponse?.Success?.BookingDetails?.Hotel?.RatePlanList,
+      reference: booking?.data?.bookingID,
+      searchId: booking?.data?.searchId,
+      agencyname: booking?.data?.extraInfo?.data?.agencyName,
+      agencyphone: booking?.data?.extraInfo?.data?.agencyPhoneNumber,
+      agencyaddress: booking?.data?.extraInfo?.data?.agencyAddress,
+      agencyemail: booking?.data?.extraInfo?.data?.agencyEmail,
+      logo: booking?.data?.extraInfo?.data?.logo,
 
-                  bType: booking?.data?.extraInfo?.bedtpe,
-                  mType: booking?.data?.extraInfo?.mealType
-       }
-      
-      const encrypted = encryptBookingObject(dataBook);
-      const safe = encodeURIComponent(encrypted);
-  
-      window.open(
-                `/DsrHoldVoucher?voucher=${safe}`,
-                "_blank"
-              );
-  
-      // router.replace(`/DsrHoldVoucher?voucher=${safe}`);
-  
+      hotelName:
+        booking?.data?.fullResponse?.Success?.BookingDetails?.Hotel?.HotelName,
+
+      BookingID:
+        booking?.data?.fullResponse?.Success?.BookingDetails?.BookingID,
+      hotelAddress: booking?.data?.extraInfo?.address,
+      guestPhone: booking?.data?.extraInfo?.tele_phone,
+
+      cmerreq: CustomerRequest,
+
+      arrivalDate:
+        booking?.data?.fullResponse?.Success?.BookingDetails?.CheckInDate.split(
+          " "
+        )[0],
+      departureDate:
+        booking?.data?.fullResponse?.Success?.BookingDetails?.CheckOutDate.split(
+          " "
+        )[0],
+      hDetail: booking?.data?.fullResponse?.Success?.BookingDetails?.GuestList,
+
+      hotelDet:
+        booking?.data?.fullResponse?.Success?.BookingDetails?.Hotel
+          ?.RatePlanList,
+
+      bType: booking?.data?.extraInfo?.bedtpe,
+      mType: booking?.data?.extraInfo?.mealType,
     };
+
+    const encrypted = encryptBookingObject(dataBook);
+    const safe = encodeURIComponent(encrypted);
+
+    window.open(`/DsrHoldVoucher?voucher=${safe}`, "_blank");
+
+    // router.replace(`/DsrHoldVoucher?voucher=${safe}`);
+  };
 
   return (
     <>
       <Header />
-{/* {now.toLocaleString()}
+      {/* {now.toLocaleString()}
 
 {!isHidden && (
   <div className="p-3 bg-blue-100">
     Visible until {targetTime.toLocaleTimeString()}
   </div>
 )} */}
-
-      
 
       {/* {!permissions &&
         
@@ -866,29 +856,30 @@ const isHidden = now > targetTime;
             </div>
           </div>
           <div className="bg-rose-50/50 border border-rose-100 p-2 rounded-2xl mb-3 mt-3 flex items-center gap-4">
-          <div className="w-10 h-10 bg-rose-500 rounded-2xl flex items-center justify-center shrink-0">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              className="h-5 w-5 text-white"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2.5}
-                d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
-              />
-            </svg>
+            <div className="w-10 h-10 bg-rose-500 rounded-2xl flex items-center justify-center shrink-0">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="h-5 w-5 text-white"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2.5}
+                  d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
+                />
+              </svg>
+            </div>
+            <p className="text-rose-900 text-xs font-bold leading-relaxed">
+              <span className="text-rose-600 uppercase tracking-tighter mr-1">
+                Alert:
+              </span>
+              Ensure cancellations are performed before the limit date. Once the
+              time gone you will not be able to cancel booking.
+            </p>
           </div>
-          <p className="text-rose-900 text-xs font-bold leading-relaxed">
-            <span className="text-rose-600 uppercase tracking-tighter mr-1">
-              Alert:
-            </span>
-            Ensure cancellations are performed before the limit date. Once the time gone you will not be able to cancel booking.
-          </p>
-        </div>
 
           {/* 🔹 Result info */}
           {/* {results.length > 0 && (
@@ -900,156 +891,164 @@ const isHidden = now > targetTime;
             </div>
           )} */}
 
-           {results.length > 0 && (
-          <div className="text-slate-700 text-[11px] font-bold flex justify-between mx-3 my-1 px-4 py-1">
-            {results.length} Result(s) Found
-            <span className="text-slate-700 text-[11px] font-bold flex justify-between">
-              Page {currentPage} of {totalPages}
-            </span>
-          </div>
-        )}
+          {results.length > 0 && (
+            <div className="text-slate-700 text-[11px] font-bold flex justify-between mx-3 my-1 px-4 py-1">
+              {results.length} Result(s) Found
+              <span className="text-slate-700 text-[11px] font-bold flex justify-between">
+                Page {currentPage} of {totalPages}
+              </span>
+            </div>
+          )}
 
           {/* 🔹 Table */}
-          <div className="overflow-x-auto"> {/*overflow-x-auto */}
-          <table className="w-full text-left border-collapse mb-10">
-            <thead>
-              <tr className="bg-slate-50 border-b border-slate-200 text-slate-500 text-[11px] uppercase tracking-widest font-bold">
-                <th className="px-6 py-4 w-16 text-center">Action</th>
-                <th className="px-6 py-4">Booking ID</th>
-                <th className="px-6 py-4">Leader Name</th>
-                <th className="px-6 py-4">Agency</th>
-                <th className="px-6 py-4">Status</th>
-                <th className="px-6 py-4">Booked Date</th>
-                <th className="px-6 py-4">Cancellation Till</th>
-                <th className="px-6 py-4 text-center">Final Price</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-slate-100">
-              {loading ? (
-                <tr>
-                  <td colSpan={8} className="py-20 text-center">
-                    <div className="inline-flex items-center gap-3">
-                      <div className="w-4 h-4 border-2 border-slate-300 border-t-slate-800 rounded-full animate-spin"></div>
-                      <span className="text-slate-500 font-medium">
-                        Fetching secure records...
-                      </span>
-                    </div>
-                  </td>
+          <div className="overflow-x-auto">
+            {" "}
+            {/*overflow-x-auto */}
+            <table className="w-full text-left border-collapse mb-10">
+              <thead>
+                <tr className="bg-slate-50 border-b border-slate-200 text-slate-500 text-[11px] uppercase tracking-widest font-bold">
+                  <th className="px-6 py-4 w-16 text-center">Action</th>
+                  <th className="px-6 py-4">Booking ID</th>
+                  <th className="px-6 py-4">Leader Name</th>
+                  <th className="px-6 py-4">Agency</th>
+                  <th className="px-6 py-4">Status</th>
+                  <th className="px-6 py-4">Booked Date</th>
+                  <th className="px-6 py-4">Cancellation Till</th>
+                  <th className="px-6 py-4 text-center">Final Price</th>
                 </tr>
-              ) : results.length > 0 ? (
-                currentRecords.map((r) => (
-                  <tr
-                    key={r.id}
-                    className="hover:bg-slate-50 transition-colors group"
-                  >
-                    <td className="px-6 py-4 relative text-center">
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setOpenActionId(openActionId === r.id ? null : r.id);
-                        }}
-                        className="w-8 h-8  flex items-center justify-center rounded-lg hover:bg-white hover:shadow-md text-slate-400 hover:text-slate-900 transition-all border border-transparent hover:border-slate-200 cursor-pointer"
-                      >
-                        <svg
-                          xmlns="http://www.w3.org/2000/svg"
-                          className="h-5 w-5"
-                          viewBox="0 0 20 20"
-                          fill="currentColor"
+              </thead>
+              <tbody className="divide-y divide-slate-100">
+                {loading ? (
+                  <tr>
+                    <td colSpan={8} className="py-20 text-center">
+                      <div className="inline-flex items-center gap-3">
+                        <div className="w-4 h-4 border-2 border-slate-300 border-t-slate-800 rounded-full animate-spin"></div>
+                        <span className="text-slate-500 font-medium">
+                          Fetching secure records...
+                        </span>
+                      </div>
+                    </td>
+                  </tr>
+                ) : results.length > 0 ? (
+                  currentRecords.map((r) => (
+                    <tr
+                      key={r.id}
+                      className="hover:bg-slate-50 transition-colors group"
+                    >
+                      <td className="px-6 py-4 relative text-center">
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setOpenActionId(
+                              openActionId === r.id ? null : r.id
+                            );
+                          }}
+                          className="w-8 h-8  flex items-center justify-center rounded-lg hover:bg-white hover:shadow-md text-slate-400 hover:text-slate-900 transition-all border border-transparent hover:border-slate-200 cursor-pointer"
                         >
-                          <path d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z" />
-                        </svg>
-                      </button>
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            className="h-5 w-5"
+                            viewBox="0 0 20 20"
+                            fill="currentColor"
+                          >
+                            <path d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z" />
+                          </svg>
+                        </button>
 
-                      {openActionId === r.id && (
-                        <div
-                          className="absolute left-16 overflow-y-auto top-4  w-48 bg-white rounded-xl shadow-xl border border-slate-200 z-0  ring-1 ring-black/5 animate-in fade-in slide-in-from-left-2 duration-200"
-                          onClick={(e) => e.stopPropagation()}
-                        >
-                          <div className="py-1">
-                            {/* View Details */}
-                            {/* <button
+                        {openActionId === r.id && (
+                          <div
+                            className="absolute left-16 overflow-y-auto top-4  w-48 bg-white rounded-xl shadow-xl border border-slate-200 z-0  ring-1 ring-black/5 animate-in fade-in slide-in-from-left-2 duration-200"
+                            onClick={(e) => e.stopPropagation()}
+                          >
+                            <div className="py-1">
+                              {/* View Details */}
+                              {/* <button
 
                             {/* Issue Voucher */}
-                            <button
-                              onClick={() => handleView(r, r.finalPrice)}
-                              disabled={
-                                r.status === "CANCELLED" ||
-                                r.status === "FAILED"
-                              }
-                              className={`w-full text-left px-4 py-2 text-xs font-semibold flex items-center gap-2
+                              <button
+                                onClick={() => handleView(r, r.finalPrice)}
+                                disabled={
+                                  r.status === "CANCELLED" ||
+                                  r.status === "FAILED"
+                                }
+                                className={`w-full text-left px-4 py-2 text-xs font-semibold flex items-center gap-2
                               ${
                                 ["CANCELLED", "FAILED"].includes(r.status)
                                   ? "text-slate-400 cursor-not-allowed opacity-60"
                                   : "text-slate-700 hover:bg-slate-50 cursor-pointer"
                               }`}
-                            >
-                              <svg
-                                xmlns="http://www.w3.org/2000/svg"
-                                className="h-3.5 w-3.5 text-emerald-500"
-                                fill="none"
-                                viewBox="0 0 24 24"
-                                stroke="currentColor"
                               >
-                                <path
-                                  strokeLinecap="round"
-                                  strokeLinejoin="round"
-                                  strokeWidth={2}
-                                  d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
-                                />
-                              </svg>
-                              View & Download
-                            </button>
+                                <svg
+                                  xmlns="http://www.w3.org/2000/svg"
+                                  className="h-3.5 w-3.5 text-emerald-500"
+                                  fill="none"
+                                  viewBox="0 0 24 24"
+                                  stroke="currentColor"
+                                >
+                                  <path
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    strokeWidth={2}
+                                    d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                                  />
+                                </svg>
+                                View & Download
+                              </button>
 
-                            <div className="h-px bg-slate-100 my-1"></div>
+                              <div className="h-px bg-slate-100 my-1"></div>
 
-                            {/* Cancel Booking */}
-                            {(() => {
-                              // const now = new Date();
-                               const cancellationDateTime = new Date(r.cancelationDate);
-                          const adjustedCancellationTime = new Date(
-                            cancellationDateTime.getTime() - 60 * 1000 // ⏱ minus 1 minute
-                          );
-                              const isExpired = now > adjustedCancellationTime;
-                              const isCancelled = [
-                                "CANCELLED",
-                                "FAILED",
-                              ].includes(r.status);
+                              {/* Cancel Booking */}
+                              {(() => {
+                                // const now = new Date();
+                                const cancellationDateTime = new Date(
+                                  r.cancelationDate
+                                );
+                                const adjustedCancellationTime = new Date(
+                                  cancellationDateTime.getTime() - 60 * 1000 // ⏱ minus 1 minute
+                                );
+                                const isExpired =
+                                  now > adjustedCancellationTime;
+                                const isCancelled = [
+                                  "CANCELLED",
+                                  "FAILED",
+                                ].includes(r.status);
 
-                              const disabled = isExpired || isCancelled;
+                                const disabled = isExpired || isCancelled;
 
-                              return (
-                                <button
-                                  onClick={() =>
-                                    !disabled && handleCancel(r.id, r.TotalPrice)
-                                  }
-                                  className={`w-full text-left px-4 py-2 text-xs font-semibold flex items-center gap-2
+                                return (
+                                  <button
+                                    onClick={() =>
+                                      !disabled &&
+                                      handleCancel(r.id, r.TotalPrice)
+                                    }
+                                    className={`w-full text-left px-4 py-2 text-xs font-semibold flex items-center gap-2
               ${
                 now > adjustedCancellationTime
                   ? "text-rose-300 cursor-not-allowed opacity-60"
                   : "text-rose-600 hover:bg-rose-50 cursor-pointer"
               }`}
-                                >
-                                  <svg
-                                    xmlns="http://www.w3.org/2000/svg"
-                                    className="h-3.5 w-3.5"
-                                    fill="none"
-                                    viewBox="0 0 24 24"
-                                    stroke="currentColor"
                                   >
-                                    <path
-                                      strokeLinecap="round"
-                                      strokeLinejoin="round"
-                                      strokeWidth={2}
-                                      d="M6 18L18 6M6 6l12 12"
-                                    />
-                                  </svg>
-                                  Cancel Booking
-                                </button>
-                              );
-                            })()}
+                                    <svg
+                                      xmlns="http://www.w3.org/2000/svg"
+                                      className="h-3.5 w-3.5"
+                                      fill="none"
+                                      viewBox="0 0 24 24"
+                                      stroke="currentColor"
+                                    >
+                                      <path
+                                        strokeLinecap="round"
+                                        strokeLinejoin="round"
+                                        strokeWidth={2}
+                                        d="M6 18L18 6M6 6l12 12"
+                                      />
+                                    </svg>
+                                    Cancel Booking
+                                  </button>
+                                );
+                              })()}
 
-                            {/* Void / Settlement */}
-                            {/* <button
+                              {/* Void / Settlement */}
+                              {/* <button
         onClick={() => handleSettlement(r.id)}
         className="w-full text-left px-4 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50 flex items-center gap-2 cursor-pointer"
       >
@@ -1058,31 +1057,31 @@ const isHidden = now > targetTime;
         </svg>
         Void
       </button> */}
+                            </div>
                           </div>
-                        </div>
-                      )}
-                    </td>
-                    <td className="px-6 py-4">
-                      <span className="text-slate-700 text-[11px] font-bold ">
-                        {r.id || "Not Available"}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4">
-                      <div className="text-slate-700 text-[11px] font-bold ">
-                        {r.leader}
-                        {/* {r.leader?.firstName || r.leader?.lastName
+                        )}
+                      </td>
+                      <td className="px-6 py-4">
+                        <span className="text-slate-700 text-[11px] font-bold ">
+                          {r.id || "Not Available"}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4">
+                        <div className="text-slate-700 text-[11px] font-bold ">
+                          {r.leader}
+                          {/* {r.leader?.firstName || r.leader?.lastName
   ? `${r.leader?.firstName ?? ""} ${r.leader?.lastName ?? ""}`.trim()
   : "Not Available"} */}
-                      </div>
-                    </td>
-                    <td className="px-6 py-4">
-                      <div className="text-slate-700 text-[11px] font-bold ">
-                        {r.agencyName}
-                      </div>
-                    </td>
-                    <td className="px-6 py-4">
-                      <span
-                        className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider
+                        </div>
+                      </td>
+                      <td className="px-6 py-4">
+                        <div className="text-slate-700 text-[11px] font-bold ">
+                          {r.agencyName}
+                        </div>
+                      </td>
+                      <td className="px-6 py-4">
+                        <span
+                          className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider
                           ${
                             r.status === "Confirmed"
                               ? "bg-emerald-100 text-emerald-700"
@@ -1090,89 +1089,89 @@ const isHidden = now > targetTime;
                               ? "bg-amber-100 text-amber-700"
                               : "bg-red-300 text-slate-40"
                           }`}
-                      >
-                        {r.status}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4">
-                      <div className="text-slate-700 text-[11px] font-bold ">
-                        {r.date}
-                      </div>
-                    </td>
-                    <td className="px-6 py-4">
-                      <div className="text-slate-700 text-[11px] font-bold flex items-center gap-1.5">
-                        <svg
-                          xmlns="http://www.w3.org/2000/svg"
-                          className="h-3.5 w-3.5 text-rose-400"
-                          fill="none"
-                          viewBox="0 0 24 24"
-                          stroke="currentColor"
                         >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth={2}
-                            d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
-                          />
-                        </svg>
+                          {r.status}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4">
+                        <div className="text-slate-700 text-[11px] font-bold ">
+                          {r.date}
+                        </div>
+                      </td>
+                      <td className="px-6 py-4">
+                        <div className="text-slate-700 text-[11px] font-bold flex items-center gap-1.5">
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            className="h-3.5 w-3.5 text-rose-400"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                            stroke="currentColor"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
+                            />
+                          </svg>
 
                           {(() => {
-                          // const now = new Date();
+                            // const now = new Date();
 
-                          const cancellationDateTime = new Date(r.cancelationDate);
-                          const adjustedCancellationTime = new Date(
-                            cancellationDateTime.getTime() - 60 * 1000 // ⏱ minus 1 minute
-                          );
+                            const cancellationDateTime = new Date(
+                              r.cancelationDate
+                            );
+                            const adjustedCancellationTime = new Date(
+                              cancellationDateTime.getTime() - 60 * 1000 // ⏱ minus 1 minute
+                            );
 
-                          return now > adjustedCancellationTime
-                            ? "Finalized"
-                            : formatDateTimeExact(adjustedCancellationTime);
-                        })()}
-
-                        
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 text-center">
-                      <div className="text-slate-700 text-[11px] font-bold ">
-                        {Number(r.finalPrice).toFixed(2)}
+                            return now > adjustedCancellationTime
+                              ? "Finalized"
+                              : formatDateTimeExact(adjustedCancellationTime);
+                          })()}
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 text-center">
+                        <div className="text-slate-700 text-[11px] font-bold ">
+                          {Number(r.finalPrice).toFixed(2)}
+                        </div>
+                      </td>
+                    </tr>
+                  ))
+                ) : (
+                  <tr>
+                    <td colSpan={8} className="py-32 text-center">
+                      <div className="max-w-xs mx-auto space-y-3">
+                        <div className="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center mx-auto text-slate-300">
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            className="h-8 w-8"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                            stroke="currentColor"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                            />
+                          </svg>
+                        </div>
+                        <p className="text-slate-400 font-bold text-lg">
+                          No records found
+                        </p>
+                        <p className="text-slate-400 text-sm">
+                          Try adjusting your filters or use different search
+                          keywords.
+                        </p>
                       </div>
                     </td>
                   </tr>
-                ))
-              ) : (
-                <tr>
-                  <td colSpan={8} className="py-32 text-center">
-                    <div className="max-w-xs mx-auto space-y-3">
-                      <div className="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center mx-auto text-slate-300">
-                        <svg
-                          xmlns="http://www.w3.org/2000/svg"
-                          className="h-8 w-8"
-                          fill="none"
-                          viewBox="0 0 24 24"
-                          stroke="currentColor"
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth={2}
-                            d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                          />
-                        </svg>
-                      </div>
-                      <p className="text-slate-400 font-bold text-lg">
-                        No records found
-                      </p>
-                      <p className="text-slate-400 text-sm">
-                        Try adjusting your filters or use different search
-                        keywords.
-                      </p>
-                    </div>
-                  </td>
-                </tr>
-              )}
-            </tbody>
-          </table>
-        </div>
+                )}
+              </tbody>
+            </table>
+          </div>
         </div>
       )}
 
@@ -1241,7 +1240,7 @@ const isHidden = now > targetTime;
                     viewBookingData?.data?.extraInfo?.data?.agencyAddress,
                   agencyemail:
                     viewBookingData?.data?.extraInfo?.data?.agencyEmail,
-                     logo: viewBookingData?.data?.extraInfo?.data?.logo,
+                  logo: viewBookingData?.data?.extraInfo?.data?.logo,
 
                   hotelName:
                     viewBookingData?.data?.fullResponse?.Success?.BookingDetails
@@ -1271,10 +1270,6 @@ const isHidden = now > targetTime;
     </>
   );
 }
-
-
-
-
 
 //  <div className="results">
 //             {loading ? (
@@ -1372,8 +1367,6 @@ const isHidden = now > targetTime;
 //                                 Cancel
 //                               </div>;
 //                           })()}
-                          
-                              
 
 //                               {/* VOID / SETTLEMENT */}
 //                               <div

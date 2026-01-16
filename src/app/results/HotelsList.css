@@ -16,12 +16,17 @@
   opacity: 0;                 /* ✅ START HIDDEN */
   transform: translateY(20px);
   transition:
-    opacity 0.5s ease,
+    opacity 0s ease,
     transform 0.5s ease;
   transition-delay: var(--delay, 0ms);
 }
 
 .hotel-card.show {
+  opacity: 1;
+  transform: translateY(0);
+}
+/* When list view is active, force cards visible */
+.hotel-results .hotel-card {
   opacity: 1;
   transform: translateY(0);
 }

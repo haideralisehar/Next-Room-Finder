@@ -152,9 +152,9 @@ export default function ResultsContent() {
   const [filters, setFilters] = useState({
     title: "",
     rating: "",
-    minPrice: 0,
+    minPrice: 1,
     maxPrice: 2000,
-    priceRange: [0, 2000],
+    priceRange: [1, 2000],
   });
 
   function clearFilters() {
@@ -162,7 +162,7 @@ export default function ResultsContent() {
       ...prev,
       title: "",
       rating: "",
-      priceRange: [0, prev.maxPrice || 2000],
+      priceRange: [1, prev.maxPrice || 2000],
     }));
   }
 
@@ -265,7 +265,7 @@ export default function ResultsContent() {
     const convertedPrices = results
       .map((h) => {
         const raw = Number(h?.priceInfo?.LowestPrice?.Value) || 0;
-        const conv = parseConvertedNumber(convertPrice(raw));
+        const conv = parseConvertedNumber(raw);
         return Number.isFinite(conv) && conv > 0 ? conv : 0;
       })
       .filter((p) => p > 0);
@@ -307,7 +307,7 @@ export default function ResultsContent() {
 
     const applyConvertedPrice = (hotel) => {
       const raw = Number(hotel?.priceInfo?.LowestPrice?.Value) || 0;
-      return parseConvertedNumber(convertPrice(raw));
+      return parseConvertedNumber(raw);
     };
 
     let data = results.filter((hotel) => {
@@ -337,7 +337,7 @@ export default function ResultsContent() {
     if (sortOption) {
       const getConv = (h) => {
         const raw = Number(h?.priceInfo?.LowestPrice?.Value || 0);
-        return parseConvertedNumber(convertPrice(raw));
+        return parseConvertedNumber(raw);
       };
 
       data = [...data].sort((a, b) => {
@@ -684,7 +684,7 @@ export default function ResultsContent() {
 
 
                         return (
-                          <div className="hotel-card" key={hotel.id}   style={{ "--delay": `${Math.random() * 120}ms` }}>
+                          <div className="hotel-card" key={hotel.id}   style={{ "--delay": `${Math.random() * 1200}ms` }}>
                             <div className="hotel-img-wrapper">
                               <img
                                 src={encodeURI(

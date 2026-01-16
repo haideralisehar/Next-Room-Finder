@@ -46,16 +46,15 @@ export async function apiFetch(url, options = {}) {
 
   if (res.status !== 401) return res;
 
-  // try refresh
+  // 🔁 refresh via Next API
   const refreshRes = await fetch("/api/Auth/refresh", {
     method: "POST",
     credentials: "include",
   });
 
   if (!refreshRes.ok) {
-    // window.location.href = "/authentication/login";
-    alert("Unauthorized User!");
-    return;
+    window.location.href = "/authentication/login";
+    throw new Error("Session expired");
   }
 
   // retry original request
