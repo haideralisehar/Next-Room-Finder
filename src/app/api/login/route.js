@@ -159,13 +159,13 @@ export async function POST(req) {
       maxAge: 60 * 60, 
     });
 
-    // res.cookies.set("refreshToken", refreshToken, {
-    //   httpOnly: true,
-    //   secure: true,
-    //   sameSite: "strict",
-    //   path: "/",
-    //   maxAge: 60 * 60, 
-    // });
+    res.cookies.set("refreshToken", refreshToken, {
+      httpOnly: true,
+      secure: true,
+      sameSite: "strict",
+      path: "/",
+      maxAge: 60 * 60, 
+    });
 
     console.log("Cookies set successfully");
     return res;
