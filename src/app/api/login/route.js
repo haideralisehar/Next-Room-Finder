@@ -113,6 +113,7 @@ export async function POST(req) {
     // 🟩 Extract token & user info
     const userId = data.user?.id;
     const token = data.token;
+    const refreshToken = data.refreshToken;
     const agencyId = data.user?.agencyId;
 
     if (!userId || !token) {
@@ -157,6 +158,14 @@ export async function POST(req) {
       path: "/",
       maxAge: 60 * 60, 
     });
+
+    // res.cookies.set("refreshToken", refreshToken, {
+    //   httpOnly: true,
+    //   secure: true,
+    //   sameSite: "strict",
+    //   path: "/",
+    //   maxAge: 60 * 60, 
+    // });
 
     console.log("Cookies set successfully");
     return res;

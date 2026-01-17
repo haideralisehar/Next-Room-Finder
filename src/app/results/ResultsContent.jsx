@@ -915,8 +915,8 @@ export default function ResultsContent() {
                 <MapWithPrices
                   roomCount={room_counts}
                   hotels={filteredResults}
-                  Discount={meta.AppliedDiscount || ""}
-                  Markup={meta.AppliedMarkup || ""}
+                  Discount={meta?.AppliedDiscount || ""}
+                  Markup={meta?.AppliedMarkup || ""}
                 />
               </div>
             )}

@@ -270,7 +270,7 @@ console.log(formData.rooms)
       nationality: formData.destination,
       starRating: formData.starRating ? Number(formData.starRating) : null,
     };
-
+    
     
      dispatch(startSearch());  
     // Save request for reuse in Redux

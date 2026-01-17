@@ -1,4 +1,4 @@
-import { NextResponse } from "next/server";
+import { NextResponse } from "next/server";z
 
 export async function POST(req) {
   const backendRes = await fetch(
@@ -7,7 +7,7 @@ export async function POST(req) {
       method: "POST",
       credentials: "include",
       headers: {
-  cookie: req.headers.get("cookie") ?? "",
+      cookie: req.headers.get("cookie") ?? "",
 }
     }
   );
@@ -17,7 +17,8 @@ export async function POST(req) {
   }
 
   const data = await backendRes.json();
-
+  console.log(data.token);
+console.log(data.token);
   const res = NextResponse.json({ success: true });
 
   res.cookies.set("token", data.token, {
@@ -25,7 +26,7 @@ export async function POST(req) {
     secure: true,
     sameSite: "none",
     path: "/",
-    maxAge: 60 * 2,
+    maxAge: 60 * 60,
   });
 
   return res;

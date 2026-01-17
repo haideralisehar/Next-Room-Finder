@@ -1,10 +1,57 @@
 "use client";
-import React from "react";
+import React, {useState, useMemo, useEffect} from "react";
 import Slider from "rc-slider";
 import "rc-slider/assets/index.css";
 import "../styling/MobFilter.css";
 
 export default function MobFilter({ filters, setFilters, clearFilters, handlePopupToggle }) {
+   // Local state for smooth slider UI
+    const [localRange, setLocalRange] = useState([1, 2000]);
+  
+    // Static max price (BHD only)
+    const computedMax = useMemo(() => {
+      const storedMax = Number(filters?.maxPrice || 0);
+      return Math.max(storedMax, 2000);
+    }, [filters?.maxPrice]);
+  
+    /* --------------------------------------------------
+       Reset slider + related filter values
+       -------------------------------------------------- */
+    const resetSlider = () => {
+      const fullRange = [0, computedMax];
+  
+      setLocalRange(fullRange);
+  
+      setFilters((prev) => ({
+        ...prev,
+        priceRange: fullRange,
+        minPrice: 1,
+        maxPrice: computedMax,
+      }));
+    };
+  
+    /* --------------------------------------------------
+       Reset everything when max price changes
+       -------------------------------------------------- */
+    useEffect(() => {
+      const fullRange = [0, computedMax];
+  
+      setLocalRange(fullRange);
+  
+      setFilters((prev) => ({
+        ...prev,
+        title: "",
+        rating: "",
+        minPrice: 1,
+        priceRange: fullRange,
+        maxPrice: computedMax,
+      }));
+    }, [computedMax, setFilters]);
+
+     const clearD=() => {
+          clearFilters();   // existing logic
+          resetSlider();    // 🔥 explicit slider reset
+        };
   return (
     <div className="mobile-main-filter">
       <h3>Filter</h3>
@@ -49,25 +96,38 @@ export default function MobFilter({ filters, setFilters, clearFilters, handlePop
         ))}
       </div>
 
-      {/* Price Range */}
+      {/* PRICE RANGE */}
       <div className="filter-group">
-        <p>Price Range ($)</p>
+        <p>Price Range (BHD)</p>
+
         <Slider
           range
-          min={0}
-          max={1000}
-          defaultValue={filters.priceRange}
-          value={filters.priceRange}
-          onChange={(value) => setFilters({ ...filters, priceRange: value })}
+          min={1}
+          max={computedMax}
+          value={localRange}
+          onChange={(value) => {
+            setLocalRange(value);
+            setFilters((prev) => ({
+              ...prev,
+              priceRange: value,
+            }));
+          }}
+          onChangeComplete={(value) => {
+            setFilters((prev) => ({
+              ...prev,
+              priceRange: value,
+            }));
+          }}
         />
+
         <p>
-          ${filters.priceRange[0]} – ${filters.priceRange[1]}
+          (BHD) {localRange[0]} – (BHD) {localRange[1]}
         </p>
       </div>
 
       {/* Buttons */}
       <div className="btn-appRe">
-        <button className="resets-btn" onClick={clearFilters}>
+        <button className="resets-btn" onClick={clearD}>
           Reset
         </button>
         <button className="applys-btn" onClick={handlePopupToggle}>

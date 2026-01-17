@@ -5,6 +5,7 @@ import { useState } from "react";
 import "../Wallet/WalletPopup.css";
 import Cookies from "js-cookie";
 import Image from "next/image";
+import { apiFetch } from "../lib/apiFetch";
 
 class WalletPopup extends Component {
   constructor(props) {
@@ -136,8 +137,8 @@ class WalletPopup extends Component {
     try {
       // Call both API requests at the same time
       const [walletRes, loyaltyRes] = await Promise.all([
-        fetch(`/api/wallet`),
-        fetch(`/api/getLotality?agencyId=${agencyId}`),
+        apiFetch(`/api/wallet`),
+        apiFetch(`/api/getLotality?agencyId=${agencyId}`),
       ]);
 
       if (!walletRes.ok || !loyaltyRes.ok) {

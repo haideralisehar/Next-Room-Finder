@@ -120,7 +120,8 @@ export default function MapWithPrices({ hotels = [], Discount, Markup, roomCount
                   hotel.location.coordinate.longitude,
                 ]}
                 icon={createPriceIcon(
-                  hotel.priceInfo?.LowestPrice?.Value*roomCount.length, "BHD"
+                  (hotel.priceInfo?.LowestPrice?.Value*hotel?.priceInfo?.RatePlanList?.[0]?.PriceList
+                                    .length *roomCount.length).toFixed(2), "BHD"
                   // currency
                 )}
               >
@@ -156,7 +157,8 @@ export default function MapWithPrices({ hotels = [], Discount, Markup, roomCount
                       <p className="popup-price">
                         {/* {convertPrice(hotel.priceInfo?.LowestPrice?.Value)}{" "} */}
                         {/* {currency} */}
-                        {hotel.priceInfo?.LowestPrice?.Value * roomCount.length} {"BHD"}
+                        {(hotel.priceInfo?.LowestPrice?.Value*hotel?.priceInfo?.RatePlanList?.[0]?.PriceList
+                                    .length *roomCount.length).toFixed(2)} {"BHD"}
                       </p>
 
                       <button className="popup-button"

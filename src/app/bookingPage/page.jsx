@@ -6,7 +6,7 @@ import Cookies from "js-cookie";
 import Image from "next/image";
 import DownloadBtn from "../print/Voucher/DownloadBtn";
 import { encryptBookingObject } from "../api/utils/voucherdta";
-
+import { apiFetch } from "../lib/apiFetch";
 export default function MyBookingsPage() {
   const [filters, setFilters] = useState({
     bookingId: "",
@@ -60,7 +60,7 @@ export default function MyBookingsPage() {
       // const agencyId = "58499949-0de8-4c41-a313-478679ce2faa";
       const hold = "pending";
 
-      const res = await fetch(
+      const res = await apiFetch(
         `/api/myBookings?agencyId=${agencyId}&paymentstatus=${hold}`
       );
       const json = await res.json();
